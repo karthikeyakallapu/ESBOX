@@ -7,7 +7,7 @@ class UserRepository:
     @staticmethod
     async def check_user_exists(db, email: str, username: str):
         result = await db.execute(
-            select(User.email, User.username).where(
+            select(User).where(
                 or_(
                     User.email == email,
                     User.username == username

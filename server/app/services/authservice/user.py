@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 from app.helpers.auth import hash_password, verify_password, create_access_token
 from app.logger import logger
@@ -14,18 +14,17 @@ class UserService:
 
     async def register_user(self, db, user):
         try:
-
             existing_user = await self.user_repo.check_user_exists(db, user.email, user.username)
 
             if existing_user:
                 if existing_user.email == user.email:
                     raise HTTPException(
-                        status_code=400,
+                        status_code=status.HTTP_409_CONFLICT,
                         detail="Email already exists"
                     )
                 if existing_user.username == user.username:
                     raise HTTPException(
-                        status_code=400,
+                        status_code=status.HTTP_409_CONFLICT,
                         detail="Username already exists"
                     )
 
@@ -36,11 +35,11 @@ class UserService:
             await db.refresh(user)
 
             return user
-        except HTTPException:
-            raise
+        except HTTPException as e:
+            raise e
         except Exception as e:
             logger.error(e)
-            return e
+            raise HTTPException(status_code=500, detail="Internal server error")
 
     async def login_user(self, db, user):
         try:
@@ -66,7 +65,8 @@ class UserService:
 
             return token
 
-        except HTTPException:
-            raise
+        except HTTPException as e:
+            raise e
         except Exception as e:
             logger.error(e)
+            raise HTTPException(status_code=500, detail="Internal server error")
