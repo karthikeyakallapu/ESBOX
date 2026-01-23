@@ -19,7 +19,8 @@ class Settings(BaseSettings):
     database_url: str
 
     # JWT Config
-    token_secret: str
+    access_token_secret: str
+    refresh_token_secret: str
     algorithm: str
 
 

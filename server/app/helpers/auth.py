@@ -18,16 +18,40 @@ def verify_password(plain_password, hashed_password):
     return password_hash.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None):
+def create_token(token_type, data: dict, expires_delta: timedelta | None = None):
     try:
+        if not expires_delta:
+            logger.error("No expiry time")
+            return None
+
         to_encode = data.copy()
-        if expires_delta:
-            expire = datetime.now(timezone.utc) + expires_delta
-        else:
-            expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+        expire = datetime.now(timezone.utc) + expires_delta
+
         to_encode.update({"exp": expire})
-        encoded_jwt = jwt.encode(to_encode, settings.token_secret, algorithm=settings.algorithm)
+
+        secret = settings.access_token_secret if token_type == "ACCESS" else settings.refresh_token_secret
+
+        encoded_jwt = jwt.encode(to_encode, secret, algorithm=settings.algorithm)
         return encoded_jwt
     except Exception as e:
         logger.error(e)
         raise e
+
+
+def decode_token(token: str, token_type: str = "ACCESS"):
+    """Decode and verify JWT token"""
+    try:
+        secret = settings.access_token_secret if token_type == "ACCESS" else settings.refresh_token_secret
+        payload = jwt.decode(token, secret, algorithms=[settings.algorithm])
+        return payload
+    except jwt.ExpiredSignatureError:
+        logger.error("Token has expired")
+        return None
+    except jwt.InvalidTokenError as e:
+        logger.error(f"Invalid token: {e}")
+        return None
+    except Exception as e:
+        logger.error(f"Token decode error: {e}")
+        return None
+
