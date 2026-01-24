@@ -109,6 +109,8 @@ async def refresh_token(
             )
 
         return result
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logger.error(e)
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
@@ -139,6 +141,8 @@ async def logout(request: Request, response: Response, db: AsyncSession = Depend
         response.delete_cookie(key="refresh_token")
 
         return result
+    except HTTPException as e:
+        raise e
     except Exception as e:
         logger.error(e)
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
