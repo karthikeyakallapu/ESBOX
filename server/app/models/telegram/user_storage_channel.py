@@ -7,7 +7,7 @@ from app.db.base_class import Base
 class UserStorageChannel(Base):
     __tablename__ = 'user_storage_channels'
     id = Column(Integer, primary_key=True, autoincrement=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'), ondelete='CASCADE', unique=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), unique=True)
 
     channel_id = Column(BigInteger, nullable=False, index=True)
     channel_title = Column(String, default='ESBox', nullable=False)
