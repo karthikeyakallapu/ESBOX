@@ -17,3 +17,4 @@ class User(Base):
     is_verified = Column(Boolean, default=False)
 
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
+    telegram_sessions = relationship("TelegramSession", back_populates="user", cascade="all, delete-orphan")

@@ -23,5 +23,14 @@ class Settings(BaseSettings):
     refresh_token_secret: str
     algorithm: str
 
+    # Telegram Auth
+    telegram_api_id: str
+    telegram_api_hash: str
+    session_encryption_key: str
+
+    # Redis Configuration
+    redis_host: str
+    redis_port: int
+
 
 settings = Settings()

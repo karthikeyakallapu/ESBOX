@@ -12,6 +12,7 @@ from app.config import settings
 from app.logger import logger
 from app.api.v1.router import router as api_router
 from app.db.db import check_db
+from app.services.telegram.client_manager import telegram_client_manager
 
 
 @asynccontextmanager
@@ -19,7 +20,9 @@ async def lifespan(app: FastAPI):
     await check_db()
     logger.info("Started server on port {}".format(settings.port))
     yield
-    logger.info("Stopping Server")
+    logger.info("Stopping Server - Cleaning up Telegram clients...")
+    await telegram_client_manager.clean_up_all_local_cache()
+    logger.info("Server stopped")
 
 
 app = FastAPI(title=settings.title, version=settings.version, lifespan=lifespan)

@@ -10,8 +10,11 @@ from app.logger import logger
 
 from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse
 from app.services.authservice.user import UserService
+from app.api.v1.tele_router import router as telegram_router
 
 router = APIRouter()
+
+router.include_router(telegram_router, prefix="/telegram")
 
 user_service = UserService()
 
