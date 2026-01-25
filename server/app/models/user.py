@@ -18,3 +18,4 @@ class User(Base):
 
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
     telegram_sessions = relationship("TelegramSession", back_populates="user", cascade="all, delete-orphan")
+    user_storage_channels = relationship("UserStorageChannel", back_populates="user", cascade="all, delete-orphan")

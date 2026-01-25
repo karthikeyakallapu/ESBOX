@@ -9,7 +9,7 @@ from app.dependencies.auth import get_current_user
 from app.logger import logger
 
 from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse
-from app.services.authservice.user import UserService
+from app.services.auth.user import UserService
 from app.api.v1.tele_router import router as telegram_router
 
 router = APIRouter()
