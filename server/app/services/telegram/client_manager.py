@@ -141,8 +141,8 @@ class TelegramClientManager:
 
         session_string = None
 
-        if record.session_string:
-            session_string = encryption.decrypt(record.session_string)
+        if record.encrypted_session:
+            session_string = encryption.decrypt(record.encrypted_session)
 
         redis_service.set_key(
             self._get_redis_key(user_id),
