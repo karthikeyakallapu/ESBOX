@@ -56,6 +56,9 @@ class UserService:
             if not valid_password:
                 raise HTTPException(status_code=400, detail="Invalid password")
 
+            if existing_user and not existing_user.is_verified:
+                raise HTTPException(status_code=400, detail="Please Verify your mail")
+
             payload = {
                 "id": existing_user.id,
                 "email": existing_user.email,
