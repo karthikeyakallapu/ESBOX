@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
@@ -6,7 +6,7 @@ from app.dependencies.auth import get_current_user
 from app.logger import logger
 from app.schemas.telegram import TelegramLoginBase, TelegramAuthResponse, TelegramAuth
 from app.services.telegram.auth_service import TelegramAuthService
-from app.services.telegram.client_manager import telegram_client_manager
+from app.services.telegram.storage_service import tele_storage_service
 
 router = APIRouter()
 
@@ -55,21 +55,15 @@ async def verify_code(auth: TelegramAuth, request: Request, db: AsyncSession = D
 
 
 #
-@router.post("/chats")
-async def get_files(user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+@router.post("/upload")
+async def get_files(
+        file: UploadFile = File(...),
+        user=Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
     try:
-        files = []
-
-        client = await  telegram_client_manager.get_client(user_id=1, db=db)
-
-        chats = await client.get_chats()
-
-        for chat in chats:
-            files.append(chat.title)
-
-        return {"files": files}
-
-        # return files
+        location = await tele_storage_service.upload_file(user["id"], db, file)
+        return {"location": location}
     except Exception as err:
         logger.error(err)
         raise err
