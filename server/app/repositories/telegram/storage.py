@@ -1,8 +1,8 @@
-from sqlalchemy import select, and_
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.logger import logger
-from app.models import UserStorageChannel
+from app.models import UserStorageChannel, UserFile
 
 
 class TelegramStorageRepository:
@@ -16,4 +16,18 @@ class TelegramStorageRepository:
             return result.scalar_one_or_none()
         except Exception as e:
             logger.error(f"Error fetching storage location for user {user_id}: {e}")
+            raise
+
+    @staticmethod
+    async def is_file_exists(user_id, db, file_hash):
+        try:
+            result = await db.execute(
+                select(UserFile).where(
+                    UserFile.user_id == user_id,
+                    UserFile.content_hash == file_hash
+                )
+            )
+            return result.scalar_one_or_none()
+        except Exception as e:
+            logger.error(e)
             raise
