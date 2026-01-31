@@ -1,18 +1,14 @@
-import os
-
 from fastapi import UploadFile, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette import status
 from telethon.tl.functions.channels import CreateChannelRequest
+from telethon.tl.types import PeerChannel, DocumentAttributeFilename
 
 from app.logger import logger
-from app.models import UserStorageChannel
+from app.models import UserStorageChannel, UserFile
 from app.repositories.telegram.storage import TelegramStorageRepository
 from app.services.telegram.client_manager import telegram_client_manager
-
-# Configuration
-MAX_FILE_SIZE = 2 * 1024 * 1024 * 1024  # 2GB
-ALLOWED_EXTENSIONS = None  # None = all allowed, or set ['.pdf', '.jpg', ...]
+from app.services.telegram.file_manager import file_manager
 
 
 class TelegramStorageService:
@@ -36,8 +32,9 @@ class TelegramStorageService:
                     user_id=user_id,
                     channel_id=channel_id
                 )
-                await db.add(storage_channel)
+                db.add(storage_channel)
                 await db.commit()
+                db.refresh(storage_channel)
         except Exception as e:
             logger.error(e)
 
@@ -54,39 +51,75 @@ class TelegramStorageService:
         except Exception as e:
             logger.error(e)
 
-    @staticmethod
-    async def upload_file(user_id: int, db: AsyncSession, file: UploadFile):
+    async def upload_file(self, user_id: int, db: AsyncSession, file: UploadFile):
 
-        # Validate file size (read in chunks to avoid loading entire file in memory)
-        file_size = 0
-        chunk_size = 1024 * 1024  # 1MB chunks
+        upload_file = await file_manager.is_valid_file(file)
 
-        # Save to temporary file while checking size
-        temp_file_path = os.getcwd() + "\\" + f"{user_id}_{file.filename}"
+        if upload_file:
+            buffer, file_hash = await file_manager.get_file_buffer(file)
 
-        try:
-            with open(temp_file_path, "wb") as temp_file:
-                while True:
-                    chunk = await file.read(chunk_size)
-                    if not chunk:
-                        break
+            if await self.storage_repo.is_file_exists(user_id, db, file_hash):
+                return {
+                    'success': True,
+                    'duplicate': True,
+                    'message': 'File already exists'
+                }
 
-                    file_size += len(chunk)
+            try:
+                storage_location = await self._get_storage_location(user_id, db)
 
-                    # Check size limit
-                    if file_size > MAX_FILE_SIZE:
-                        # Cleanup and raise error
-                        if os.path.exists(temp_file_path):
-                            os.remove(temp_file_path)
-                        raise HTTPException(
-                            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                            detail=f"File too large. Maximum size: {MAX_FILE_SIZE / (1024 ** 3):.1f}GB"
-                        )
+                client = await telegram_client_manager.get_client(user_id, db)
 
-                    temp_file.write(chunk)
-        except Exception as e:
-            logger.error(e)
-            raise e
+                entity = PeerChannel(storage_location)
+
+                buffer.seek(0)
+                buffer.name = upload_file["name"]
+
+                message = await client.send_file(
+                    entity=entity,
+                    file=buffer,
+                    caption=upload_file["name"],
+                    force_document=True,
+                    attributes=[DocumentAttributeFilename(file_name=upload_file["name"])],
+                    supports_streaming=True,
+                    mime_type=upload_file["type"]
+                )
+
+                if message:
+                    user_file = UserFile(
+                        user_id=user_id,
+                        telegram_message_id=message.id,
+                        telegram_chat_id=str(storage_location),
+                        filename=upload_file["name"],
+                        file_size=upload_file["size"],
+                        mime_type=upload_file["type"],
+                        content_hash=file_hash,
+                        folder_path="/")
+
+                    db.add(user_file)
+                    await db.commit()
+                    await db.refresh(user_file)
+
+                    return {
+                        'success': True,
+                        'file_id': user_file.id,
+                        'filename': user_file.filename,
+                        'size': user_file.file_size,
+                        'mime_type': user_file.mime_type,
+                        'telegram_message_id': message.id,
+                        'uploaded_at': user_file.uploaded_at,
+                        'message': 'File uploaded successfully'
+                    }
+
+            except Exception as e:
+                logger.error(e)
+                await db.rollback()
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Error Uploading File"
+                )
+
+        return None
 
 
 tele_storage_service = TelegramStorageService()
