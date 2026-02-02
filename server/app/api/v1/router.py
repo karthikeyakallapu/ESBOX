@@ -3,18 +3,19 @@ from fastapi.params import Depends
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.folder_router import router as folder_router
+from app.api.v1.tele_router import router as telegram_router
 from app.config import settings
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
 from app.logger import logger
-
 from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse
 from app.services.auth.user import UserService
-from app.api.v1.tele_router import router as telegram_router
 
 router = APIRouter()
 
 router.include_router(telegram_router, prefix="/telegram")
+router.include_router(folder_router, prefix="/folders")
 
 user_service = UserService()
 
