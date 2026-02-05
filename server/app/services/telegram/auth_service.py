@@ -2,6 +2,7 @@ from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import status, HTTPException
 from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError, PhoneCodeInvalidError
 from telethon.sessions import StringSession
@@ -111,13 +112,21 @@ class TelegramAuthService:
             session_string = self.client.session.save()
             encrypted_session = encryption.encrypt(session_string)
 
+            linked_account = await self.db.execute(
+                select(TelegramSession).where(TelegramSession.telegram_user_id == me.id)
+            )
+
+            if linked_account.scalar_one_or_none():
+                raise HTTPException(status_code=409, detail="This Telegram account is already linked to another user.")
+
             result = await self.db.execute(
                 select(TelegramSession).where(TelegramSession.user_id == self.user_id)
             )
 
+
             existing = result.scalar_one_or_none()
 
-            if existing:
+            if existing :
                 existing.encrypted_session = encrypted_session
                 existing.telegram_user_id = me.id
                 existing.phone_number = me.phone or ''
