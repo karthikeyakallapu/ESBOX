@@ -13,6 +13,7 @@ ALLOWED_MIME_TYPES = {
     "application/pdf": [".pdf"],
     "image/jpeg": [".jpg", ".jpeg"],
     "image/png": [".png"],
+    "video/mp4" : [".mp4"],
 }
 
 

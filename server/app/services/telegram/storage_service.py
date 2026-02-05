@@ -6,14 +6,12 @@ from telethon.tl.types import PeerChannel, DocumentAttributeFilename
 
 from app.logger import logger
 from app.models import UserStorageChannel, UserFile
-from app.repositories.telegram.storage import TelegramStorageRepository
+from app.repositories.telegram.storage import TelegramStorageRepository, storage_repository
 from app.services.telegram.client_manager import telegram_client_manager
 from app.services.telegram.file_manager import file_manager
 
 
 class TelegramStorageService:
-    def __init__(self):
-        self.storage_repo = TelegramStorageRepository()
 
     @staticmethod
     async def _create_storage_location(user_id, db):
@@ -40,7 +38,7 @@ class TelegramStorageService:
 
     async def _get_storage_location(self, user_id: int, db: AsyncSession):
         try:
-            location = await self.storage_repo.get_storage_location(user_id, db)
+            location = await storage_repository.get_storage_location(user_id, db)
 
             if location and location.channel_id:
                 return location.channel_id
@@ -51,21 +49,40 @@ class TelegramStorageService:
         except Exception as e:
             logger.error(e)
 
-    async def upload_file(self, user_id: int, db: AsyncSession, file: UploadFile):
-
-        upload_file = await file_manager.is_valid_file(file)
-
-        if upload_file:
-            buffer, file_hash = await file_manager.get_file_buffer(file)
-
-            if await self.storage_repo.is_file_exists(user_id, db, file_hash):
-                return {
-                    'success': True,
-                    'duplicate': True,
-                    'message': 'File already exists'
-                }
-
+    async def upload_file(self, file_metadata ,user_id: int, db: AsyncSession, file: UploadFile):
             try:
+                buffer, file_hash = None, None
+
+                upload_file = await file_manager.is_valid_file(file)
+
+                if upload_file:
+                    buffer, file_hash = await file_manager.get_file_buffer(file)
+
+                if await storage_repository.is_file_exists(file_metadata.parent_id, user_id, db, file_hash):
+                    return {
+                        'success': True,
+                        'duplicate': True,
+                        'message': 'File already exists'
+                    }
+
+                existing_file = await storage_repository.is_file_exists_in_channel(file_metadata.parent_id, user_id, db,
+                                                                            file_hash)
+
+                if existing_file:
+                    new_metadata = UserFile(
+                        user_id=existing_file.user_id,
+                        telegram_message_id=existing_file.telegram_message_id,
+                        telegram_chat_id=existing_file.telegram_chat_id,
+                        filename=existing_file.filename,
+                        file_size=existing_file.file_size,
+                        mime_type=existing_file.mime_type,
+                        content_hash=existing_file.content_hash,
+                        folder_path=existing_file.folder_path,
+                        parent_id=file_metadata.parent_id  # New parent_id
+                    )
+                    result = await storage_repository.save_file_record(user_id, new_metadata, file_hash, db)
+                    return result
+
                 storage_location = await self._get_storage_location(user_id, db)
 
                 client = await telegram_client_manager.get_client(user_id, db)
@@ -94,22 +111,13 @@ class TelegramStorageService:
                         file_size=upload_file["size"],
                         mime_type=upload_file["type"],
                         content_hash=file_hash,
-                        folder_path="/")
+                        folder_path="/",
+                        parent_id=file_metadata.parent_id
+                    )
 
-                    db.add(user_file)
-                    await db.commit()
-                    await db.refresh(user_file)
+                    result = await storage_repository.save_file_record(user_id, user_file, file_hash, db)
 
-                    return {
-                        'success': True,
-                        'file_id': user_file.id,
-                        'filename': user_file.filename,
-                        'size': user_file.file_size,
-                        'mime_type': user_file.mime_type,
-                        'telegram_message_id': message.id,
-                        'uploaded_at': user_file.uploaded_at,
-                        'message': 'File uploaded successfully'
-                    }
+                    return result
 
             except Exception as e:
                 logger.error(e)
@@ -118,8 +126,6 @@ class TelegramStorageService:
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Error Uploading File"
                 )
-
-        return None
 
 
 tele_storage_service = TelegramStorageService()
