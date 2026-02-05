@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.logger import logger
 from app.repositories.folder import folder_repository
+from app.repositories.telegram.storage import storage_repository
 
 
 class FolderManager:
@@ -30,9 +31,11 @@ class FolderManager:
     @staticmethod
     async def get_children(parent_id, user_id :int, db : AsyncSession):
         try:
-            children = await folder_repository.get_children(parent_id, user_id, db)
+            inner_folders = await folder_repository.get_children(parent_id, user_id, db)
 
-            return children
+            inner_files = await storage_repository.get_files_in_folder(parent_id, user_id, db)
+
+            return {"folders" : inner_folders, "files" : inner_files}
         except Exception as e:
             logger.error(e)
             raise e

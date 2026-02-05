@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
+from fastapi import Form
 from pydantic import BaseModel, ConfigDict
 
 
@@ -26,3 +27,11 @@ class Parent(BaseModel):
 class Folder (BaseModel):
      id:int
      name: str
+
+class FileMetadata(BaseModel):
+    name: str
+    parent_id: int
+
+    @classmethod
+    def as_form(cls,name: str = Form(...),parent_id: int = Form(...)):
+        return cls(name=name, parent_id=parent_id)

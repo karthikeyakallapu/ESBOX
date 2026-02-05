@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
 from app.logger import logger
+from app.schemas.folder import FileMetadata
 from app.schemas.telegram import TelegramLoginBase, TelegramAuthResponse, TelegramAuth
 from app.services.telegram.auth_service import TelegramAuthService
 from app.services.telegram.storage_service import tele_storage_service
@@ -57,13 +58,13 @@ async def verify_code(auth: TelegramAuth, request: Request, db: AsyncSession = D
 #
 
 @router.post("/upload")
-async def get_files(
+async def get_files(file_metadata: FileMetadata = Depends(FileMetadata.as_form),
         file: UploadFile = File(...),
         user=Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
     try:
-        location = await tele_storage_service.upload_file(user["id"], db, file)
+        location = await tele_storage_service.upload_file(file_metadata,user["id"], db, file)
         return {"location": location}
     except Exception as err:
         logger.error(err)
