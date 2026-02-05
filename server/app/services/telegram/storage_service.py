@@ -34,7 +34,7 @@ class TelegramStorageService:
                 )
                 db.add(storage_channel)
                 await db.commit()
-                db.refresh(storage_channel)
+                await db.refresh(storage_channel)
         except Exception as e:
             logger.error(e)
 

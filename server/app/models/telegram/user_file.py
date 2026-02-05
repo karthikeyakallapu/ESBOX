@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, BigInteger, DateTime, func
+from sqlalchemy import Column, Integer, ForeignKey, String, BigInteger, func, DateTime
 
 from app.db.base_class import Base
 
@@ -15,5 +15,6 @@ class UserFile(Base):
     mime_type = Column(String(100))
     content_hash = Column(String(64), index=True)  # SHA256
     folder_path = Column(String(500), default="/")
+    parent_id = Column(Integer, ForeignKey("user_folders.id"))
     uploaded_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
