@@ -49,7 +49,7 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
     try:
         tokens = await user_service.login_user(db, user)
 
-        access_token_expire = 15 * 60  # seconds
+        access_token_expire = 60 * 60  # seconds
         refresh_token_expire = 7 * 24 * 60 * 60  # 7 days
 
         response.set_cookie(
