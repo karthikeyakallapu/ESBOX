@@ -18,7 +18,10 @@ from app.services.telegram.client_manager import telegram_client_manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await check_db()
-    logger.info("Started server on port {}".format(settings.port))
+    if settings.environment == "development" :
+        logger.info("Started server on port {}".format(settings.port))
+    else :
+        logger.info("Started App server")
     yield
     logger.info("Stopping Server - Cleaning up Telegram clients...")
     await telegram_client_manager.clean_up_all_local_cache()
@@ -56,7 +59,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     )
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" and settings.environment == "development":
     uvicorn.run(
         "app.main:app",
         host=settings.host,
