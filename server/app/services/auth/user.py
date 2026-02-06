@@ -67,7 +67,7 @@ class UserService:
 
             # Generate Access Token
             refresh_token_expires = timedelta(days=7)
-            access_token = create_token("ACCESS", payload, expires_delta=timedelta(minutes=30))
+            access_token = create_token("ACCESS", payload, expires_delta=timedelta(minutes=60))
 
             # Generate Refresh Token
             refresh_token = create_token("REFRESH", payload, expires_delta=refresh_token_expires)
