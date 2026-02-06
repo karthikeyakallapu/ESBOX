@@ -1,11 +1,19 @@
-from sqlalchemy import text
+import uuid
+
+from sqlalchemy import text, NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from fastapi import HTTPException
 
 from app.config import settings
 from app.logger import logger
 
-engine = create_async_engine(settings.database_url, echo=False)
+engine = create_async_engine(settings.database_url, echo=False,
+                             connect_args={
+                                 # Generate a unique name using a UUID4 for every statement
+                                 "prepared_statement_name_func": lambda: f"__asyncpg_{uuid.uuid4()}__",
+                             },
+                             poolclass=NullPool
+                             )
 
 AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession, autoflush=False,
                                        autocommit=False)
