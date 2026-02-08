@@ -1,3 +1,6 @@
+from typing import List, Union
+
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -37,5 +40,13 @@ class Settings(BaseSettings):
     max_concurrent_uploads: int = 10
     chunk_size: int = 104857600  # 100MB chunks for maximum speed
 
+    allowed_origins: Union[str, List[str]]
+
+    @field_validator("allowed_origins", mode="before")
+    @classmethod
+    def split_origins(cls, v):
+        if isinstance(v, str):
+            return [origin.strip() for origin in v.split(",") if origin.strip()]
+        return v
 
 settings = Settings()
