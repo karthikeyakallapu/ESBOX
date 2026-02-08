@@ -32,22 +32,37 @@ app = FastAPI(title=settings.title, version=settings.version, lifespan=lifespan)
 
 app.include_router(api_router, prefix="/api/v1")
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Frontend URL - change if needed
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    errors = []
-    for error in exc.errors():
-        loc = error.get("loc", [])
-        error_field = loc[1] if len(loc) > 1 else loc[0] if loc else None
-        errors.append({
-            "error_message": error.get("msg", ""),
-            "error_field": error_field
-        })
+    # Get the first error only
+    first_error = exc.errors()[0] if exc.errors() else None
+
+    if first_error:
+        loc = first_error.get("loc", [])
+        field = loc[-1] if loc else "unknown"
+        msg = first_error.get("msg", "Validation error")
+
+        # Clean up the message - remove "Value error, " prefix if present
+        if msg.startswith("Value error, "):
+            msg = msg.replace("Value error, ", "")
+
+        return JSONResponse(
+            status_code=400,
+            content={"message": msg}
+        )
+
     return JSONResponse(
         status_code=400,
-        content={"errors": errors}
+        content={"message": "Validation error"}
     )
 
 

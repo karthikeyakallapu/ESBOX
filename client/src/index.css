@@ -1,1 +1,29 @@
-@import "tailwindcss";
+  @import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+  @import "tailwindcss";
+
+  /* * {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+  }
+
+  *::-webkit-scrollbar {
+      display: none;
+  } */
+
+  html, body {
+      overflow: hidden;
+      height: 100%;
+      width: 100%;
+  }
+
+  #root {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+  }
+
+  .bungee-regular {
+      font-family: "Bungee", sans-serif;
+      font-weight: 400;
+      font-style: normal;
+  }

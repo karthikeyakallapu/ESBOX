@@ -3,6 +3,7 @@ import uuid
 from sqlalchemy import text, NullPool
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from fastapi import HTTPException
+from pydantic import ValidationError
 
 from app.config import settings
 from app.logger import logger
@@ -28,8 +29,18 @@ async def get_db():
             # Re-raise HTTPException to preserve status codes (e.g., 401, 403)
             await session.rollback()
             raise
+        except ValidationError:
+            # Re-raise ValidationError from Pydantic (not a DB error)
+            await session.rollback()
+            raise
+        except ValueError:
+            # Re-raise ValueError from field validators (not a DB error)
+            await session.rollback()
+            raise
         except Exception as e:
-            logger.error(f"Error while getting db {e}")
+            # Only log actual database errors, not validation errors
+            if "validation error" not in str(e).lower():
+                logger.error(f"Database error: {e}")
             await session.rollback()
             raise
         finally:

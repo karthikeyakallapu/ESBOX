@@ -14,7 +14,7 @@ class UserRepository:
                 )
             )
         )
-        return result.scalar_one_or_none()
+        return result.scalars().first()
 
     @staticmethod
     async def get_user_by_email(db, email: str):

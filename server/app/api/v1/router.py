@@ -9,7 +9,7 @@ from app.config import settings
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
 from app.logger import logger
-from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse
+from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse, CurrentUserResponse
 from app.services.auth.user import UserService
 
 router = APIRouter()
@@ -56,7 +56,7 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
             key="access_token",
             value=tokens.get("access_token", None),
             httponly=True,
-            secure=True,
+            # secure=True,
             samesite="strict",
             max_age=access_token_expire)
 
@@ -64,7 +64,7 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
             key="refresh_token",
             value=tokens.get("refresh_token", None),
             httponly=True,
-            secure=True,
+            # secure=True,
             samesite="strict",
             max_age=refresh_token_expire)
 
@@ -164,9 +164,7 @@ async def logout_all(response: Response, current_user: dict = Depends(get_curren
     return result
 
 
-@router.get("/auth/me")
+@router.get("/auth/me", response_model=CurrentUserResponse)
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current authenticated user information"""
-    return {
-        "user": current_user
-    }
+    return current_user
