@@ -57,7 +57,7 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
             value=tokens.get("access_token", None),
             httponly=True,
             secure=True if settings.environment == "production" else False,
-            samesite="strict",
+            samesite="none" if settings.environment == "production" else "lax",
             max_age=access_token_expire)
 
         response.set_cookie(
@@ -65,7 +65,7 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
             value=tokens.get("refresh_token", None),
             httponly=True,
             secure=True if settings.environment == "production" else False,
-            samesite="strict",
+            samesite="none" if settings.environment == "production" else "lax",
             max_age=refresh_token_expire)
 
         return {"message": "Login Successful"}
@@ -108,7 +108,7 @@ async def refresh_token(
                 value=result["access_token"],
                 httponly=True,
                 secure=True if settings.environment == "production" else False,
-                samesite="strict",
+                samesite="none" if settings.environment == "production" else "lax",
                 max_age=access_token_expire
             )
 
