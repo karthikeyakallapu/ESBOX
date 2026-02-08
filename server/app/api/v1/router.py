@@ -56,7 +56,7 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
             key="access_token",
             value=tokens.get("access_token", None),
             httponly=True,
-            # secure=True,
+            secure=True if settings.environment == "production" else False,
             samesite="strict",
             max_age=access_token_expire)
 
@@ -64,7 +64,7 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
             key="refresh_token",
             value=tokens.get("refresh_token", None),
             httponly=True,
-            # secure=True,
+            secure=True if settings.environment == "production" else False,
             samesite="strict",
             max_age=refresh_token_expire)
 
@@ -107,7 +107,7 @@ async def refresh_token(
                 key="access_token",
                 value=result["access_token"],
                 httponly=True,
-                secure=True,
+                secure=True if settings.environment == "production" else False,
                 samesite="strict",
                 max_age=access_token_expire
             )
