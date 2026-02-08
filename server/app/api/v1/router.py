@@ -140,9 +140,19 @@ async def logout(request: Request, response: Response, db: AsyncSession = Depend
 
         result = await user_service.logout_user(db, refresh_token)
 
-        # Clear cookies
-        response.delete_cookie(key="access_token")
-        response.delete_cookie(key="refresh_token")
+        # Clear cookies with same attributes as when they were set
+        response.delete_cookie(
+            key="access_token",
+            httponly=True,
+            secure=True if settings.environment == "production" else False,
+            samesite="none" if settings.environment == "production" else "lax"
+        )
+        response.delete_cookie(
+            key="refresh_token",
+            httponly=True,
+            secure=True if settings.environment == "production" else False,
+            samesite="none" if settings.environment == "production" else "lax"
+        )
 
         return result
     except HTTPException as e:
@@ -158,8 +168,18 @@ async def logout_all(response: Response, current_user: dict = Depends(get_curren
     """Logout from all devices by revoking all refresh tokens"""
     result = await user_service.logout_all_devices(db, current_user["id"])
 
-    response.delete_cookie(key="access_token")
-    response.delete_cookie(key="refresh_token")
+    response.delete_cookie(
+        key="access_token",
+        httponly=True,
+        secure=True if settings.environment == "production" else False,
+        samesite="none" if settings.environment == "production" else "lax"
+    )
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+        secure=True if settings.environment == "production" else False,
+        samesite="none" if settings.environment == "production" else "lax"
+    )
 
     return result
 
