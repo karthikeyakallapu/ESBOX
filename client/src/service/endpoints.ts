@@ -5,4 +5,5 @@ export const ENDPOINTS = {
   LOGIN: `${API_BASE_URL}/auth/login`,
   LOGOUT: `${API_BASE_URL}/auth/logout`,
   ME: `${API_BASE_URL}/auth/me`,
+  FILES_AND_FOLDERS: `${API_BASE_URL}/folders/getAll`,
 };

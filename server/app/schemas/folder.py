@@ -22,7 +22,7 @@ class FolderResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class Parent(BaseModel):
-    id : int | None
+    id: Optional[int] = None
 
 class Folder (BaseModel):
      id:int

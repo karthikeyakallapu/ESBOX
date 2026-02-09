@@ -43,6 +43,19 @@ class APIService {
       throw new Error(err.message);
     }
   };
+
+  getAllFilesAndFolders = async (parentId: number | null) => {
+    try {
+      const params = parentId !== null ? { parent_id: parentId } : {};
+      const response = await axiosInstance.get(ENDPOINTS.FILES_AND_FOLDERS, {
+        params,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
 }
 
 const apiService = new APIService();

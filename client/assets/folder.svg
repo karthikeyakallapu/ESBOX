@@ -1,0 +1,28 @@
+<svg
+  width="64"
+  height="64"
+  viewBox="0 0 64 64"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <defs>
+    <linearGradient id="folderGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="100%" stop-color="#2563EB"/>
+    </linearGradient>
+
+    <linearGradient id="tabGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#93C5FD"/>
+      <stop offset="100%" stop-color="#3B82F6"/>
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M10 18C10 14.686 12.686 12 16 12H26L32 18H48C51.314 18 54 20.686 54 24V26H10V18Z"
+    fill="url(#tabGradient)"
+  />
+  <path
+    d="M10 26H54V46C54 49.314 51.314 52 48 52H16C12.686 52 10 49.314 10 46V26Z"
+    fill="url(#folderGradient)"
+  />
+</svg>

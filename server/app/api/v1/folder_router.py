@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
@@ -21,9 +21,9 @@ async def create_folder(folder: FolderCreate, user=Depends(get_current_user),
         raise e
 
 @router.get("/getAll")
-async def get_folders(parent: Parent, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_folders( parent_id: int | None = Query(None), user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
-        folders = await folder_manager.get_children(parent.id, user.get("id"),db)
+        folders = await folder_manager.get_children(parent_id, user.get("id"),db)
         return  folders
     except Exception as e:
         logger.error(e)
