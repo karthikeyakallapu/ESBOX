@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 export default function Logo() {
   return (
-    <Link to="/">
+    <Link to="/dashboard">
       <div className="group flex items-center gap-3 select-none">
         <div className="relative h-10 w-10">
           <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-600 via-sky-500 to-indigo-700 shadow-card ring-1 ring-blue-200/60 transition-transform duration-300 group-hover:scale-[1.03]" />

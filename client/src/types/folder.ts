@@ -9,4 +9,35 @@ interface UserFolder {
   updated_at: string | null;
 }
 
-export type { UserFolder };
+interface NavFolder {
+  id: string;
+  name: string;
+}
+
+interface FolderNavStore {
+  currentPath: { id: string; name: string }[];
+  enterFolder: (folder: NavFolder) => void;
+  jumpToFolder: (folder: NavFolder) => void;
+  jumpToRoot: () => void;
+}
+
+interface RenameFolderModalData {
+  folder: UserFolder;
+  onRename: (newName: string) => Promise<void>;
+}
+
+interface DeleteFolderModalData {
+  folder: UserFolder;
+  onDelete: (folderId: string | number) => Promise<void>;
+}
+
+type FolderModalData = RenameFolderModalData | DeleteFolderModalData;
+
+export type {
+  UserFolder,
+  FolderNavStore,
+  NavFolder,
+  RenameFolderModalData,
+  DeleteFolderModalData,
+  FolderModalData,
+};

@@ -18,7 +18,7 @@ class FolderRepository:
         result = await  db.execute(
             select(UserFolder).where(func.lower(UserFolder.name) == name,
                                      UserFolder.parent_id == parent_id, UserFolder.user_id == user_id))
-        return result.scalar_one_or_none()
+        return result.scalars().first()
 
     @staticmethod
     async def create_folder(folder, user_id: int, db: AsyncSession):
@@ -41,7 +41,7 @@ class FolderRepository:
     @staticmethod
     async def delete_folder(parent_id, user_id: int, db: AsyncSession):
         result = await db.execute(
-            delete(UserFolder).where(UserFolder.parent_id == parent_id, UserFolder.user_id == user_id)
+            delete(UserFolder).where(UserFolder.id == parent_id, UserFolder.user_id == user_id)
         )
         await db.commit()
         return result.rowcount

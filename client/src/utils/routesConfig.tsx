@@ -3,6 +3,7 @@ import Register from "../pages/Register";
 import Home from "../pages/Home";
 import PrivateRoute from "./PrivateRoute";
 import DashBoard from "../pages/DashBoard";
+import Folders from "../pages/Folders";
 
 const routesConfig = [
   { path: "/", component: <Home /> },
@@ -13,6 +14,14 @@ const routesConfig = [
     component: (
       <PrivateRoute>
         <DashBoard />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/folders/:id",
+    component: (
+      <PrivateRoute>
+        <Folders />
       </PrivateRoute>
     ),
   },

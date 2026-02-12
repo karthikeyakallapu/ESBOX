@@ -2,4 +2,14 @@ interface GenericMessage {
   message: string;
 }
 
-export type { GenericMessage };
+type ModalComponent = "newFolder" | "renameFolder" | "deleteFolder";
+
+interface ModalStore<T = unknown> {
+  isOpen: boolean;
+  component: ModalComponent | null;
+  data: T | null;
+  openModal: <T>(component: ModalComponent, data?: T) => void;
+  closeModal: () => void;
+}
+
+export type { GenericMessage, ModalStore, ModalComponent };

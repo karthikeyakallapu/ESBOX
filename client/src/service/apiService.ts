@@ -44,11 +44,61 @@ class APIService {
     }
   };
 
-  getAllFilesAndFolders = async (parentId: number | null) => {
+  getAllFilesAndFolders = async (parentId: number | string | null) => {
     try {
       const params = parentId !== null ? { parent_id: parentId } : {};
       const response = await axiosInstance.get(ENDPOINTS.FILES_AND_FOLDERS, {
         params,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  createFolder = async ({
+    folder_name,
+    parent_id,
+  }: {
+    folder_name: string;
+    parent_id: number | string | null;
+  }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.CREATE_FOLDER, {
+        name: folder_name,
+        parent_id: parent_id,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  deleteFolder = async (folderId: number | string) => {
+    try {
+      const response = await axiosInstance.delete(ENDPOINTS.DELETE_FOLDER, {
+        params: { parent_id: folderId },
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  renameFolder = async ({
+    id,
+    name,
+  }: {
+    id: number | string;
+    name: string;
+  }) => {
+    try {
+      const response = await axiosInstance.patch(ENDPOINTS.RENAME_FOLDER, {
+        id,
+        name,
       });
       return response.data;
     } catch (error) {

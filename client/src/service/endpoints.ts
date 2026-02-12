@@ -6,4 +6,7 @@ export const ENDPOINTS = {
   LOGOUT: `${API_BASE_URL}/auth/logout`,
   ME: `${API_BASE_URL}/auth/me`,
   FILES_AND_FOLDERS: `${API_BASE_URL}/folders/getAll`,
+  CREATE_FOLDER: `${API_BASE_URL}/folders/create`,
+  DELETE_FOLDER: `${API_BASE_URL}/folders/delete`,
+  RENAME_FOLDER: `${API_BASE_URL}/folders/rename`,
 };

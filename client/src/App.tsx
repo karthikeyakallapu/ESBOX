@@ -8,10 +8,9 @@ import useAuthStore from "./store/useAuth";
 import { SWRConfig } from "swr";
 
 function App() {
-  const { isAuthenticated } = useAuthStore();
   useEffect(() => {
     useAuthStore.getState().hydrate();
-  }, [isAuthenticated]);
+  }, []);
   return (
     <>
       <SWRConfig
@@ -19,7 +18,7 @@ function App() {
           shouldRetryOnError: false,
           revalidateOnFocus: false,
           revalidateOnReconnect: false,
-          revalidateIfStale: false,
+          revalidateIfStale: true,
           refreshInterval: 0,
           refreshWhenHidden: false,
           refreshWhenOffline: false,

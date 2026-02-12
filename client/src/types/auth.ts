@@ -1,5 +1,6 @@
 interface AuthStore {
   isAuthenticated: boolean;
+  isLoading: boolean;
   user: {
     id: string;
     email: string;

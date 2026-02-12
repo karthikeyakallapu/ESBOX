@@ -1,19 +1,17 @@
+import { useParams } from "react-router-dom";
 import useSWR from "swr";
 import apiService from "../service/apiService";
-import type { UserFolder } from "../types/folder";
 import Folder from "../_components/folder/Folder";
+import type { UserFolder } from "../types/folder";
 import useFolderNavStore from "../store/useFolderNav";
-import { useEffect } from "react";
 
-const DashBoard = () => {
-  const { data, error, isLoading } = useSWR("files-and-folders", () =>
-    apiService.getAllFilesAndFolders(null),
+const Folders = () => {
+  const { id } = useParams();
+  const { enterFolder } = useFolderNavStore();
+
+  const { data, error, isLoading } = useSWR(`sub_folder_${id}`, () =>
+    apiService.getAllFilesAndFolders(id || null),
   );
-  const { enterFolder, jumpToRoot } = useFolderNavStore();
-
-  useEffect(() => {
-    jumpToRoot();
-  }, [jumpToRoot]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message || "error..."}</div>;
@@ -23,9 +21,12 @@ const DashBoard = () => {
   };
 
   return (
-    <div className="h-full">
-      <h1 className="text-xl font-semibold m-2 rounded-xl">DashBoard</h1>
-
+    <div className="p-4">
+      {data.folders.length === 0 && data.files.length === 0 && (
+        <div className="h-screen flex items-center justify-center">
+          Empty folder.
+        </div>
+      )}
       {/*  folders  */}
       <div className="flex items-center  ">
         {data?.folders.map((folder: UserFolder) => (
@@ -38,4 +39,4 @@ const DashBoard = () => {
   );
 };
 
-export default DashBoard;
+export default Folders;
