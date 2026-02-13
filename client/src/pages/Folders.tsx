@@ -4,6 +4,8 @@ import apiService from "../service/apiService";
 import Folder from "../_components/folder/Folder";
 import type { UserFolder } from "../types/folder";
 import useFolderNavStore from "../store/useFolderNav";
+import type { UserFile } from "../types/file";
+import File from "../_components/file/File";
 
 const Folders = () => {
   const { id } = useParams();
@@ -34,6 +36,13 @@ const Folders = () => {
             <Folder folder={folder} />
           </div>
         )) || "No folders found."}
+
+        {/*  files */}
+        {data?.files.map((file: UserFile) => (
+          <div key={file.id}>
+            <File file={file} />
+          </div>
+        )) || "No files found."}
       </div>
     </div>
   );

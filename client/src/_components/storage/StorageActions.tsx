@@ -4,6 +4,7 @@ import { FolderPlus, Upload, Link } from "lucide-react";
 import NewFolder from "../folder/NewFolder";
 import RenameFolder from "../folder/RenameFolder";
 import DeleteFolder from "../folder/DeleteFolder";
+import DeleteFile from "../file/DeleteFile";
 
 const StorageActions = () => {
   const { isOpen, openModal, component } = useModalStore();
@@ -60,6 +61,12 @@ const StorageActions = () => {
       {isOpen && component === "deleteFolder" && (
         <StorageOptionModal>
           <DeleteFolder />
+        </StorageOptionModal>
+      )}
+
+      {isOpen && component === "deleteFile" && (
+        <StorageOptionModal>
+          <DeleteFile />
         </StorageOptionModal>
       )}
     </>

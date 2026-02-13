@@ -1,6 +1,8 @@
 import useSWR from "swr";
 import apiService from "../service/apiService";
 import type { UserFolder } from "../types/folder";
+import type { UserFile } from "../types/file";
+import File from "../_components/file/File";
 import Folder from "../_components/folder/Folder";
 import useFolderNavStore from "../store/useFolderNav";
 import { useEffect } from "react";
@@ -33,6 +35,13 @@ const DashBoard = () => {
             <Folder folder={folder} />
           </div>
         )) || "No folders found."}
+
+        {/*  files */}
+        {data?.files.map((file: UserFile) => (
+          <div key={file.id}>
+            <File file={file} />
+          </div>
+        )) || "No files found."}
       </div>
     </div>
   );

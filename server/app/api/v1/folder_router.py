@@ -25,8 +25,8 @@ async def create_folder(folder: FolderCreate, user=Depends(get_current_user),
 @router.get("/getAll")
 async def get_folders( parent_id: int | None = Query(None), user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
-        folders = await folder_manager.get_children(parent_id, user.get("id"),db)
-        return  folders
+        children = await folder_manager.get_children(parent_id, user.get("id"),db)
+        return  children
     except Exception as e:
         logger.error(e)
         raise e

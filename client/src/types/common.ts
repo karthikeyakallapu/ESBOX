@@ -2,7 +2,11 @@ interface GenericMessage {
   message: string;
 }
 
-type ModalComponent = "newFolder" | "renameFolder" | "deleteFolder";
+type ModalComponent =
+  | "newFolder"
+  | "renameFolder"
+  | "deleteFolder"
+  | "deleteFile";
 
 interface ModalStore<T = unknown> {
   isOpen: boolean;

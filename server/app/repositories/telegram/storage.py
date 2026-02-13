@@ -72,12 +72,14 @@ class TelegramStorageRepository:
     async def get_files_in_folder(parent_id, user_id, db):
         try:
             result = await db.execute(
-                select(UserFile).where(
+                select(UserFile.id, UserFile.file_size, UserFile.filename, UserFile.mime_type, UserFile.updated_at
+                       , UserFile.uploaded_at).where(
                     UserFile.user_id == user_id,
                     UserFile.parent_id == parent_id
                 )
             )
-            return result.scalars().all()
+            return result.mappings().all()
+
         except Exception as e:
             logger.error(e)
             raise

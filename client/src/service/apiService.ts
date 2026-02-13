@@ -106,6 +106,18 @@ class APIService {
       throw new Error(err.message);
     }
   };
+
+  deleteFile = async (fileId: number | string) => {
+    try {
+      const response = await axiosInstance.delete(ENDPOINTS.DELETE_FILE, {
+        params: { file_id: fileId },
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
 }
 
 const apiService = new APIService();
