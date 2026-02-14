@@ -152,6 +152,15 @@ class TelegramClientManager:
 
         return session_string
 
+    async def has_session(self, user_id: int, db: AsyncSession) -> bool:
+        """Check if a user has a Telegram session without throwing an error"""
+        try:
+            session_string = await self._get_session_string(user_id, db)
+            return session_string is not None
+        except Exception as e:
+            logger.debug(f"Error checking session for user {user_id}: {e}")
+            return False
+
     # ------------------ public API ------------------
 
     async def get_client(self, user_id: int, db: AsyncSession) -> TelegramClient:

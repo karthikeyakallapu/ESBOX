@@ -51,6 +51,14 @@ class TelegramStorageService:
 
     async def upload_file(self, file_metadata ,user_id: int, db: AsyncSession, file: UploadFile):
             try:
+                # Check if user has a Telegram session before proceeding
+                has_session = await telegram_client_manager.has_session(user_id, db)
+                if not has_session:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="No Telegram session found. Please connect your Telegram account first."
+                    )
+
                 buffer, file_hash = None, None
 
                 upload_file = await file_manager.is_valid_file(file)
@@ -125,6 +133,13 @@ class TelegramStorageService:
     @staticmethod
     async def delete_file(file_id: int, user_id: int, db: AsyncSession):
         try:
+            # Check if user has a Telegram session before proceeding
+            has_session = await telegram_client_manager.has_session(user_id, db)
+            if not has_session:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="No Telegram session found. Please connect your Telegram account first."
+                )
 
             file_record = await storage_repository.get_file_by_id(file_id, user_id, db)
 
