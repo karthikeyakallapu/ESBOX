@@ -29,7 +29,7 @@ const DashBoard = () => {
       <h1 className="text-xl font-semibold m-2 rounded-xl">DashBoard</h1>
 
       {/*  folders  */}
-      <div className="flex items-center  ">
+      <div className="flex items-center flex-wrap gap-4 p-4">
         {data?.folders.map((folder: UserFolder) => (
           <div key={folder.id} onClick={() => handleFolderNav(folder)}>
             <Folder folder={folder} />

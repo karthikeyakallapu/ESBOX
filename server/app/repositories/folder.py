@@ -13,12 +13,31 @@ class FolderRepository:
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def find_duplicate(name: str, parent_id: int, user_id: int, db: AsyncSession):
-        name = name.lower().strip()
+    async def get_folder(folder_id: int, user_id: int, db: AsyncSession):
         result = await  db.execute(
-            select(UserFolder).where(func.lower(UserFolder.name) == name,
-                                     UserFolder.parent_id == parent_id, UserFolder.user_id == user_id))
-        return result.scalars().first()
+            select(UserFolder).where(UserFolder.id == folder_id, UserFolder.user_id == user_id))
+        return result.scalar_one_or_none()
+
+    @staticmethod
+    async def find_duplicate( name: str, parent_id: int, user_id: int, db: AsyncSession, exclude_folder_id: int = None):
+        try:
+
+            name = name.lower().strip()
+
+            query = select(UserFolder).where(
+                func.lower(UserFolder.name) == name,
+                UserFolder.parent_id == parent_id,
+                UserFolder.user_id == user_id
+            )
+
+            # Exclude the current folder when updating
+            if exclude_folder_id:
+                query = query.where(UserFolder.id != exclude_folder_id)
+
+            result = await db.execute(query)
+            return result.scalar_one_or_none()
+        except Exception as e:
+            raise e
 
     @staticmethod
     async def create_folder(folder, user_id: int, db: AsyncSession):
@@ -48,10 +67,11 @@ class FolderRepository:
 
     @staticmethod
     async def update_folder(folder_id : int, folder_name :str, user_id: int, db: AsyncSession):
-         result = await  db.execute(
+        folder_name = folder_name.strip()
+        result = await  db.execute(
              update(UserFolder).where(UserFolder.id == folder_id, UserFolder.user_id == user_id).values(name=folder_name)
          )
-         await db.commit()
-         return result.rowcount
+        await db.commit()
+        return result.rowcount
 
 folder_repository = FolderRepository()

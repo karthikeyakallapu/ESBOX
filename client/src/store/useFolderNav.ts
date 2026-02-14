@@ -1,8 +1,13 @@
 import { create } from "zustand";
 import type { FolderNavStore, NavFolder } from "../types/folder";
 
-const useFolderNavStore = create<FolderNavStore>((set) => ({
+const useFolderNavStore = create<FolderNavStore>((set, get) => ({
   currentPath: [],
+  getCurrentFolderId: () => {
+    const { currentPath } = get();
+    const lastFolder = currentPath[currentPath.length - 1];
+    return lastFolder ? Number(lastFolder.id) : null;
+  },
   enterFolder: (folder: NavFolder) => {
     set((state) => ({
       currentPath: [...state.currentPath, folder],

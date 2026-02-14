@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import Form
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class FolderCreate(BaseModel):
@@ -28,10 +28,22 @@ class Folder (BaseModel):
      id:int
      name: str
 
+
 class FileMetadata(BaseModel):
     name: str
-    parent_id: int
+    parent_id: Optional[int] = None
+
+    @field_validator("parent_id", mode="before")
+    @classmethod
+    def validate_parent_id(cls, value):
+        if value == "" or value is None:
+            return None
+        return int(value)
 
     @classmethod
-    def as_form(cls,name: str = Form(...),parent_id: int = Form(...)):
+    def as_form(
+        cls,
+        name: str = Form(...),
+        parent_id: str | None = Form(None),
+    ):
         return cls(name=name, parent_id=parent_id)

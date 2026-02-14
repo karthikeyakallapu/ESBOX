@@ -6,7 +6,8 @@ type ModalComponent =
   | "newFolder"
   | "renameFolder"
   | "deleteFolder"
-  | "deleteFile";
+  | "deleteFile"
+  | "uploadFile";
 
 interface ModalStore<T = unknown> {
   isOpen: boolean;

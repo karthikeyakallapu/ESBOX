@@ -52,13 +52,32 @@ class FolderManager:
 
 
     @staticmethod
-    async def update_folder(folder, user_id :int, db : AsyncSession):
+    async def update_folder(folder, user_id: int, db: AsyncSession):
         try:
-            if not folder.id:
-                raise HTTPException(status_code=412, detail="Parent id is required")
-            folder = await folder_repository.update_folder( folder.id,folder.name, user_id, db)
-            return folder
+            # Get the current folder to check its parent_id
+            current_folder = await folder_repository.get_folder(folder.id, user_id, db)
+            if not current_folder:
+                raise HTTPException(status_code=404, detail="Folder not found")
+
+            # Check for duplicate in the same parent directory, excluding the current folder
+            duplicate = await folder_repository.find_duplicate(
+                folder.name,
+                current_folder.parent_id,
+                user_id,
+                db,
+                exclude_folder_id=folder.id
+            )
+
+            if duplicate:
+                raise HTTPException(status_code=403, detail="Folder already exists")
+
+            updated_folder = await folder_repository.update_folder(folder.id, folder.name, user_id, db)
+
+            return updated_folder
+        except HTTPException as e:
+            raise e
         except Exception as e:
             logger.error(e)
+            raise e
 
 folder_manager = FolderManager()

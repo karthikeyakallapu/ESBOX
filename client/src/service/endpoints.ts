@@ -9,7 +9,7 @@ export const ENDPOINTS = {
   CREATE_FOLDER: `${API_BASE_URL}/folders/create`,
   DELETE_FOLDER: `${API_BASE_URL}/folders/delete`,
   RENAME_FOLDER: `${API_BASE_URL}/folders/rename`,
-  UPLOAD_FILE: `${API_BASE_URL}/files/upload`,
-  DELETE_FILE: `${API_BASE_URL}/files/delete`,
-  RENAME_FILE: `${API_BASE_URL}/files/rename`,
+  UPLOAD_FILE: `${API_BASE_URL}/telegram/upload`,
+  DELETE_FILE: `${API_BASE_URL}/telegram/delete`,
+  RENAME_FILE: `${API_BASE_URL}/telegram/rename`,
 };
