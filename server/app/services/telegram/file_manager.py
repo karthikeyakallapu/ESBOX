@@ -14,6 +14,7 @@ ALLOWED_MIME_TYPES = {
     "image/jpeg": [".jpg", ".jpeg"],
     "image/png": [".png"],
     "video/mp4" : [".mp4"],
+    "application/zip" : [".zip"],
 }
 
 

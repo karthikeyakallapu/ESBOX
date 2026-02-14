@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
@@ -43,12 +43,15 @@ async def delete_folder(parent_id:int, user=Depends(get_current_user), db: Async
         raise e
 
 @router.patch("/rename")
-async def update_folder(folder:Folder, user=Depends(get_current_user), db=Depends(get_db)):
+async def update_folder(folder: Folder, user=Depends(get_current_user), db=Depends(get_db)):
     try:
-        folder = await folder_manager.update_folder(folder, user.get("id"), db)
-        if not folder:
+        updated_folder = await folder_manager.update_folder(folder, user.get("id"), db)
+        if not updated_folder:
             return {"message": "Folder rename failed"}
         return {"message": "Folder renamed successfully"}
+    except HTTPException as e:
+        logger.error(f"HTTP Error: {e.detail}")
+        raise e
     except Exception as e:
-        logger.error(e)
+        logger.error(f"Unexpected error: {e}")
         raise e

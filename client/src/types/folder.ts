@@ -19,6 +19,7 @@ interface FolderNavStore {
   enterFolder: (folder: NavFolder) => void;
   jumpToFolder: (folder: NavFolder) => void;
   jumpToRoot: () => void;
+  getCurrentFolderId: () => string | number | null;
 }
 
 interface RenameFolderModalData {

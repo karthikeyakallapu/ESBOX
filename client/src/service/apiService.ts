@@ -2,6 +2,7 @@ import axiosInstance from "./axiosHelper";
 import type { UserRegister, UserLogin } from "../types/user";
 import { ENDPOINTS } from "./endpoints";
 import { handleApiError } from "./errorHandler";
+import type { AxiosProgressEvent } from "axios";
 
 class APIService {
   registerUser = async (user: UserRegister) => {
@@ -112,6 +113,28 @@ class APIService {
       const response = await axiosInstance.delete(ENDPOINTS.DELETE_FILE, {
         params: { file_id: fileId },
       });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  uploadFile = async (
+    formData: FormData,
+    onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
+  ) => {
+    try {
+      const response = await axiosInstance.post(
+        ENDPOINTS.UPLOAD_FILE,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+          onUploadProgress,
+        },
+      );
       return response.data;
     } catch (error) {
       const err = handleApiError(error);

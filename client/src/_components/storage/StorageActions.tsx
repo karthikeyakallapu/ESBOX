@@ -5,6 +5,7 @@ import NewFolder from "../folder/NewFolder";
 import RenameFolder from "../folder/RenameFolder";
 import DeleteFolder from "../folder/DeleteFolder";
 import DeleteFile from "../file/DeleteFile";
+import UploadFile from "../file/upload/UploadFile";
 
 const StorageActions = () => {
   const { isOpen, openModal, component } = useModalStore();
@@ -29,6 +30,7 @@ const StorageActions = () => {
                      border border-gray-200
                      transition-all duration-200 shadow-sm hover:shadow
                      focus:outline-none focus:ring-2 focus:ring-gray-200"
+          onClick={() => openModal("uploadFile")}
         >
           <Upload size={22} strokeWidth={1.5} />
           <span>Upload</span>
@@ -67,6 +69,12 @@ const StorageActions = () => {
       {isOpen && component === "deleteFile" && (
         <StorageOptionModal>
           <DeleteFile />
+        </StorageOptionModal>
+      )}
+
+      {isOpen && component === "uploadFile" && (
+        <StorageOptionModal>
+          <UploadFile />
         </StorageOptionModal>
       )}
     </>

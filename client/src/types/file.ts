@@ -1,5 +1,6 @@
 interface UserFile {
   id: number;
+  parent_id: number | string | null;
   filename: string;
 }
 

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.logger import logger
@@ -41,6 +41,17 @@ class TelegramStorageRepository:
                     UserFile.user_id == user_id,
                     UserFile.content_hash == file_hash)
             )
+            return result.scalars().first()
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    @staticmethod
+    async def get_file_by_id(file_id, user_id, db):
+        try:
+            result = await db.execute(
+                select(UserFile).where(UserFile.id == file_id, UserFile.user_id == user_id)
+            )
             return result.scalar_one_or_none()
         except Exception as e:
             logger.error(e)
@@ -69,16 +80,50 @@ class TelegramStorageRepository:
             raise
 
     @staticmethod
+    async def delete_file_record(file_id, user_id, db):
+        query = delete(UserFile).where(
+            UserFile.id == file_id,
+            UserFile.user_id == user_id
+        )
+
+        result = await db.execute(query)
+        await db.commit()
+
+        return result.rowcount
+
+    @staticmethod
     async def get_files_in_folder(parent_id, user_id, db):
         try:
             result = await db.execute(
-                select(UserFile.id, UserFile.file_size, UserFile.filename, UserFile.mime_type, UserFile.updated_at
+                select(UserFile.id, UserFile.parent_id, UserFile.file_size, UserFile.filename, UserFile.mime_type, UserFile.updated_at
                        , UserFile.uploaded_at).where(
                     UserFile.user_id == user_id,
                     UserFile.parent_id == parent_id
                 )
             )
             return result.mappings().all()
+
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    @staticmethod
+    async def get_other_instances_in_channel(file_id, user_id, db):
+        try:
+            file = await db.get(UserFile, file_id)
+
+            if not file:
+                return []
+
+            query = select(UserFile).where(
+                UserFile.user_id == user_id,
+                UserFile.id != file_id,
+                UserFile.telegram_chat_id == file.telegram_chat_id,
+                UserFile.telegram_message_id == file.telegram_message_id
+            )
+
+            result = await db.execute(query)
+            return result.scalars().all()
 
         except Exception as e:
             logger.error(e)

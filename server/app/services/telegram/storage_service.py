@@ -6,7 +6,7 @@ from telethon.tl.types import PeerChannel, DocumentAttributeFilename
 
 from app.logger import logger
 from app.models import UserStorageChannel, UserFile
-from app.repositories.telegram.storage import TelegramStorageRepository, storage_repository
+from app.repositories.telegram.storage import  storage_repository
 from app.services.telegram.client_manager import telegram_client_manager
 from app.services.telegram.file_manager import file_manager
 
@@ -59,11 +59,7 @@ class TelegramStorageService:
                     buffer, file_hash = await file_manager.get_file_buffer(file)
 
                 if await storage_repository.is_file_exists(file_metadata.parent_id, user_id, db, file_hash):
-                    return {
-                        'success': True,
-                        'duplicate': True,
-                        'message': 'File already exists'
-                    }
+                    raise  HTTPException(status_code=status.HTTP_409_CONFLICT, detail="File already exists in the current folder")
 
                 existing_file = await storage_repository.is_file_exists_in_channel(file_metadata.parent_id, user_id, db,
                                                                             file_hash)
@@ -119,13 +115,48 @@ class TelegramStorageService:
 
                     return result
 
+            except HTTPException  as e:
+                raise e
             except Exception as e:
                 logger.error(e)
                 await db.rollback()
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Error Uploading File"
-                )
+                raise e
 
+    @staticmethod
+    async def delete_file(file_id: int, user_id: int, db: AsyncSession):
+        try:
+
+            file_record = await storage_repository.get_file_by_id(file_id, user_id, db)
+
+            if not file_record:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+
+            other_instances = await storage_repository.get_other_instances_in_channel(file_id, user_id, db)
+
+            if len(other_instances) > 1:
+                await storage_repository.delete_file_record(file_id, user_id, db)
+                return {"message": "File deleted successfully"}
+
+            client = await telegram_client_manager.get_client(user_id, db)
+
+
+            entity = PeerChannel(int(file_record.telegram_chat_id))
+
+            result = await client.delete_messages(
+                entity,
+                [file_record.telegram_message_id],
+                revoke=True
+            )
+
+            await storage_repository.delete_file_record(file_id, user_id, db)
+
+            return {"detail": "File deleted successfully"}
+
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            logger.error(e)
+            await db.rollback()
+            raise e
 
 tele_storage_service = TelegramStorageService()

@@ -58,14 +58,25 @@ async def verify_code(auth: TelegramAuth, request: Request, db: AsyncSession = D
 #
 
 @router.post("/upload")
-async def get_files(file_metadata: FileMetadata = Depends(FileMetadata.as_form),
+async def upload_file(file_metadata: FileMetadata = Depends(FileMetadata.as_form),
         file: UploadFile = File(...),
         user=Depends(get_current_user),
         db: AsyncSession = Depends(get_db)
 ):
     try:
         location = await tele_storage_service.upload_file(file_metadata,user["id"], db, file)
-        return {"location": location}
+        if not location:
+            raise HTTPException(status_code=500, detail="Failed to upload file to Telegram")
+        return {"message": "File uploaded successfully"}
+    except Exception as err:
+        logger.error(err)
+        raise err
+
+@router.delete("/delete")
+async def delete_telegram_file(file_id: int, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    try:
+        result = await tele_storage_service.delete_file(file_id, user["id"], db)
+        return result
     except Exception as err:
         logger.error(err)
         raise err
