@@ -1,7 +1,7 @@
 import StorageOptionModal from "../modals/StorageOptionModal";
 import useModalStore from "../../store/useModal";
 import { FolderPlus, Upload, Link } from "lucide-react";
-import modalComponents from "../modals/ModalComponents";
+import modalComponents from "../modals/modalComponents";
 
 const StorageActions = () => {
   const { isOpen, openModal, component } = useModalStore();
