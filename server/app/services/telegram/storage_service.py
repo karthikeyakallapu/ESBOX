@@ -165,7 +165,7 @@ class TelegramStorageService:
 
             await storage_repository.delete_file_record(file_id, user_id, db)
 
-            return {"detail": "File deleted successfully"}
+            return {"message": "File deleted successfully"}
 
         except HTTPException as e:
             raise e
