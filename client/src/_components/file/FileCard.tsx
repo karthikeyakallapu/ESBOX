@@ -1,12 +1,13 @@
-import FileIcon from "../../../assets/file.svg";
+import FileIconMapper from "./FileIconMapper";
 
 interface Props {
   name: string;
   isLoading: boolean;
   children?: React.ReactNode;
+  mime_type: string;
 }
 
-const FileCard = ({ name, isLoading, children }: Props) => {
+const FileCard = ({ mime_type, name, isLoading, children }: Props) => {
   return (
     <div className="relative group m-2">
       <div
@@ -16,7 +17,11 @@ const FileCard = ({ name, isLoading, children }: Props) => {
       >
         {children}
 
-        <img src={FileIcon} className="h-24 w-24 mb-2" alt="" />
+        <img
+          src={FileIconMapper(mime_type)}
+          className="h-24 w-24 mb-2"
+          alt=""
+        />
 
         <p className="font-medium text-gray-700 truncate max-w-full px-2">
           {name}
