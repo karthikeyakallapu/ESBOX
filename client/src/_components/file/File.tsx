@@ -18,7 +18,7 @@ const File = ({ file }: { file: UserFile }) => {
   const { deleteFile } = fileActions(file, () => setIsMenuOpen(false));
 
   return (
-    <FileCard name={file.filename} isLoading={false}>
+    <FileCard mime_type={file.mime_type} name={file.filename} isLoading={false}>
       <h1></h1>
       <button
         ref={buttonRef}
