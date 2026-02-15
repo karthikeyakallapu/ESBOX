@@ -141,6 +141,30 @@ class APIService {
       throw new Error(err.message);
     }
   };
+
+  sendTelegramCode = async ({ phone }: { phone: string }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.TELEGRAM_LINK, {
+        phone,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  verifyTelegramCode = async ({ code }: { code: string }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.TELEGRAM_VERIFY, {
+        code,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
 }
 
 const apiService = new APIService();

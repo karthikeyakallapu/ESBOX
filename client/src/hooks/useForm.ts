@@ -18,6 +18,10 @@ const useForm = <TData, TResult = unknown>(
     });
   };
 
+  const resetData = () => {
+    setData(initialData);
+  };
+
   const submitForm = async () => {
     try {
       setLoading(true);
@@ -27,9 +31,11 @@ const useForm = <TData, TResult = unknown>(
     } catch (error) {
       console.error("Error submitting form:", error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { data, setData, submitForm, loading, handleChange };
+  return { data, setData, submitForm, loading, handleChange, resetData };
 };
 export default useForm;
