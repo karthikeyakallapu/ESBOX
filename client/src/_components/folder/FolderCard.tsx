@@ -16,7 +16,12 @@ const FolderCard = ({ name, isLoading, children }: Props) => {
       >
         {children}
 
-        <img src={folderIcon} className="h-24 w-24 mb-2" alt="" />
+        <img
+          src={folderIcon}
+          className="h-24 w-24 mb-2"
+          alt=""
+          draggable={false}
+        />
 
         <p className="font-medium text-gray-700 truncate max-w-full px-2">
           {name}

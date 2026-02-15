@@ -21,6 +21,7 @@ const FileCard = ({ mime_type, name, isLoading, children }: Props) => {
           src={FileIconMapper(mime_type)}
           className="h-24 w-24 mb-2"
           alt=""
+          draggable={false}
         />
 
         <p className="font-medium text-gray-700 truncate max-w-full px-2">

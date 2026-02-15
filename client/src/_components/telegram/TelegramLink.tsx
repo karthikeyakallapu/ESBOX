@@ -58,6 +58,7 @@ const TelegramLink = () => {
             src="https://cdn.simpleicons.org/telegram/27A7E7"
             alt="Telegram"
             className="w-16 h-16 mx-auto mb-4"
+            draggable={false}
           />
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Connect Telegram
