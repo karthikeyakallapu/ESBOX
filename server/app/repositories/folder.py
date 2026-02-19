@@ -81,5 +81,12 @@ class FolderRepository:
         folder = result.scalar_one()
         return folder
 
+    @staticmethod
+    async def get_starred_folders(user_id: int, db: AsyncSession):
+        result = await db.execute(
+            select(UserFolder).where(UserFolder.user_id == user_id, UserFolder.is_starred == True, UserFolder.is_deleted == False)
+        )
+        return result.scalars().all()
+
 
 folder_repository = FolderRepository()

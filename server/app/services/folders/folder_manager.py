@@ -41,6 +41,19 @@ class FolderManager:
             raise e
 
     @staticmethod
+    async def get_starred_folders(user_id: int, db:AsyncSession):
+        try:
+            inner_folders = await folder_repository.get_starred_folders(user_id, db)
+
+            # inner_files = await storage_repository.get_files_in_folder(user_id, db)
+            inner_files  = []
+
+            return {"folders": inner_folders, "files": inner_files}
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+    @staticmethod
     async def delete_folder(folder_id :int , user_id: int, db: AsyncSession):
         try:
             if not folder_id:
