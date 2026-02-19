@@ -116,7 +116,7 @@ const useFolderActions = (folder: UserFolder, closeMenu?: () => void) => {
           f.id === folder.id ? { ...f, ...updatedFolder } : f,
         );
 
-        // 🔥 If we're in starred view and user unstars → remove item
+        // If we're in starred view and user unstars → remove item
         if (currentKey === "starred_items") {
           updatedFolders = updatedFolders.filter((f) => f.is_starred);
         }

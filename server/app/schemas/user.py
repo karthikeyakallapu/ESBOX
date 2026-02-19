@@ -66,3 +66,7 @@ class CurrentUserResponse(BaseModel):
     username: str
     email: EmailStr
     model_config = ConfigDict(from_attributes=True)
+
+class UpdateTrash(BaseModel):
+    item_id: int
+    item_type: str  # "folder" or "file"

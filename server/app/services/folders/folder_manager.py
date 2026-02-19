@@ -100,5 +100,56 @@ class FolderManager:
             logger.error(e)
             raise e
 
+    @staticmethod
+    async def get_user_trash(user_id: int, db: AsyncSession):
+        try:
+            trash_folders = await folder_repository.get_folder_trash(user_id, db)
+
+            files = []
+            # Todo : get files in trash
+
+            return {"folders":trash_folders , "files": files}
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+    @staticmethod
+    async def restore_from_trash(item_id: int, item_type: str, user_id: int, db: AsyncSession):
+        try:
+            if item_type == "folder":
+                restored_item = await folder_repository.restore_folder_from_trash(item_id, user_id, db)
+            # Todo : restore all Files as well in future
+            else:
+                raise HTTPException(status_code=400, detail="Invalid item type")
+
+            if not restored_item:
+                raise HTTPException(status_code=404, detail="Item not found in trash")
+
+            return restored_item
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+
+    @staticmethod
+    async def delete_from_trash(item_id: int, item_type: str, user_id: int, db: AsyncSession):
+        try:
+            if item_type == "folder":
+                deleted_item = await folder_repository.delete_folder_from_trash(item_id, user_id, db)
+            # Todo : delete all Files as well in future
+            else:
+                raise HTTPException(status_code=400, detail="Invalid item type")
+
+            if not deleted_item:
+                raise HTTPException(status_code=404, detail="Item not found in trash")
+
+            return deleted_item
+        except HTTPException as e:
+            raise e
+        except Exception as e:
+            logger.error(e)
+            raise e
 
 folder_manager = FolderManager()
