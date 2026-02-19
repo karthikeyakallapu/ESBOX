@@ -41,7 +41,7 @@ const FolderMenu = ({
         e.preventDefault();
         e.stopPropagation();
       }}
-      className="absolute top-12 left-36 z-50 min-w-45 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
+      className="absolute top-12 left-36 z-50 min-w-52 bg-white rounded-lg shadow-lg border border-gray-200 py-1"
     >
       <button
         onClick={handleRename}
@@ -66,8 +66,8 @@ const FolderMenu = ({
         disabled={isDeleting || isRenaming}
         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-50"
       >
-        <Star className="h-4 w-4" />
-        {isStarred ? "Remove from Star" : "Add to Star"}
+        <Star fill={isStarred ? "#FFD700" : "white"} className="h-4 w-4" />
+        {isStarred ? "Remove from Starred" : "Add to Starred"}
       </button>
     </div>
   );

@@ -9,7 +9,7 @@ import type { UserFolder, FolderData } from "../../types/folder";
 const useFolderActions = (folder: UserFolder, closeMenu?: () => void) => {
   const location = useLocation();
 
-  // 🔥 Derive correct SWR key based on current route
+  //   Derive correct SWR key based on current route
   const currentKey = useMemo(() => {
     if (location.pathname.includes("/starred")) {
       return "starred_items";
@@ -24,7 +24,7 @@ const useFolderActions = (folder: UserFolder, closeMenu?: () => void) => {
       : "files-and-folders";
   }, [location.pathname, folder.parent_id]);
 
-  // 🔥 Shared mutation helper
+  //   Shared mutation helper
   const mutateFolderList = async (
     updater: (current: FolderData) => FolderData,
   ) => {
