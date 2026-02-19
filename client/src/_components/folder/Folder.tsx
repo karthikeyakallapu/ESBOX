@@ -9,10 +9,20 @@ import FolderCard from "./FolderCard";
 import FolderMenu from "./FolderMenu";
 
 const Folder = ({ folder }: { folder: UserFolder }) => {
-  const { isMenuOpen, toggleMenu, isDeleting, isRenaming, menuRef, buttonRef, setIsMenuOpen } =
-    useOptionsDropdown();
+  const {
+    isMenuOpen,
+    toggleMenu,
+    isDeleting,
+    isRenaming,
+    menuRef,
+    buttonRef,
+    setIsMenuOpen,
+  } = useOptionsDropdown();
 
-  const { deleteFolder, renameFolder } = useFolderActions(folder, () => setIsMenuOpen(false));
+  const { deleteFolder, renameFolder, updateStar } = useFolderActions(
+    folder,
+    () => setIsMenuOpen(false),
+  );
 
   const isLoading = isDeleting || isRenaming;
 
@@ -37,7 +47,9 @@ const Folder = ({ folder }: { folder: UserFolder }) => {
           <FolderMenu
             onDelete={deleteFolder}
             onRename={renameFolder}
+            updateStar={updateStar}
             isDeleting={isDeleting}
+            isStarred={folder.is_starred}
             isRenaming={isRenaming}
           />
         </div>

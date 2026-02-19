@@ -4,9 +4,12 @@ import type { ReactNode } from "react";
 import useAuthStore from "../store/useAuth";
 import BreadCrumb from "../_components/navigation/BreadCrumb";
 import StorageActions from "../_components/storage/StorageActions";
+import { useLocation } from "react-router-dom";
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
+  const location = useLocation();
+
   return (
     <div className="flex h-screen flex-col bg-slate-100">
       <header className="h-16 shrink-0 bg-white">
@@ -26,7 +29,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
             {isAuthenticated && (
               <>
                 <BreadCrumb />
-                <StorageActions />
+                {location.pathname !== "/starred" && <StorageActions />}
               </>
             )}
 

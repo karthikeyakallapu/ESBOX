@@ -47,3 +47,8 @@ class FileMetadata(BaseModel):
         parent_id: str | None = Form(None),
     ):
         return cls(name=name, parent_id=parent_id)
+
+class FolderUpdate(BaseModel):
+   name: Optional[str] = None
+   parent_id: Optional[int] = None
+   is_starred: Optional[bool] = None

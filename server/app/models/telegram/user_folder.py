@@ -10,6 +10,7 @@ class UserFolder(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     is_root = Column(Boolean, default=False)
+    is_deleted = Column(Boolean, default=False)
     is_starred = Column(Boolean, default=False)
     name = Column(String(64), index=True)
     parent_id = Column(Integer, ForeignKey("user_folders.id", ondelete="CASCADE"))

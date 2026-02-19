@@ -3,8 +3,10 @@ import type { UserRegister, UserLogin } from "../types/user";
 import { ENDPOINTS } from "./endpoints";
 import { handleApiError } from "./errorHandler";
 import type { AxiosProgressEvent } from "axios";
+import type { FolderUpdateData } from "../types/folder";
 
 class APIService {
+  // User APIs //
   registerUser = async (user: UserRegister) => {
     try {
       const response = await axiosInstance.post(ENDPOINTS.REGISTER, user);
@@ -45,9 +47,21 @@ class APIService {
     }
   };
 
-  getAllFilesAndFolders = async (parentId: number | string | null) => {
+  // User APIs //
+
+  // Folder APIs //
+
+  getAllFilesAndFolders = async ({
+    parentId,
+    isStarred,
+  }: {
+    parentId: number | string | null;
+    isStarred?: boolean;
+  }) => {
     try {
-      const params = parentId !== null ? { parent_id: parentId } : {};
+      const parent_id = parentId !== null ? { parent_id: parentId } : {};
+      const starred = isStarred ? { is_starred: true } : {};
+      const params = { ...parent_id, ...starred };
       const response = await axiosInstance.get(ENDPOINTS.FILES_AND_FOLDERS, {
         params,
       });
@@ -79,9 +93,12 @@ class APIService {
 
   deleteFolder = async (folderId: number | string) => {
     try {
-      const response = await axiosInstance.delete(ENDPOINTS.DELETE_FOLDER, {
-        params: { parent_id: folderId },
-      });
+      const response = await axiosInstance.delete(
+        ENDPOINTS.UPDATE_FOLDER(folderId),
+        {
+          params: { parent_id: folderId },
+        },
+      );
       return response.data;
     } catch (error) {
       const err = handleApiError(error);
@@ -89,24 +106,22 @@ class APIService {
     }
   };
 
-  renameFolder = async ({
-    id,
-    name,
-  }: {
-    id: number | string;
-    name: string;
-  }) => {
+  updateFolder = async (id: number, data: FolderUpdateData) => {
     try {
-      const response = await axiosInstance.patch(ENDPOINTS.RENAME_FOLDER, {
-        id,
-        name,
-      });
+      const response = await axiosInstance.patch(
+        ENDPOINTS.UPDATE_FOLDER(id),
+        data,
+      );
       return response.data;
     } catch (error) {
       const err = handleApiError(error);
       throw new Error(err.message);
     }
   };
+
+  // Folder APIs //
+
+  // File APIs //
 
   deleteFile = async (fileId: number | string) => {
     try {
@@ -141,6 +156,8 @@ class APIService {
       throw new Error(err.message);
     }
   };
+
+  // File APIs //
 
   sendTelegramCode = async ({ phone }: { phone: string }) => {
     try {

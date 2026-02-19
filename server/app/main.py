@@ -41,37 +41,48 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """
+    Ensure all HTTPException details are returned as 'message' to the client
+    """
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"message": exc.detail}
+    )
+
+
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    # Get the first error only
-    first_error = exc.errors()[0] if exc.errors() else None
+    """
+    Handle request validation errors with detailed field-level information
+    """
+    errors = []
 
-    if first_error:
-        loc = first_error.get("loc", [])
+    for error in exc.errors():
+        loc = error.get("loc", [])
+        source = loc[0] if loc else "unknown"  # query/body/path
         field = loc[-1] if loc else "unknown"
-        msg = first_error.get("msg", "Validation error")
+        msg = error.get("msg", "Validation error")
 
         # Clean up the message - remove "Value error, " prefix if present
         if msg.startswith("Value error, "):
             msg = msg.replace("Value error, ", "")
 
-        return JSONResponse(
-            status_code=400,
-            content={"message": msg}
-        )
+        errors.append({
+            "field": field,
+            "source": source,
+            "message": msg
+        })
 
     return JSONResponse(
-        status_code=400,
-        content={"message": "Validation error"}
+        status_code=422,
+        content={
+            "message": "Validation error",
+            "errors": errors
+        }
     )
 
-
-@app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"message": exc.detail},
-    )
 
 
 if __name__ == "__main__" and settings.environment == "development":

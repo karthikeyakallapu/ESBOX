@@ -29,55 +29,76 @@ class FolderManager:
             raise e
 
     @staticmethod
-    async def get_children(parent_id, user_id :int, db : AsyncSession):
+    async def get_children(parent_id, user_id: int, db: AsyncSession):
         try:
             inner_folders = await folder_repository.get_children(parent_id, user_id, db)
 
             inner_files = await storage_repository.get_files_in_folder(parent_id, user_id, db)
 
-            return {"folders" : inner_folders, "files" : inner_files}
+            return {"folders": inner_folders, "files": inner_files}
         except Exception as e:
             logger.error(e)
             raise e
 
     @staticmethod
-    async def delete_folder(parent_id, user_id :int, db : AsyncSession):
+    async def get_starred_folders(user_id: int, db:AsyncSession):
         try:
-            if not parent_id:
-                raise HTTPException(status_code=412, detail="Parent id is required")
-            folder = await folder_repository.delete_folder(parent_id, user_id, db)
+            inner_folders = await folder_repository.get_starred_folders(user_id, db)
+
+            # inner_files = await storage_repository.get_files_in_folder(user_id, db)
+            inner_files  = []
+
+            return {"folders": inner_folders, "files": inner_files}
+        except Exception as e:
+            logger.error(e)
+            raise e
+
+    @staticmethod
+    async def delete_folder(folder_id :int , user_id: int, db: AsyncSession):
+        try:
+            if not folder_id:
+                raise HTTPException(status_code=412, detail="Folder id is required")
+            folder = await folder_repository.delete_folder(folder_id, user_id, db)
+            # TO DO : delete all inner folders and files
             return folder
         except Exception as e:
             logger.error(e)
 
-
     @staticmethod
-    async def update_folder(folder, user_id: int, db: AsyncSession):
+    async def update_folder(folder_id, folder, user_id: int, db: AsyncSession):
         try:
+
             # Get the current folder to check its parent_id
-            current_folder = await folder_repository.get_folder(folder.id, user_id, db)
+            current_folder = await folder_repository.get_folder(folder_id, user_id, db)
             if not current_folder:
                 raise HTTPException(status_code=404, detail="Folder not found")
 
-            # Check for duplicate in the same parent directory, excluding the current folder
-            duplicate = await folder_repository.find_duplicate(
-                folder.name,
-                current_folder.parent_id,
-                user_id,
-                db,
-                exclude_folder_id=folder.id
+            if folder.name is not None:
+                duplicate = await folder_repository.find_duplicate(
+                    folder.name,
+                    current_folder.parent_id,
+                    user_id,
+                    db,
+                    exclude_folder_id=folder_id
+                )
+
+                if duplicate:
+                    raise HTTPException(status_code=403, detail="Folder already exists")
+
+            update_folder_data = folder.model_dump(
+                exclude_unset=True,
+                exclude_none=True
             )
 
-            if duplicate:
-                raise HTTPException(status_code=403, detail="Folder already exists")
-
-            updated_folder = await folder_repository.update_folder(folder.id, folder.name, user_id, db)
+            updated_folder = await folder_repository.update_folder(folder_id, update_folder_data, user_id, db)
 
             return updated_folder
+
         except HTTPException as e:
             raise e
         except Exception as e:
             logger.error(e)
             raise e
+
 
 folder_manager = FolderManager()

@@ -4,7 +4,9 @@ import useForm from "../../hooks/useForm";
 import apiService from "../../service/apiService";
 import Toast from "../../utils/Toast";
 import useFolderNavStore from "../../store/useFolderNav";
+import type { FolderData } from "../../types/folder";
 import { mutate } from "swr";
+
 const NewFolder = () => {
   const { closeModal } = useModalStore();
   const { currentPath } = useFolderNavStore();
@@ -22,17 +24,23 @@ const NewFolder = () => {
 
     if (!data.folder_name.trim()) return;
     try {
-      const response = await submitForm();
+      const newFolder = await submitForm();
 
-      if (data.parent_id) {
-        mutate(`sub_folder_${data.parent_id}`);
-      } else {
-        mutate("files-and-folders");
-      }
+      await mutate(
+        data.parent_id ? `sub_folder_${data.parent_id}` : "files-and-folders",
+        (current: FolderData | undefined) => {
+          if (!current) return current;
+          return {
+            ...current,
+            folders: [...current.folders, newFolder],
+          };
+        },
+        { revalidate: false },
+      );
 
       Toast({
         type: "success",
-        message: response.message,
+        message: "Folder created successfully",
       });
     } catch (error) {
       Toast({

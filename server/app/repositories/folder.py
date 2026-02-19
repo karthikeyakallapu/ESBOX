@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from sqlalchemy import select, func, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,27 +53,40 @@ class FolderRepository:
     async def get_children(parent_id, user_id: int, db: AsyncSession):
         if not parent_id:
             result = await db.execute(
-                select(UserFolder).where(UserFolder.parent_id.is_(None), UserFolder.user_id == user_id))
+                select(UserFolder).where(UserFolder.parent_id.is_(None), UserFolder.user_id == user_id , UserFolder.is_deleted == False))
             folders = result.scalars().all()
             return folders
         result = await db.execute(select(UserFolder).where(UserFolder.parent_id == parent_id, UserFolder.user_id == user_id))
         return result.scalars().all()
 
     @staticmethod
-    async def delete_folder(parent_id, user_id: int, db: AsyncSession):
+    async def delete_folder(folder_id, user_id: int, db: AsyncSession):
         result = await db.execute(
-            delete(UserFolder).where(UserFolder.id == parent_id, UserFolder.user_id == user_id)
+            update(UserFolder).where(UserFolder.id == folder_id, UserFolder.user_id == user_id).values(
+                is_deleted=True, updated_at=datetime.utcnow()).returning(UserFolder)
         )
         await db.commit()
-        return result.rowcount
+        return result.scalar_one_or_none()
 
     @staticmethod
-    async def update_folder(folder_id : int, folder_name :str, user_id: int, db: AsyncSession):
-        folder_name = folder_name.strip()
-        result = await  db.execute(
-             update(UserFolder).where(UserFolder.id == folder_id, UserFolder.user_id == user_id).values(name=folder_name)
-         )
+    async def update_folder(folder_id, folder, user_id: int, db: AsyncSession):
+        statement = (
+            update(UserFolder)
+            .where(UserFolder.id == folder_id, UserFolder.user_id == user_id)
+            .values(**folder, updated_at=datetime.utcnow())
+            .returning(UserFolder)
+        )
+        result = await db.execute(statement)
         await db.commit()
-        return result.rowcount
+        folder = result.scalar_one()
+        return folder
+
+    @staticmethod
+    async def get_starred_folders(user_id: int, db: AsyncSession):
+        result = await db.execute(
+            select(UserFolder).where(UserFolder.user_id == user_id, UserFolder.is_starred == True, UserFolder.is_deleted == False)
+        )
+        return result.scalars().all()
+
 
 folder_repository = FolderRepository()
