@@ -34,6 +34,17 @@ interface DeleteFolderModalData {
 
 type FolderModalData = RenameFolderModalData | DeleteFolderModalData;
 
+interface FolderUpdateData {
+  name?: string;
+  parent_id?: number | string | null;
+  is_starred?: boolean;
+}
+
+interface FolderData {
+  folders: UserFolder[];
+  files: unknown[];
+}
+
 export type {
   UserFolder,
   FolderNavStore,
@@ -41,4 +52,6 @@ export type {
   RenameFolderModalData,
   DeleteFolderModalData,
   FolderModalData,
+  FolderUpdateData,
+  FolderData,
 };

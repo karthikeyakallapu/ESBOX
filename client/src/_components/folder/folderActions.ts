@@ -3,6 +3,7 @@ import Toast from "../../utils/Toast";
 import apiService from "../../service/apiService";
 import { mutate } from "swr";
 import useModalStore from "../../store/useModal";
+import type { FolderData } from "../../types/folder";
 
 const folderActions = (folder: UserFolder, closeMenu?: () => void) => {
   const getFolderKey = () =>
@@ -10,11 +11,23 @@ const folderActions = (folder: UserFolder, closeMenu?: () => void) => {
 
   const handleDelete = async (folder_id: string | number): Promise<void> => {
     try {
-      const response = await apiService.deleteFolder(folder_id);
-      await mutate(getFolderKey());
+      const deletedFolder = await apiService.deleteFolder(folder_id);
+
+      await mutate(
+        getFolderKey(),
+        (current: FolderData | undefined) => {
+          if (!current) return current;
+          return {
+            ...current,
+            folders: current.folders.filter((f) => f.id !== deletedFolder.id),
+          };
+        },
+        { revalidate: false },
+      );
+
       Toast({
         type: "success",
-        message: response.message,
+        message: "Folder deleted successfully",
       });
     } catch (error) {
       const errorMessage =
@@ -39,16 +52,27 @@ const folderActions = (folder: UserFolder, closeMenu?: () => void) => {
     }
 
     try {
-      const response = await apiService.renameFolder({
-        id: folder.id,
+      const updatedFolder = await apiService.updateFolder(folder.id, {
         name: trimmedName,
       });
 
-      await mutate(getFolderKey());
+      await mutate(
+        getFolderKey(),
+        (current: FolderData | undefined) => {
+          if (!current) return current;
+          return {
+            ...current,
+            folders: current.folders.map((f) =>
+              f.id === folder.id ? { ...f, ...updatedFolder } : f,
+            ),
+          };
+        },
+        { revalidate: false },
+      );
 
       Toast({
         type: "success",
-        message: response.message,
+        message: "Folder renamed successfully",
       });
     } catch (error) {
       const errorMessage =
