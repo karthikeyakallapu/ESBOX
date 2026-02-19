@@ -9,7 +9,7 @@ import { useEffect } from "react";
 
 const DashBoard = () => {
   const { data, error, isLoading } = useSWR("files-and-folders", () =>
-    apiService.getAllFilesAndFolders(null),
+    apiService.getAllFilesAndFolders({ parentId: null }),
   );
   const { enterFolder, jumpToRoot } = useFolderNavStore();
 

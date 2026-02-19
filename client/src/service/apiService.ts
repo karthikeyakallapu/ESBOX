@@ -51,9 +51,17 @@ class APIService {
 
   // Folder APIs //
 
-  getAllFilesAndFolders = async (parentId: number | string | null) => {
+  getAllFilesAndFolders = async ({
+    parentId,
+    isStarred,
+  }: {
+    parentId: number | string | null;
+    isStarred?: boolean;
+  }) => {
     try {
-      const params = parentId !== null ? { parent_id: parentId } : {};
+      const parent_id = parentId !== null ? { parent_id: parentId } : {};
+      const starred = isStarred ? { is_starred: true } : {};
+      const params = { ...parent_id, ...starred };
       const response = await axiosInstance.get(ENDPOINTS.FILES_AND_FOLDERS, {
         params,
       });

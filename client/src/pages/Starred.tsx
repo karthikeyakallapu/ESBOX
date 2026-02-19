@@ -6,21 +6,14 @@ import type { UserFolder } from "../types/folder";
 import useFolderNavStore from "../store/useFolderNav";
 import type { UserFile } from "../types/file";
 import File from "../_components/file/File";
-import { useEffect } from "react";
 
-const Folders = () => {
+const Starred = () => {
   const { id } = useParams();
-  const { enterFolder, jumpToRoot } = useFolderNavStore();
+  const { enterFolder } = useFolderNavStore();
 
-  const { data, error, isLoading } = useSWR(`sub_folder_${id}`, () =>
-    apiService.getAllFilesAndFolders({ parentId: id || null }),
+  const { data, error, isLoading } = useSWR(`starred_items`, () =>
+    apiService.getAllFilesAndFolders({ parentId: id || null, isStarred: true }),
   );
-
-  useEffect(() => {
-    return () => {
-      jumpToRoot();
-    };
-  }, [jumpToRoot]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message || "error..."}</div>;
@@ -55,4 +48,4 @@ const Folders = () => {
   );
 };
 
-export default Folders;
+export default Starred;

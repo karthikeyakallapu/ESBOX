@@ -1,14 +1,22 @@
-import { Pencil, Trash2 } from "lucide-react";
- 
+import { Pencil, Trash2, Star } from "lucide-react";
+
 interface Props {
   onRename: () => void;
   onDelete: () => void;
+  updateStar: (is_starred: boolean) => void;
   isDeleting: boolean;
   isRenaming: boolean;
+  isStarred: boolean;
 }
 
-const FolderMenu = ({ onRename, isRenaming, isDeleting, onDelete }: Props) => {
- 
+const FolderMenu = ({
+  onRename,
+  isRenaming,
+  isDeleting,
+  onDelete,
+  updateStar,
+  isStarred,
+}: Props) => {
   const handleRename = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -19,6 +27,12 @@ const FolderMenu = ({ onRename, isRenaming, isDeleting, onDelete }: Props) => {
     e.preventDefault();
     e.stopPropagation();
     onDelete();
+  };
+
+  const handleUpdateStar = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    updateStar(!isStarred);
   };
 
   return (
@@ -45,6 +59,15 @@ const FolderMenu = ({ onRename, isRenaming, isDeleting, onDelete }: Props) => {
       >
         <Trash2 className="h-4 w-4" />
         Delete
+      </button>
+
+      <button
+        onClick={handleUpdateStar}
+        disabled={isDeleting || isRenaming}
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-50"
+      >
+        <Star className="h-4 w-4" />
+        {isStarred ? "Remove from Star" : "Add to Star"}
       </button>
     </div>
   );
