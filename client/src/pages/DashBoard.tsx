@@ -5,43 +5,86 @@ import type { UserFile } from "../types/file";
 import File from "../_components/file/File";
 import Folder from "../_components/folder/Folder";
 import useFolderNavStore from "../store/useFolderNav";
-import { useEffect } from "react";
+import Loading from "../_components/loaders/Loading";
+import Error from "../_components/loaders/Error";
+
+import { HardDrive, RefreshCw } from "lucide-react";
 
 const DashBoard = () => {
-  const { data, error, isLoading } = useSWR("files-and-folders", () =>
+  const { data, error, isLoading, mutate } = useSWR("files-and-folders", () =>
     apiService.getAllFilesAndFolders({ parentId: null }),
   );
-  const { enterFolder, jumpToRoot } = useFolderNavStore();
-
-  useEffect(() => {
-    jumpToRoot();
-  }, [jumpToRoot]);
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message || "error..."}</div>;
+  const { enterFolder } = useFolderNavStore();
 
   const handleFolderNav = (folder: UserFolder) => {
     enterFolder({ id: folder.id.toString(), name: folder.name });
   };
 
+  const handleRefresh = () => {
+    mutate();
+  };
+
+  if (isLoading) return <Loading />;
+  if (error) return <Error error={error} handleRefresh={handleRefresh} />;
+
   return (
-    <div className="h-full">
-      <h1 className="text-xl font-semibold m-2 rounded-xl">DashBoard</h1>
-
-      {/*  folders  */}
-      <div className="flex items-center flex-wrap gap-4 p-4">
-        {data?.folders.map((folder: UserFolder) => (
-          <div key={folder.id} onClick={() => handleFolderNav(folder)}>
-            <Folder folder={folder} />
+    <div className="h-full bg-linear-to-br from-gray-50/30 to-white p-6 rounded-3xl">
+      {/* Header Section */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-linear-to-br from-blue-400 to-blue-700  rounded-xl shadow-lg shadow-blue-200">
+            <HardDrive className="text-white" size={20} />
           </div>
-        )) || "No folders found."}
-
-        {/*  files */}
-        {data?.files.map((file: UserFile) => (
-          <div key={file.id}>
-            <File file={file} />
+          <div>
+            <h1 className="text-2xl font-bold bg-linear-to-br from-gray-800 to-gray-600 bg-clip-text text-transparent">
+              Dashboard
+            </h1>
           </div>
-        )) || "No files found."}
+        </div>
+
+        {/* Refresh Button */}
+        <button
+          onClick={handleRefresh}
+          className="p-2 hover:bg-white rounded-lg border border-gray-200 transition-colors group"
+        >
+          <RefreshCw
+            size={16}
+            className="text-gray-400 group-hover:text-gray-600 group-hover:rotate-180 transition-all duration-500"
+          />
+        </button>
+      </div>
+
+      <div className="flex flex-wrap gap-4">
+        {/* Folders */}
+        {data?.folders && data.folders.length > 0 ? (
+          data.folders.map((folder: UserFolder) => (
+            <div
+              key={folder.id}
+              onClick={() => handleFolderNav(folder)}
+              className="cursor-pointer transition-transform hover:scale-105"
+            >
+              <Folder folder={folder} />
+            </div>
+          ))
+        ) : (
+          <div className="w-full text-center py-8 text-gray-400">
+            No folders found.
+          </div>
+        )}
+
+        {/* Files */}
+        {data?.files && data.files.length > 0
+          ? data.files.map((file: UserFile) => (
+              <div key={file.id}>
+                <File file={file} />
+              </div>
+            ))
+          : data?.folders &&
+            data.folders.length === 0 && (
+              <div className="w-full text-center py-8 text-gray-400">
+                No files found.
+              </div>
+            )}
       </div>
     </div>
   );

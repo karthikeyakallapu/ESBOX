@@ -25,7 +25,7 @@ const SideNav = () => {
 
   return (
     <aside
-      className={`relative bg-white rounded-xl shadow-xl border border-gray-100
+      className={`relative bg-white rounded-xl  border border-gray-100
       transition-[width] duration-500 ease-in-out
       ${isOpen ? "w-64" : "w-18"} overflow-hidden`}
     >
