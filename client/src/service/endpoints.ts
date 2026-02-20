@@ -4,10 +4,12 @@ export const ENDPOINTS = {
   REGISTER: `${API_BASE_URL}/auth/register`,
   LOGIN: `${API_BASE_URL}/auth/login`,
   LOGOUT: `${API_BASE_URL}/auth/logout`,
+  TRASH: `${API_BASE_URL}/trash`,
   ME: `${API_BASE_URL}/auth/me`,
   FILES_AND_FOLDERS: `${API_BASE_URL}/folders`,
   CREATE_FOLDER: `${API_BASE_URL}/folders`,
-  UPDATE_FOLDER: (folder_id : number | string) => `${API_BASE_URL}/folders/${folder_id}`,
+  UPDATE_FOLDER: (folder_id: number | string) =>
+    `${API_BASE_URL}/folders/${folder_id}`,
   UPLOAD_FILE: `${API_BASE_URL}/telegram/upload`,
   DELETE_FILE: `${API_BASE_URL}/telegram/delete`,
   RENAME_FILE: `${API_BASE_URL}/telegram/rename`,

@@ -47,6 +47,47 @@ class APIService {
     }
   };
 
+  getUserTrash = async () => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.TRASH);
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  updateUserTrash = async ({
+    item_id,
+    item_type,
+    action,
+  }: {
+    item_id: number | string;
+    item_type: "file" | "folder";
+    action: "restore" | "delete";
+  }) => {
+    try {
+      if (action === "restore") {
+        const response = await axiosInstance.patch(ENDPOINTS.TRASH, {
+          item_id,
+          item_type,
+        });
+        return response.data;
+      } else if (action === "delete") {
+        const response = await axiosInstance.delete(ENDPOINTS.TRASH, {
+          data: {
+            item_id,
+            item_type,
+          },
+        });
+        return response.data;
+      }
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
   // User APIs //
 
   // Folder APIs //

@@ -1,5 +1,4 @@
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.params import Depends
+from fastapi import APIRouter, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,8 +8,10 @@ from app.config import settings
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
 from app.logger import logger
-from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse, CurrentUserResponse
+from app.repositories.folder import folder_repository
+from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse, CurrentUserResponse, UpdateTrash
 from app.services.auth.user import UserService
+from app.services.folders.folder_manager import folder_manager
 
 router = APIRouter()
 
@@ -188,3 +189,40 @@ async def logout_all(response: Response, current_user: dict = Depends(get_curren
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current authenticated user information"""
     return current_user
+
+@router.get("/trash")
+async def get_trash(user = Depends(get_current_user), db = Depends(get_db)):
+    try :
+        trash = await folder_manager.get_user_trash(user.get('id'), db)
+        return trash
+    except HTTPException as e:
+        logger.error(e)
+        raise e
+    except Exception as e:
+        logger.error(e)
+        return JSONResponse(status_code=500, content={"message": "Internal server error"})
+
+@router.patch("/trash")
+async def restore_from_trash(trash : UpdateTrash, user = Depends(get_current_user), db = Depends(get_db)):
+    try :
+        restored_item = await folder_manager.restore_from_trash(trash.item_id, trash.item_type, user.get('id'), db)
+        return restored_item
+    except HTTPException as e:
+        logger.error(e)
+        raise e
+    except Exception as e:
+        logger.error(e)
+        return JSONResponse(status_code=500, content={"message": "Internal server error"})
+
+
+@router.delete("/trash")
+async def delete_from_trash(trash : UpdateTrash, user=Depends(get_current_user), db=Depends(get_db)):
+    try:
+        deleted_item = await folder_manager.delete_from_trash(trash.item_id, trash.item_type, user.get('id'), db)
+        return deleted_item
+    except HTTPException as e:
+        logger.error(e)
+        raise e
+    except Exception as e:
+        logger.error(e)
+        return JSONResponse(status_code=500, content={"message": "Internal server error"})

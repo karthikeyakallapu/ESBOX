@@ -88,5 +88,36 @@ class FolderRepository:
         )
         return result.scalars().all()
 
+    @staticmethod
+    async def get_folder_trash(user_id, db):
+        result = await db.execute(
+            select(UserFolder).where(UserFolder.user_id == user_id, UserFolder.is_deleted == True)
+        )
+        folders = result.scalars().all()
+        return folders
+
+    @staticmethod
+    async def restore_folder_from_trash(folder_id: int, user_id: int, db: AsyncSession):
+        result = await db.execute(
+            update(UserFolder)
+            .where(UserFolder.id == folder_id, UserFolder.user_id == user_id)
+            .values(is_deleted=False, updated_at=datetime.utcnow())
+            .returning(UserFolder)
+        )
+        await db.commit()
+        folder = result.scalar_one_or_none()
+        return folder
+
+    @staticmethod
+    async def delete_folder_from_trash(folder_id: int, user_id: int, db: AsyncSession):
+        result = await db.execute(
+            delete(UserFolder)
+            .where(UserFolder.id == folder_id, UserFolder.user_id == user_id, UserFolder.is_deleted == True)
+            .returning(UserFolder)
+        )
+        await db.commit()
+        folder = result.scalar_one_or_none()
+        return folder
+
 
 folder_repository = FolderRepository()
