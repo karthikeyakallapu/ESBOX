@@ -124,7 +124,7 @@ const SideNav = () => {
         <div className="mt-auto pt-4 border-t border-gray-100">
           <div className={`flex items-center ${!isOpen && "justify-center"}`}>
             <div
-              className="h-9 w-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 
+              className="h-9 w-9 rounded-xl bg-linear-to-b from-purple-500 to-pink-500 
               flex items-center justify-center text-white text-sm font-medium shadow-md"
             >
               {user?.username.charAt(0).toUpperCase()}

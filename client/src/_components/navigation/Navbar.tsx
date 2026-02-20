@@ -21,7 +21,7 @@ const Navbar = () => {
         {isAuthenticated && (
           <>
             <div
-              className="h-9 w-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 
+              className="h-9 w-9 rounded-xl bg-linear-to-b from-purple-500 to-pink-500 
               flex items-center justify-center text-white text-sm font-medium shadow-md"
             >
               {user?.username.charAt(0).toUpperCase()}
