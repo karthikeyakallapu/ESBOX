@@ -20,7 +20,12 @@ const Navbar = () => {
         <span className="hidden sm:inline">{user?.username}</span>
         {isAuthenticated && (
           <>
-            <div className="h-8 w-8 rounded-full bg-slate-200"></div>
+            <div
+              className="h-9 w-9 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 
+              flex items-center justify-center text-white text-sm font-medium shadow-md"
+            >
+              {user?.username.charAt(0).toUpperCase()}
+            </div>
             <button onClick={handleLogout}>Logout</button>
           </>
         )}
