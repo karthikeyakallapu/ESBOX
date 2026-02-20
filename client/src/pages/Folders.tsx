@@ -94,7 +94,7 @@ const Folders = () => {
               <div
                 key={folder.id}
                 onClick={() => handleFolderNav(folder)}
-                className="cursor-pointer transition-transform hover:scale-105 hover:-translate-y-1 duration-200"
+                className="cursor-pointer "
               >
                 <Folder folder={folder} />
               </div>

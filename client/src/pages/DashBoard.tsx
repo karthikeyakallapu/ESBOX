@@ -61,7 +61,7 @@ const DashBoard = () => {
             <div
               key={folder.id}
               onClick={() => handleFolderNav(folder)}
-              className="cursor-pointer transition-transform hover:scale-105"
+              className="cursor-pointer"
             >
               <Folder folder={folder} />
             </div>
