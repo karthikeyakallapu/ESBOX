@@ -4,6 +4,7 @@ import { ENDPOINTS } from "./endpoints";
 import { handleApiError } from "./errorHandler";
 import type { AxiosProgressEvent } from "axios";
 import type { FolderUpdateData } from "../types/folder";
+import type { FileUpdate } from "../types/file";
 
 class APIService {
   // User APIs //
@@ -190,6 +191,32 @@ class APIService {
           },
           onUploadProgress,
         },
+      );
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  updateFile = async (fileId: number, data: FileUpdate) => {
+    try {
+      const response = await axiosInstance.patch(
+        ENDPOINTS.UPDATE_FILE(fileId),
+        data,
+      );
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  renameFile = async (fileId: number, data: FileUpdate) => {
+    try {
+      const response = await axiosInstance.patch(
+        ENDPOINTS.UPDATE_FILE(fileId),
+        data,
       );
       return response.data;
     } catch (error) {

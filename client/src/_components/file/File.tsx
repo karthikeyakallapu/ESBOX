@@ -2,8 +2,8 @@ import FileCard from "./FileCard";
 import type { UserFile } from "../../types/file";
 import useOptionsDropdown from "../../hooks/useOptionsDropdown";
 import { EllipsisVertical } from "lucide-react";
-import FileMenu from "./FileMenu";
-import fileActions from "./fileActions";
+import useFileActions from "./fileActions";
+import ItemMenu from "../menu/ItemMenu";
 
 const File = ({ file }: { file: UserFile }) => {
   const {
@@ -11,11 +11,19 @@ const File = ({ file }: { file: UserFile }) => {
     toggleMenu,
     isDeleting,
     setIsMenuOpen,
+    isRenaming,
     menuRef,
     buttonRef,
   } = useOptionsDropdown();
 
-  const { deleteFile } = fileActions(file, () => setIsMenuOpen(false));
+  const { deleteFile, handleStar, renameFile } = useFileActions(file, () =>
+    setIsMenuOpen(false),
+  );
+
+  const handleStarClick = async () => {
+    await handleStar(file.id);
+    setIsMenuOpen(false);
+  };
 
   return (
     <FileCard mime_type={file.mime_type} name={file.filename} isLoading={false}>
@@ -34,9 +42,13 @@ const File = ({ file }: { file: UserFile }) => {
 
       {isMenuOpen && (
         <div ref={menuRef}>
-          <FileMenu
-            deleteFile={() => deleteFile(file.id.toString())}
+          <ItemMenu
+            onDelete={() => deleteFile(file.id.toString())}
+            onRename={renameFile}
+            isRenaming={isRenaming}
             isDeleting={isDeleting}
+            updateStar={handleStarClick}
+            isStarred={file.is_starred}
           />
         </div>
       )}

@@ -4,6 +4,7 @@ interface UserFile {
   filename: string;
   mime_type: string;
   size: number;
+  is_starred: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -13,4 +14,14 @@ interface DeleteFileModalData {
   onDelete: (fileId: string | number) => Promise<void>;
 }
 
-export type { UserFile, DeleteFileModalData };
+interface RenameFileModalData {
+  file: UserFile;
+  onRename: (new_name: string) => Promise<void>;
+}
+interface FileUpdate {
+  action: "rename" | "move" | "star" | "unstar";
+  payload?: {
+    new_name?: string;
+  };
+}
+export type { UserFile, DeleteFileModalData, FileUpdate, RenameFileModalData };

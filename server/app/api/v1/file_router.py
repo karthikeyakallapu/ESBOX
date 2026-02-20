@@ -1,10 +1,13 @@
 from typing import Optional
 
 from fastapi import APIRouter, Depends ,HTTPException , Header
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
 from app.logger import logger
+from app.schemas.file import FileUpdate
+from app.services.files.file_manager import file_manager
 from app.services.files.file_stream_manager import file_stream_manager
 router = APIRouter()
 
@@ -30,3 +33,24 @@ async def get_file(
             status_code=500,
             detail=f"Error streaming file: {str(e)}"
         )
+
+@router.patch("/{file_id}")
+async def update_file(file_id: int,file: FileUpdate,user=Depends(get_current_user),db: AsyncSession = Depends(get_db)):
+    try:
+        updated_file = await file_manager.update_file(
+            file_id,
+            file,
+            user.get("id"),
+            db,
+        )
+
+        if not updated_file:
+            raise HTTPException(status_code=500, detail="File update Failed")
+
+        return updated_file
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(e)
+        raise e

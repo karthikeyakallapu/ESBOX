@@ -95,7 +95,7 @@ class TelegramStorageRepository:
     async def get_files_in_folder(parent_id, user_id, db):
         try:
             result = await db.execute(
-                select(UserFile.id, UserFile.parent_id, UserFile.file_size, UserFile.filename, UserFile.mime_type, UserFile.updated_at
+                select(UserFile.id, UserFile.parent_id, UserFile.file_size, UserFile.filename, UserFile.mime_type, UserFile.updated_at ,UserFile.is_starred
                        , UserFile.uploaded_at).where(
                     UserFile.user_id == user_id,
                     UserFile.parent_id == parent_id

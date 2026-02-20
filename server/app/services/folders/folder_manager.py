@@ -2,6 +2,7 @@ from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.logger import logger
+from app.repositories.file import file_repository
 from app.repositories.folder import folder_repository
 from app.repositories.telegram.storage import storage_repository
 
@@ -45,9 +46,7 @@ class FolderManager:
         try:
             inner_folders = await folder_repository.get_starred_folders(user_id, db)
 
-            # inner_files = await storage_repository.get_files_in_folder(user_id, db)
-            inner_files  = []
-
+            inner_files  = await file_repository.get_starred_files(user_id, db)
             return {"folders": inner_folders, "files": inner_files}
         except Exception as e:
             logger.error(e)
