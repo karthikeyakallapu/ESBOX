@@ -11,7 +11,7 @@ const Loading = () => {
             size={24}
           />
         </div>
-        <p className="text-gray-500 font-medium">Loading Your Files...</p>
+ 
       </div>
     </div>
   );

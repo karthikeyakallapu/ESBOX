@@ -4,13 +4,14 @@ import type { UserFolder } from "../types/folder";
 import type { UserFile } from "../types/file";
 import File from "../_components/file/File";
 import TrashFolderItem from "../_components/trash/TrashFolderItem";
+import Loading from "../_components/loaders/Loading";
 
 const TrashPage = () => {
   const { data, error, isLoading } = useSWR("user_trash", () =>
     apiService.getUserTrash(),
   );
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message || "Error loading trash"}</div>;
 
   if (!data || (data.folders.length === 0 && data.files.length === 0)) {

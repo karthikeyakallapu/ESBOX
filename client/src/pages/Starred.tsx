@@ -6,6 +6,7 @@ import type { UserFolder } from "../types/folder";
 import useFolderNavStore from "../store/useFolderNav";
 import type { UserFile } from "../types/file";
 import File from "../_components/file/File";
+import Loading from "../_components/loaders/Loading";
 
 const Starred = () => {
   const { id } = useParams();
@@ -15,7 +16,7 @@ const Starred = () => {
     apiService.getAllFilesAndFolders({ parentId: id || null, isStarred: true }),
   );
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Loading />;
   if (error) return <div>Error: {error.message || "error..."}</div>;
 
   const handleFolderNav = (folder: UserFolder) => {

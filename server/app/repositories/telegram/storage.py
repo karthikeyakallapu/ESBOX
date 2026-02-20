@@ -99,7 +99,7 @@ class TelegramStorageRepository:
                        , UserFile.uploaded_at).where(
                     UserFile.user_id == user_id,
                     UserFile.parent_id == parent_id
-                )
+                ).order_by(UserFile.filename.asc())
             )
             return result.mappings().all()
 

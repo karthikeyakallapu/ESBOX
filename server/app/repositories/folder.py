@@ -3,6 +3,7 @@ from datetime import datetime
 from sqlalchemy import select, func, delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.logger import logger
 from app.models import UserFolder
 
 
@@ -53,11 +54,28 @@ class FolderRepository:
     async def get_children(parent_id, user_id: int, db: AsyncSession):
         if not parent_id:
             result = await db.execute(
-                select(UserFolder).where(UserFolder.parent_id.is_(None), UserFolder.user_id == user_id , UserFolder.is_deleted == False))
+                select(UserFolder)
+                .where(
+                    UserFolder.parent_id.is_(None),
+                    UserFolder.user_id == user_id,
+                    UserFolder.is_deleted == False
+                )
+                .order_by(UserFolder.name.asc())
+            )
             folders = result.scalars().all()
             return folders
-        result = await db.execute(select(UserFolder).where(UserFolder.parent_id == parent_id, UserFolder.user_id == user_id))
-        return result.scalars().all()
+
+        result = await db.execute(
+            select(UserFolder)
+            .where(
+                UserFolder.parent_id == parent_id,
+                UserFolder.user_id == user_id
+            )
+            .order_by(UserFolder.name.asc())
+        )
+
+        folders = result.scalars().all()
+        return folders
 
     @staticmethod
     async def delete_folder(folder_id, user_id: int, db: AsyncSession):
