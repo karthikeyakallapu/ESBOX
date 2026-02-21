@@ -28,11 +28,9 @@ async def lifespan(app: FastAPI):
     logger.info("Server stopped")
 
 
-# Use lifespan only in development, not in serverless
-if settings.environment == "development":
-    app = FastAPI(title=settings.title, version=settings.version, lifespan=lifespan)
-else:
-    app = FastAPI(title=settings.title, version=settings.version)
+# Create app without lifespan for serverless compatibility
+# Lifespan events don't work well with Vercel's serverless architecture
+app = FastAPI(title=settings.title, version=settings.version)
 
 app.include_router(api_router, prefix="/api/v1")
 
@@ -97,9 +95,3 @@ if __name__ == "__main__" and settings.environment == "development":
         reload=True,
     )
 
-# Vercel serverless handler
-try:
-    from mangum import Mangum
-    handler = Mangum(app, lifespan="off")
-except ImportError:
-    handler = None
