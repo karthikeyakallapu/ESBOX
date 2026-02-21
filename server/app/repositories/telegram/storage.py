@@ -75,11 +75,12 @@ class TelegramStorageRepository:
                 select(UserFile.id, UserFile.parent_id, UserFile.file_size, UserFile.filename, UserFile.mime_type, UserFile.updated_at ,UserFile.is_starred
                        , UserFile.uploaded_at).where(
                     UserFile.user_id == user_id,
-                    UserFile.parent_id == parent_id
+                    UserFile.parent_id == parent_id,
+                    UserFile.is_deleted == False
                 ).order_by(UserFile.filename.asc())
             )
-            return result.mappings().all()
-
+            files = result.mappings().all()
+            return files
         except Exception as e:
             logger.error(e)
             raise
