@@ -1,10 +1,8 @@
-import StorageOptionModal from "../modals/StorageOptionModal";
 import useModalStore from "../../store/useModal";
 import { FolderPlus, Upload, Link } from "lucide-react";
-import modalComponents from "../modals/modalComponents";
 
 const StorageActions = () => {
-  const { isOpen, openModal, component } = useModalStore();
+  const { openModal } = useModalStore();
 
   return (
     <>
@@ -72,17 +70,6 @@ const StorageActions = () => {
           <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>
       </div>
-
-      {/* Modals */}
-      {modalComponents.map((modal) => {
-        if (isOpen && component === modal.name) {
-          return (
-            <StorageOptionModal key={modal.name}>
-              {modal.component}
-            </StorageOptionModal>
-          );
-        }
-      })}
     </>
   );
 };

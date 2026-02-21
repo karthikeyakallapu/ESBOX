@@ -2,6 +2,7 @@ import DeleteFolder from "../folder/DeleteFolder";
 import DeleteFile from "../file/DeleteFile";
 import NewFolder from "../folder/NewFolder";
 import RenameFolder from "../folder/RenameFolder";
+import RenameFile from "../file/RenameFile";
 import UploadFile from "../file/upload/UploadFile";
 import TelegramLink from "../telegram/TelegramLink";
 
@@ -25,6 +26,10 @@ const modalComponents = [
   {
     name: "uploadFile",
     component: <UploadFile />,
+  },
+  {
+    name: "renameFile",
+    component: <RenameFile />,
   },
   {
     name: "telegramLink",

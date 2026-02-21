@@ -1,3 +1,5 @@
+import type { UserFile } from "./file";
+
 interface UserFolder {
   user_id: number;
   is_root: boolean;
@@ -24,7 +26,7 @@ interface FolderNavStore {
 
 interface RenameFolderModalData {
   folder: UserFolder;
-  onRename: (newName: string) => Promise<void>;
+  onRename: (new_name: string) => Promise<void>;
 }
 
 interface DeleteFolderModalData {
@@ -42,7 +44,7 @@ interface FolderUpdateData {
 
 interface FolderData {
   folders: UserFolder[];
-  files: unknown[];
+  files: UserFile[];
 }
 
 export type {

@@ -50,7 +50,7 @@ const DeleteFile = () => {
       <div className="flex items-center gap-3 p-3 bg-red-50 rounded-lg">
         <Trash2 size={28} className="text-red-500" />
         <div>
-          <h3 className="text-sm font-semibold text-red-700">Delete Folder</h3>
+          <h3 className="text-sm font-semibold text-red-700">Delete File</h3>
           <p className="text-xs text-red-600 mt-0.5">
             Are you sure you want to delete{" "}
             <span className="font-medium">"{file.filename}"</span>?
@@ -59,7 +59,10 @@ const DeleteFile = () => {
       </div>
 
       {/* Warning */}
-      <p className="text-xs text-gray-500">This action cannot be undone.</p>
+      <p className="text-xs text-gray-500">
+        {" "}
+        This will move this file to trash.
+      </p>
 
       {/* Error */}
       {error && (

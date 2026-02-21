@@ -7,6 +7,7 @@ type ModalComponent =
   | "renameFolder"
   | "deleteFolder"
   | "deleteFile"
+  | "renameFile"
   | "uploadFile"
   | "telegramLink";
 

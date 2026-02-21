@@ -5,9 +5,13 @@ import useAuthStore from "../store/useAuth";
 import BreadCrumb from "../_components/navigation/BreadCrumb";
 import StorageActions from "../_components/storage/StorageActions";
 import { useLocation } from "react-router-dom";
+import modalComponents from "../_components/modals/modalComponents";
+import useModalStore from "../store/useModal";
+import StorageOptionModal from "../_components/modals/StorageOptionModal";
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
+  const { isOpen, component } = useModalStore();
   const location = useLocation();
 
   return (
@@ -25,12 +29,24 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
             {isAuthenticated && (
               <>
                 <BreadCrumb />
-                {location.pathname !== "/starred" && <StorageActions />}
+                {location.pathname !== "/starred" &&
+                  location.pathname !== "/trash" && <StorageActions />}
               </>
             )}
 
             {children}
           </div>
+
+          {/* Modals */}
+          {modalComponents.map((modal) => {
+            if (isOpen && component === modal.name) {
+              return (
+                <StorageOptionModal key={modal.name}>
+                  {modal.component}
+                </StorageOptionModal>
+              );
+            }
+          })}
         </main>
       </div>
     </div>

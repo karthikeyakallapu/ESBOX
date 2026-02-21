@@ -1,9 +1,14 @@
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
+from telethon.tl.types import PeerChannel
 
 from app.logger import logger
+from app.repositories.file import file_repository
 from app.repositories.folder import folder_repository
 from app.repositories.telegram.storage import storage_repository
+from app.services.telegram.client_manager import telegram_client_manager
+from app.services.telegram.storage_service import tele_storage_service
 
 
 class FolderManager:
@@ -45,9 +50,7 @@ class FolderManager:
         try:
             inner_folders = await folder_repository.get_starred_folders(user_id, db)
 
-            # inner_files = await storage_repository.get_files_in_folder(user_id, db)
-            inner_files  = []
-
+            inner_files  = await file_repository.get_starred_files(user_id, db)
             return {"folders": inner_folders, "files": inner_files}
         except Exception as e:
             logger.error(e)
@@ -105,8 +108,7 @@ class FolderManager:
         try:
             trash_folders = await folder_repository.get_folder_trash(user_id, db)
 
-            files = []
-            # Todo : get files in trash
+            files = await file_repository.get_trashed_files(user_id, db)
 
             return {"folders":trash_folders , "files": files}
         except Exception as e:
@@ -118,7 +120,9 @@ class FolderManager:
         try:
             if item_type == "folder":
                 restored_item = await folder_repository.restore_folder_from_trash(item_id, user_id, db)
-            # Todo : restore all Files as well in future
+            elif item_type == "file":
+                fields_to_update = {"is_deleted": False}
+                restored_item = await file_repository.update_file_fields(item_id, user_id, fields_to_update, db)
             else:
                 raise HTTPException(status_code=400, detail="Invalid item type")
 
@@ -138,7 +142,24 @@ class FolderManager:
         try:
             if item_type == "folder":
                 deleted_item = await folder_repository.delete_folder_from_trash(item_id, user_id, db)
-            # Todo : delete all Files as well in future
+            elif item_type == "file":
+
+                file_record = await file_repository.get_file_by_id(item_id, user_id, db)
+
+                if not file_record:
+                    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+
+                # Check for other instances of the same file in the same Telegram channel before deleting the Telegram message
+                other_instances = await storage_repository.get_other_instances_in_channel(item_id, user_id, db)
+
+                # If there are no other instances, proceed to delete the Telegram message
+                if len(other_instances) <= 1:
+                    await tele_storage_service.remove_files_from_channel(user_id,db, [file_record.content_hash])
+
+                file = await file_repository.delete_file_from_trash(item_id, user_id, db)
+
+                return file
+
             else:
                 raise HTTPException(status_code=400, detail="Invalid item type")
 

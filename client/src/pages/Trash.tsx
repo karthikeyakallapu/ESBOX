@@ -2,9 +2,9 @@ import useSWR from "swr";
 import apiService from "../service/apiService";
 import type { UserFolder } from "../types/folder";
 import type { UserFile } from "../types/file";
-import File from "../_components/file/File";
 import TrashFolderItem from "../_components/trash/TrashFolderItem";
 import Loading from "../_components/loaders/Loading";
+import TrashFileItem from "../_components/trash/TrashFileItem";
 
 const TrashPage = () => {
   const { data, error, isLoading } = useSWR("user_trash", () =>
@@ -29,7 +29,7 @@ const TrashPage = () => {
 
       {/* Files */}
       {data.files.map((file: UserFile) => (
-        <File key={file.id} file={file} />
+        <TrashFileItem key={file.id} file={file} />
       ))}
     </div>
   );
