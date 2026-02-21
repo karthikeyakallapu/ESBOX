@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import select, update, func
+from sqlalchemy import select, update, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import UserFile
 
@@ -94,5 +94,35 @@ class FileRepository:
         result = await db.execute(query)
         return result.scalar_one_or_none()
 
+    # --------------------------------------
+    # GET TRASHED FILES
+    # --------------------------------------
+
+    @staticmethod
+    async def get_trashed_files(
+            user_id: int,
+            db: AsyncSession
+    ):
+        query = select(UserFile).where(
+            UserFile.user_id == user_id,
+            UserFile.is_deleted.is_(True)
+        )
+        result = await db.execute(query)
+        return result.scalars().all()
+
+
+
+    @staticmethod
+    async def delete_file_from_trash(file_id: int, user_id: int, db):
+         query  = delete(UserFile).where(
+                UserFile.id == file_id,
+                UserFile.user_id == user_id,
+                UserFile.is_deleted.is_(True)).returning(UserFile)
+
+         result = await db.execute(query)
+         await db.commit()
+
+         deleted_file = result.scalar_one_or_none()
+         return deleted_file
 
 file_repository = FileRepository()

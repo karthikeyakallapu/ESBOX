@@ -131,47 +131,30 @@ class TelegramStorageService:
                 raise e
 
     @staticmethod
-    async def delete_file(file_id: int, user_id: int, db: AsyncSession):
+    async def remove_files_from_channel(user_id: int, db: AsyncSession, file_hashes: list):
         try:
-            # Check if user has a Telegram session before proceeding
-            has_session = await telegram_client_manager.has_session(user_id, db)
-            if not has_session:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="No Telegram session found. Please connect your Telegram account first."
-                )
-
-            file_record = await storage_repository.get_file_by_id(file_id, user_id, db)
-
-            if not file_record:
-                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
-
-            other_instances = await storage_repository.get_other_instances_in_channel(file_id, user_id, db)
-
-            if len(other_instances) > 1:
-                await storage_repository.delete_file_record(file_id, user_id, db)
-                return {"message": "File deleted successfully"}
-
             client = await telegram_client_manager.get_client(user_id, db)
 
+            for file_hash in file_hashes:
+                existing_file = await storage_repository.is_file_exists_in_channel(None, user_id, db, file_hash)
 
-            entity = PeerChannel(int(file_record.telegram_chat_id))
+                if existing_file:
 
-            result = await client.delete_messages(
-                entity,
-                [file_record.telegram_message_id],
-                revoke=True
-            )
+                    entity = PeerChannel(int(existing_file.telegram_chat_id))
 
-            await storage_repository.delete_file_record(file_id, user_id, db)
+                    result = await client.delete_messages(
+                        entity,
+                        [existing_file.telegram_message_id],
+                        revoke=True
+                     )
 
-            return {"message": "File deleted successfully"}
+                    return result
 
-        except HTTPException as e:
-            raise e
+            return None
         except Exception as e:
             logger.error(e)
-            await db.rollback()
             raise e
+
+
 
 tele_storage_service = TelegramStorageService()

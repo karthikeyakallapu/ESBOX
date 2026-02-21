@@ -43,7 +43,7 @@ const File = ({ file }: { file: UserFile }) => {
       {isMenuOpen && (
         <div ref={menuRef}>
           <ItemMenu
-            onDelete={() => deleteFile(file.id.toString())}
+            onDelete={() => deleteFile(file.id)}
             onRename={renameFile}
             isRenaming={isRenaming}
             isDeleting={isDeleting}

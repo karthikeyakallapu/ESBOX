@@ -19,7 +19,7 @@ interface RenameFileModalData {
   onRename: (new_name: string) => Promise<void>;
 }
 interface FileUpdate {
-  action: "rename" | "move" | "star" | "unstar";
+  action: "rename" | "move" | "star" | "unstar" | "delete";
   payload?: {
     new_name?: string;
   };

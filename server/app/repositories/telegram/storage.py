@@ -47,17 +47,6 @@ class TelegramStorageRepository:
             raise
 
     @staticmethod
-    async def get_file_by_id(file_id, user_id, db):
-        try:
-            result = await db.execute(
-                select(UserFile).where(UserFile.id == file_id, UserFile.user_id == user_id)
-            )
-            return result.scalar_one_or_none()
-        except Exception as e:
-            logger.error(e)
-            raise
-
-    @staticmethod
     async def save_file_record(user_id, file_metadata, file_hash, db):
         try:
             new_file = UserFile(
@@ -78,18 +67,6 @@ class TelegramStorageRepository:
         except Exception as e:
             logger.error(e)
             raise
-
-    @staticmethod
-    async def delete_file_record(file_id, user_id, db):
-        query = delete(UserFile).where(
-            UserFile.id == file_id,
-            UserFile.user_id == user_id
-        )
-
-        result = await db.execute(query)
-        await db.commit()
-
-        return result.rowcount
 
     @staticmethod
     async def get_files_in_folder(parent_id, user_id, db):

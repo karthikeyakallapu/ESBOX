@@ -39,13 +39,26 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
     );
   };
 
-  const handleDelete = async (file_id: string | number): Promise<void> => {
+  const handleDelete = async (file_id: number): Promise<void> => {
     try {
-      const response = await apiService.deleteFile(file_id);
-      // await mutate(getFileKey());
+      const deletedFile = await apiService.updateFile(file_id, {
+        action: "delete",
+      });
+
+      await mutateFolderList((current) => {
+        if (!current) return current;
+        const updatedFiles = current.files.filter(
+          (f) => f.id !== deletedFile.id,
+        );
+        return {
+          ...current,
+          files: updatedFiles,
+        };
+      });
+
       Toast({
         type: "success",
-        message: response.message,
+        message: "File moved to trash",
       });
     } catch (error) {
       const errorMessage =
@@ -128,7 +141,7 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
     }
   }
 
-  const deleteFile = (fileId: string) => {
+  const deleteFile = (fileId: number) => {
     closeMenu?.();
     console.log(`Deleting file with ID: ${fileId}`);
     const { openModal } = useModalStore.getState();

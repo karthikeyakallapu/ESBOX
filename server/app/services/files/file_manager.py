@@ -64,6 +64,8 @@ class FileManager:
 
                 fields_to_update["filename"] = new_name
 
+            elif data.action == "delete":
+                fields_to_update["is_deleted"] = True
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
