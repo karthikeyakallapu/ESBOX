@@ -92,3 +92,6 @@ if __name__ == "__main__" and settings.environment == "development":
         port=settings.port,
         reload=True,
     )
+
+from mangum import Mangum
+handler = Mangum(app)
