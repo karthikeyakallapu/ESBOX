@@ -1,6 +1,5 @@
 from contextlib import asynccontextmanager
 
-import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError, HTTPException
@@ -86,11 +85,14 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 
-if __name__ == "__main__" and settings.environment == "development":
-    uvicorn.run(
-        "app.main:app",
-        host=settings.host,
-        port=settings.port,
-        reload=True,
-    )
+if __name__ == "__main__":
+    import uvicorn
+    from app.config import settings
+    if settings.environment == "development":
+        uvicorn.run(
+            "app.main:app",
+            host=settings.host,
+            port=settings.port,
+            reload=True,
+        )
 

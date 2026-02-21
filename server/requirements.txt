@@ -64,6 +64,9 @@ filetype
 Mako==1.3.10
 MarkupSafe==3.0.3
 
+# Serverless
+mangum==0.17.0
+
 # Serverless adapter
 mangum==0.17.0
 

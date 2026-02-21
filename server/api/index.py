@@ -1,8 +1,11 @@
-"""
-Vercel serverless handler for FastAPI application
-"""
-from app.main import app
+# Minimal handler for Vercel - no imports at module level
+# to avoid conflicts with Vercel's runtime introspection
 
-# Vercel's @vercel/python now supports ASGI directly
-# Just export the FastAPI app as both 'app' and 'handler'
-handler = app
+def handler(event, context):
+    """Lambda/Vercel handler with lazy imports"""
+    from mangum import Mangum
+    from app.main import app
+
+    # Create Mangum handler on first request
+    handler_instance = Mangum(app, lifespan="off")
+    return handler_instance(event, context)
