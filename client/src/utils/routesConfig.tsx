@@ -7,11 +7,33 @@ import Folders from "../pages/Folders";
 import TelegramLink from "../_components/telegram/TelegramLink";
 import Starred from "../pages/Starred";
 import Trash from "../pages/Trash";
+import PublicRoute from "./PublicRoute";
 
 const routesConfig = [
-  { path: "/", component: <Home /> },
-  { path: "/login", component: <Login /> },
-  { path: "/register", component: <Register /> },
+  {
+    path: "/",
+    component: (
+      <PublicRoute>
+        <Home />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/login",
+    component: (
+      <PublicRoute>
+        <Login />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/register",
+    component: (
+      <PublicRoute>
+        <Register />
+      </PublicRoute>
+    ),
+  },
   {
     path: "/dashboard",
     component: (

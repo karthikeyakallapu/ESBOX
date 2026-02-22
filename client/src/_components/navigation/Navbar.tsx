@@ -1,6 +1,5 @@
 import Logo from "./Logo";
 import useAuthStore from "../../store/useAuth";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -9,7 +8,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -28,12 +27,6 @@ const Navbar = () => {
             </div>
             <button onClick={handleLogout}>Logout</button>
           </>
-        )}
-
-        {!isAuthenticated && (
-          <Link to="/login" className="hover:underline">
-            Login
-          </Link>
         )}
       </div>
     </div>

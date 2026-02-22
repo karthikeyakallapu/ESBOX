@@ -9,11 +9,13 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import useAuthStore from "../../store/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const SideNav = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(true);
   const { user, logout } = useAuthStore();
+  const navigate = useNavigate();
 
   const navItems = [
     { path: "/starred", label: "Starred", icon: Star },
@@ -23,6 +25,11 @@ const SideNav = () => {
 
   const isDashboardActive = location.pathname === "/dashboard";
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+
   return (
     <aside
       className={`relative bg-white rounded-xl  border border-gray-100
@@ -30,7 +37,6 @@ const SideNav = () => {
       ${isOpen ? "w-64" : "w-18"} overflow-hidden`}
     >
       <nav className="h-full px-2 py-4 flex flex-col">
-        {/* ---------------- Dashboard Row (Header + Toggle) ---------------- */}
         <div
           className={`relative flex items-center rounded-xl mb-4 
           transition-all duration-300 
@@ -41,7 +47,6 @@ const SideNav = () => {
               : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
           }`}
         >
-          {/* Dashboard Link */}
           <Link to="/dashboard" className="flex items-center flex-1">
             <LayoutDashboard
               size={20}
@@ -55,7 +60,6 @@ const SideNav = () => {
             )}
           </Link>
 
-          {/* Toggle Arrow (Always Visible) */}
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="p-1 rounded-md "
@@ -69,7 +73,6 @@ const SideNav = () => {
           </button>
         </div>
 
-        {/* ---------------- Other Nav Items ---------------- */}
         <ul className="space-y-2 flex-1">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -88,7 +91,6 @@ const SideNav = () => {
                       : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                   }`}
                 >
-                  {/* Active indicator */}
                   {isActive && (
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-500 rounded-r-full" />
                   )}
@@ -108,7 +110,6 @@ const SideNav = () => {
                     </span>
                   )}
 
-                  {/* Tooltip in collapsed state */}
                   {!isOpen && (
                     <span className="absolute left-full ml-3 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                       {item.label}
@@ -120,7 +121,6 @@ const SideNav = () => {
           })}
         </ul>
 
-        {/* ---------------- Profile Section ---------------- */}
         <div className="mt-auto pt-4 border-t border-gray-100">
           <div className={`flex items-center ${!isOpen && "justify-center"}`}>
             <div
@@ -141,7 +141,7 @@ const SideNav = () => {
 
                 <button
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  onClick={logout}
+                  onClick={handleLogout}
                 >
                   <LogOut
                     size={16}

@@ -20,11 +20,11 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
         <Navbar />
       </header>
 
-      <div className="flex flex-1 overflow-hidden m-2">
+      <div className="flex flex-1  m-2">
         {isAuthenticated && <SideNav />}
 
         {/* Main content */}
-        <main className="flex-1 overflow-hidden pl-2">
+        <main className="flex-1  pl-2">
           <div className="bg-white h-[99.9%]  rounded-xl  p-2">
             {isAuthenticated && (
               <>
