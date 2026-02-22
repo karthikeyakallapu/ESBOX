@@ -32,12 +32,15 @@ export default function Logo() {
   return (
     <Link to="/">
       <div className="group flex items-center gap-3 select-none">
-        <LogoImage
-          innerHeight={5}
-          innerWidth={5}
-          outerHeight={10}
-          outerWidth={10}
-        />
+        <div>
+          <LogoImage
+            innerHeight={5}
+            innerWidth={5}
+            outerHeight={9}
+            outerWidth={9}
+          />
+        </div>
+
         <span className="text-lg font-semibold  bungee-regular tracking-[0.01em] font-brand text-text-primary">
           <span className="text-3xl bungee-regular text-[#303133]">ESBox</span>
         </span>
