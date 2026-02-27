@@ -9,7 +9,11 @@ from fastapi.exceptions import RequestValidationError, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.config import settings
-from app.logger import logger
+from app.logger import logger, setup_logging
+
+# Reconfigure logger with log_level from settings
+setup_logging(settings.log_level)
+
 from app.api.v1.router import router as api_router
 from app.db.db import check_db
 from app.services.telegram.client_manager import telegram_client_manager
