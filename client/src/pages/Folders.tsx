@@ -38,7 +38,7 @@ const Folders = () => {
   const hasFiles = data?.files && data.files.length > 0;
 
   return (
-    <div className="h-full bg-linear-to-br from-gray-50/30 to-white p-6 rounded-3xl">
+    <div className="bg-linear-to-br from-gray-50/30 to-white p-6 rounded-3xl">
       {/* Header Section */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">

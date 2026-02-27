@@ -8,16 +8,17 @@ from app.config import settings
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
 from app.logger import logger
-from app.repositories.folder import folder_repository
 from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse, CurrentUserResponse, UpdateTrash
 from app.services.auth.user import UserService
 from app.services.folders.folder_manager import folder_manager
 from app.api.v1.file_router import router as file_router
+from app.api.v1.upload_router import router as upload_router
 router = APIRouter()
 
 router.include_router(telegram_router, prefix="/telegram")
 router.include_router(folder_router, prefix="/folders")
 router.include_router(file_router, prefix="/files")
+router.include_router(upload_router , prefix="/upload")
 
 user_service = UserService()
 

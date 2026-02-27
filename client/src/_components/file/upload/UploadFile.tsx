@@ -7,7 +7,6 @@ const UploadFile = () => {
   const {
     dragActive,
     selectedFile,
-    uploadProgress,
     uploadStatus,
     handleDrag,
     handleDrop,
@@ -93,14 +92,10 @@ const UploadFile = () => {
       {uploadStatus === "uploading" && (
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-gray-600">Uploading...</span>
-            <span className="text-gray-600 font-medium">{uploadProgress}%</span>
+            <span className="text-gray-600">Uploading Please wait. Don't refresh...</span>
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-blue-500 rounded-full transition-all duration-300"
-              style={{ width: `${uploadProgress}%` }}
-            />
+            <div className="h-full bg-blue-500 rounded-full transition-all duration-300" />
           </div>
         </div>
       )}
