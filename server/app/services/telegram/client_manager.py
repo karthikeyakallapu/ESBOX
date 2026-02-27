@@ -132,8 +132,10 @@ class TelegramClientManager:
     # ------------------ session resolution ------------------
 
     async def _get_session_string(self, user_id: int, db: AsyncSession) -> str | None:
+        logger.debug("Entering _get_session_string for user_id: {}".format(user_id))
         redis_data = redis_service.get_key(self._get_redis_key(user_id), as_json=True)
         if redis_data:
+            logger.debug("User {} session found in Redis".format(user_id))
             return redis_data.get("session_string")
 
         logger.debug(f"Session for user {user_id} not in Redis, fetching from DB")
@@ -147,6 +149,7 @@ class TelegramClientManager:
         )
 
         record = result.scalars().one_or_none()
+        logger.debug(f"result from DB for user {user_id}: {record}")
         if not record:
             return None
 
