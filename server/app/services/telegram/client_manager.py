@@ -132,31 +132,54 @@ class TelegramClientManager:
     # ------------------ session resolution ------------------
 
     async def _get_session_string(self, user_id: int, db: AsyncSession) -> str | None:
+        print(f"🔍 [SESSION] Entering _get_session_string for user_id: {user_id}")  # Force visible
+        logger.info(f"🔍 Getting session string for user {user_id}")
         logger.debug("Entering _get_session_string for user_id: {}".format(user_id))
+
         redis_data = redis_service.get_key(self._get_redis_key(user_id), as_json=True)
         if redis_data:
+            print(f"✅ [SESSION] User {user_id} session found in Redis")  # Force visible
+            logger.info(f"✅ User {user_id} session found in Redis")
             logger.debug("User {} session found in Redis".format(user_id))
             return redis_data.get("session_string")
 
+        print(f"⚠️  [SESSION] Session for user {user_id} not in Redis, fetching from DB")  # Force visible
+        logger.info(f"⚠️  Session for user {user_id} not in Redis, fetching from DB")
         logger.debug(f"Session for user {user_id} not in Redis, fetching from DB")
         return await self._fetch_session_from_db(user_id, db)
 
     async def _fetch_session_from_db(
             self, user_id: int, db: AsyncSession
     ) -> str | None:
+        print(f"🔍 [DB] Fetching session from database for user {user_id}")  # Force visible
+        logger.info(f"🔍 Fetching session from database for user {user_id}")
+
         result = await db.execute(
             select(TelegramSession).where(TelegramSession.user_id == user_id)
         )
 
         record = result.scalars().one_or_none()
+
+        print(f"🔍 [DB] Query result from DB for user {user_id}: {record}")  # Force visible
+        logger.info(f"🔍 Query result from DB for user {user_id}: {'Found' if record else 'None'}")
         logger.debug(f"result from DB for user {user_id}: {record}")
+
         if not record:
+            print(f"❌ [DB] No session record found in DB for user {user_id}")  # Force visible
+            logger.error(f"❌ No session record found in DB for user {user_id}")
             return None
 
         session_string = None
 
         if record.encrypted_session:
+            print(f"🔓 [DB] Decrypting session for user {user_id}")  # Force visible
+            logger.info(f"🔓 Decrypting session for user {user_id}")
             session_string = encryption.decrypt(record.encrypted_session)
+            print(f"✅ [DB] Successfully decrypted session for user {user_id}")  # Force visible
+            logger.info(f"✅ Successfully decrypted session for user {user_id}")
+        else:
+            print(f"❌ [DB] No encrypted_session data for user {user_id}")  # Force visible
+            logger.error(f"❌ No encrypted_session data for user {user_id}")
 
         redis_service.set_key(
             self._get_redis_key(user_id),
@@ -168,10 +191,20 @@ class TelegramClientManager:
 
     async def has_session(self, user_id: int, db: AsyncSession) -> bool:
         """Check if a user has a Telegram session without throwing an error"""
+        print(f"🔍 [HAS_SESSION] Checking if user {user_id} has a session")  # Force visible
+        logger.info(f"🔍 Checking if user {user_id} has a session")
+
         try:
             session_string = await self._get_session_string(user_id, db)
-            return session_string is not None
+            has_it = session_string is not None
+
+            print(f"🔍 [HAS_SESSION] Result for user {user_id}: {has_it}")  # Force visible
+            logger.info(f"🔍 Session check result for user {user_id}: {has_it}")
+
+            return has_it
         except Exception as e:
+            print(f"❌ [HAS_SESSION] Error checking session for user {user_id}: {e}")  # Force visible
+            logger.error(f"❌ Error checking session for user {user_id}: {e}")
             logger.debug(f"Error checking session for user {user_id}: {e}")
             return False
 

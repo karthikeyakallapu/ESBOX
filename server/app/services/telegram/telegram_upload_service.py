@@ -199,6 +199,26 @@ class TelegramUploadService:
 
     async def upload_file(self, file_metadata, file, raw_file ,file_hash, user_id: int, db: AsyncSession):
         try:
+            # First check if user has a Telegram session
+            print(f"🔍 [UPLOAD] Checking Telegram session for user {user_id}")  # Force visible
+            logger.info(f"🔍 Checking Telegram session for user {user_id}")
+            logger.debug(f"Checking Telegram session for user {user_id}")
+
+            has_session = await telegram_client_manager.has_session(user_id, db)
+
+            print(f"🔍 [UPLOAD] has_session result for user {user_id}: {has_session}")  # Force visible
+            logger.info(f"🔍 Session check result for user {user_id}: {has_session}")
+
+            if not has_session:
+                logger.warning(f"⚠️ User {user_id} has no Telegram session")
+                logger.error(f"❌ User {user_id} has no Telegram session - will raise HTTPException")
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="No Telegram session found. Please connect your Telegram account first."
+                )
+
+            logger.info(f"✅ User {user_id} has Telegram session, proceeding with upload")
+            logger.debug(f"User {user_id} has Telegram session, proceeding with upload")
 
             upload_file = await file_manager.is_valid_file(raw_file)
 
@@ -241,14 +261,8 @@ class TelegramUploadService:
 
                 return result
 
-            storage_location = await storage_repository.get_storage_location(user_id, db)
-
-            if not storage_location:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="No Telegram session found. Please connect your Telegram account first."
-                )
-
+            # Upload to Telegram (this will create storage location if needed)
+            logger.debug(f"Starting Telegram upload for user {user_id}, file: {upload_file.get('name')}")
             result = await self.upload_to_telegram(
                 file=file,
                 file_name=upload_file.get("name"),
@@ -256,6 +270,9 @@ class TelegramUploadService:
                 user_id=user_id,
                 db=db
             )
+
+            # Get storage location for saving the record
+            storage_location = await storage_repository.get_storage_location(user_id, db)
 
             if result.get("status") == "success" :
                 user_file = UserFile(user_id= user_id ,
