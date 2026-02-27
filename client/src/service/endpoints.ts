@@ -10,7 +10,7 @@ export const ENDPOINTS = {
   CREATE_FOLDER: `${API_BASE_URL}/folders`,
   UPDATE_FOLDER: (folder_id: number | string) =>
     `${API_BASE_URL}/folders/${folder_id}`,
-  UPLOAD_FILE: `${API_BASE_URL}/telegram/upload`,
+  UPLOAD_FILE: `${API_BASE_URL}/upload/fast`,
   DELETE_FILE: `${API_BASE_URL}/telegram/delete`,
   UPDATE_FILE: (file_id: number) => `${API_BASE_URL}/files/${file_id}`,
   RENAME_FILE: `${API_BASE_URL}/telegram/rename`,

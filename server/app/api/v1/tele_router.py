@@ -56,27 +56,6 @@ async def verify_code(auth: TelegramAuth, request: Request, db: AsyncSession = D
         raise err
 
 
-#
-
-@router.post("/upload")
-async def upload_file(file_metadata: FileMetadata = Depends(FileMetadata.as_form),
-        file: UploadFile = File(...),
-        user=Depends(get_current_user),
-        db: AsyncSession = Depends(get_db)
-):
-    try:
-        location = await tele_storage_service.upload_file(file_metadata,user["id"], db, file)
-        if not location:
-            raise HTTPException(status_code=500, detail="Failed to upload file to Telegram")
-        return {"message": "File uploaded successfully"}
-    except HTTPException as http_err:
-        # Re-raise HTTPException to preserve status code and detail
-        logger.error(f"HTTP error during file upload: {http_err.detail}")
-        raise http_err
-    except Exception as err:
-        logger.error(f"Unexpected error during file upload: {err}")
-        raise HTTPException(status_code=500, detail="An unexpected error occurred during file upload")
-
 @router.get("/session-status")
 async def check_session_status(user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Check if the current user has a valid Telegram session"""

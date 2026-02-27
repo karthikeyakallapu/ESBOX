@@ -1,12 +1,8 @@
-import hashlib
-from io import BytesIO
 from pathlib import Path
-
 import filetype
 from fastapi import File, HTTPException, UploadFile, status
 
 from app.config import settings
-from app.logger import logger
 
 # None = allow all detected types
 ALLOWED_MIME_TYPES = {
@@ -64,38 +60,6 @@ class FileManager:
         filename = file.filename if file.filename else f"unnamed{real_ext}"
 
         return {"name": filename, "size": file.size, "type": mime, "extension": real_ext}
-
-    @staticmethod
-    async def get_file_buffer(file):
-
-        buffer = BytesIO()
-        file_size = 0
-        hasher = hashlib.sha256()
-
-        # Stream file to memory while validating size and calculating hash
-        try:
-            while True:
-                # Read chunk
-                chunk = await file.read(settings.chunk_size)
-                if not chunk:
-                    break
-
-                file_size += len(chunk)
-
-                # Write to buffer and update hash
-                buffer.write(chunk)
-                hasher.update(chunk)
-
-            # Reset buffer to beginning for reading
-            buffer.seek(0)
-        except Exception as e:
-            logger.error(e)
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Unable to get file content: {e}"
-            )
-
-        return buffer, hasher.hexdigest()
 
 
 file_manager = FileManager()

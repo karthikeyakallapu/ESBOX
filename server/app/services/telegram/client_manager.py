@@ -5,6 +5,7 @@ from typing import Dict
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from telethon import TelegramClient
+from telethon.network import ConnectionTcpAbridged
 from telethon.sessions import StringSession
 
 from app.config import settings
@@ -12,6 +13,8 @@ from app.helpers.encryption import encryption
 from app.logger import logger
 from app.models import TelegramSession
 from app.services.redis.RedisService import redis_service
+from fastapi import HTTPException
+from starlette import status
 
 
 # Custom exceptions
@@ -94,10 +97,13 @@ class TelegramClientManager:
             StringSession(session_string),
             settings.telegram_api_id,
             settings.telegram_api_hash,
-            connection_retries=3,
+            connection=ConnectionTcpAbridged,
+            connection_retries=5,
             retry_delay=1,
             auto_reconnect=True,
-            timeout=10,
+            timeout=20,
+            request_retries=3,
+            flood_sleep_threshold=60,
         )
 
         try:
@@ -108,7 +114,12 @@ class TelegramClientManager:
                 redis_service.delete_key(self._get_redis_key(user_id))
                 raise TelegramUnauthorizedError("Telegram session is not authorized")
 
-            logger.info(f"Created Telegram client for user {user_id}")
+            logger.info(
+                f"Created Telegram client for user {user_id} | "
+                f"DC={client.session.dc_id} | "
+                f"Connection={client._connection.__class__.__name__}"
+            )
+
             return client
 
         except Exception:
@@ -201,13 +212,18 @@ class TelegramClientManager:
                                 # Recursive call to create new client
                                 return await self.get_client(user_id, db)
 
+
                         self._local_cache.move_to_end(user_id)
                         return client
 
                     session_string = await self._get_session_string(user_id, db)
-                    if not session_string:
-                        raise TelegramSessionNotFoundError(f"No Telegram session for user {user_id}")
 
+                    if not session_string:
+                        logger.info(f"No Telegram session for user {user_id}")
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="No Telegram session found. Please connect your Telegram account first."
+                        )
                     client = await self.create_client(user_id, session_string)
 
                     self._local_cache[user_id] = client
@@ -217,6 +233,9 @@ class TelegramClientManager:
         except asyncio.TimeoutError:
             logger.error(f"Timeout acquiring lock for user {user_id}")
             raise TelegramSessionError(f"Timeout acquiring Telegram client for user {user_id}")
+        except Exception as e:
+            logger.error(f"Error getting Telegram client for user {user_id}: {e}")
+            raise
 
     async def refresh_session(self, user_id: int, db: AsyncSession) -> TelegramClient:
         await self._invalidate_client(user_id)

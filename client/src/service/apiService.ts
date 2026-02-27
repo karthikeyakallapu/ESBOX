@@ -2,7 +2,6 @@ import axiosInstance from "./axiosHelper";
 import type { UserRegister, UserLogin } from "../types/user";
 import { ENDPOINTS } from "./endpoints";
 import { handleApiError } from "./errorHandler";
-import type { AxiosProgressEvent } from "axios";
 import type { FolderUpdateData } from "../types/folder";
 import type { FileUpdate } from "../types/file";
 
@@ -177,10 +176,7 @@ class APIService {
     }
   };
 
-  uploadFile = async (
-    formData: FormData,
-    onUploadProgress: (progressEvent: AxiosProgressEvent) => void,
-  ) => {
+  uploadFile = async (formData: FormData) => {
     try {
       const response = await axiosInstance.post(
         ENDPOINTS.UPLOAD_FILE,
@@ -189,7 +185,6 @@ class APIService {
           headers: {
             "Content-Type": "multipart/form-data",
           },
-          onUploadProgress,
         },
       );
       return response.data;
