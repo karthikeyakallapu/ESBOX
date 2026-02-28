@@ -1,4 +1,4 @@
-const API_BASE_URL = "/api/v1";
+export const API_BASE_URL = "/api/v1";
 
 export const ENDPOINTS = {
   REGISTER: `${API_BASE_URL}/auth/register`,
@@ -16,4 +16,6 @@ export const ENDPOINTS = {
   RENAME_FILE: `${API_BASE_URL}/telegram/rename`,
   TELEGRAM_LINK: `${API_BASE_URL}/telegram/login`,
   TELEGRAM_VERIFY: `${API_BASE_URL}/telegram/verify`,
+  STREAM_FILE: (file_id: number | string) =>
+    `${API_BASE_URL}/files/${file_id}/view`,
 };

@@ -71,3 +71,4 @@ async def check_session_status(user=Depends(get_current_user), db: AsyncSession 
             "has_session": False,
             "message": "Error checking Telegram session status"
         }
+

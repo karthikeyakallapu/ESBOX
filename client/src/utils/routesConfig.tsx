@@ -8,6 +8,7 @@ import TelegramLink from "../_components/telegram/TelegramLink";
 import Starred from "../pages/Starred";
 import Trash from "../pages/Trash";
 import PublicRoute from "./PublicRoute";
+import StreamPlayer from "../pages/StreamPlayer";
 
 const routesConfig = [
   {
@@ -71,6 +72,14 @@ const routesConfig = [
     component: (
       <PrivateRoute>
         <Trash />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/stream",
+    component: (
+      <PrivateRoute>
+        <StreamPlayer />
       </PrivateRoute>
     ),
   },
