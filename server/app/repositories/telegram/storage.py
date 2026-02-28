@@ -25,7 +25,8 @@ class TelegramStorageRepository:
                 select(UserFile).where(
                     UserFile.user_id == user_id,
                     UserFile.content_hash == file_hash,
-                    UserFile.parent_id == parent_id
+                    UserFile.parent_id == parent_id,
+                    UserFile.is_deleted == False
                 )
             )
             return result.scalar_one_or_none()

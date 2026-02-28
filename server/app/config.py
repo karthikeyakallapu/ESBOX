@@ -35,10 +35,11 @@ class Settings(BaseSettings):
     redis_host: str
     redis_port: int
 
-    # File Upload Limit Config - MAXIMUM SPEED MODE
+    # File Upload Limit Config
     max_file_size: int = 2 * 1024 * 1024 * 1024
-    max_concurrent_uploads: int = 10
-    chunk_size: int = 104857600  # 100MB chunks for maximum speed
+
+    # File Download Limit Config
+    download_chunk_size: int = 1048576  # 1MB
 
     allowed_origins: Union[str, List[str]]
 
