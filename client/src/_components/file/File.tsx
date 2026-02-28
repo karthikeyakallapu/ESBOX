@@ -26,7 +26,7 @@ const File = ({ file }: { file: UserFile }) => {
   };
 
   return (
-    <FileCard mime_type={file.mime_type} name={file.filename} isLoading={false}>
+    <FileCard mime_type={file.mime_type}  file_id={file.id} name={file.filename} isLoading={false}>
       <h1></h1>
       <button
         ref={buttonRef}
