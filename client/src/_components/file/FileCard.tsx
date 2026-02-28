@@ -11,13 +11,21 @@ interface Props {
 
 const FileCard = ({ mime_type, file_id, name, isLoading, children }: Props) => {
   const { openModal } = useModalStore();
+
+  const handleOpen = () => {
+    const file = { file_id, file_name: name };
+
+    if (mime_type.startsWith("image/")) {
+      openModal("streamImage", file);
+    } else if (mime_type.startsWith("application/pdf")) {
+      openModal("streamPDF", file);
+    } else if (mime_type.startsWith("video/")) {
+      openModal("streamVideo", file);
+    }
+  };
+
   return (
-    <div
-      className="relative group m-2"
-      onClick={() => {
-        openModal("streamImage", { file_id: file_id });
-      }}
-    >
+    <div className="relative group m-2" onClick={handleOpen}>
       <div
         className={`bg-slate-50 hover:bg-slate-200 p-4 flex flex-col items-center rounded-lg shadow-sm w-48 text-center transition ${
           isLoading ? "opacity-50 pointer-events-none" : ""

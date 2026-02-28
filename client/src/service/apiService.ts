@@ -246,14 +246,11 @@ class APIService {
     }
   };
 
-  streamFile = async (fileId: number | string) => {
+  streamFile = async (file_id: number | string) => {
     try {
-      const response = await axiosInstance.get(
-        `/api/v1/files/stream/${fileId}`,
-        {
-          responseType: "blob",
-        },
-      );
+      const response = await axiosInstance.get(ENDPOINTS.STREAM_FILE(file_id), {
+        responseType: "blob",
+      });
       return response.data as Blob;
     } catch (error) {
       const err = handleApiError(error);

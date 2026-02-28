@@ -41,7 +41,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
           {modalComponents.map((modal) => {
             if (isOpen && component === modal.name) {
               return (
-                <StorageOptionModal key={modal.name}>
+                <StorageOptionModal key={modal.name} size={modal.size}>
                   {modal.component}
                 </StorageOptionModal>
               );

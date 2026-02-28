@@ -1,22 +1,59 @@
-import { type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { X } from "lucide-react";
 import useModalStore from "../../store/useModal";
+import { useRef } from "react";
 
-const StorageOptionModal = ({ children }: { children: ReactNode }) => {
+export type ModalSize = "md" | "lg" | "xl" | "full";
+
+const modalSizeClasses: Record<ModalSize, string> = {
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-3xl",
+  full: "max-w-[95vw]",
+};
+
+const StorageOptionModal = ({
+  children,
+  size = "md",
+}: {
+  children: ReactNode;
+  size?: ModalSize;
+}) => {
   const { closeModal } = useModalStore();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        console.log("entered");
+
+        closeModal();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [closeModal]);
+
   return (
     <div
       className="fixed inset-0 z-50 
                   bg-[#1a1a1a]/40
                   flex items-center justify-center
-                  animate-in fade-in duration-200"
+                  animate-in fade-in duration-200 "
     >
       <div
-        className="w-full max-w-md mx-4
-                    bg-white/95 backdrop-blur-0
+        className={`w-full ${modalSizeClasses[size]} mx-4
+                    bg-white  backdrop-blur-0
                     rounded-2xl shadow-2xl shadow-black/10
                     border border-white/20
-                    animate-in zoom-in-95 duration-300"
+                    animate-in zoom-in-95 duration-300`}
+        ref={modalRef}
       >
         <div className="flex items-center justify-end p-6 pb-4">
           <button

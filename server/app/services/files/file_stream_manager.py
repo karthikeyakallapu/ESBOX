@@ -67,9 +67,16 @@ class FileStreamManager:
 
         file_size = document.size
 
+        if total_bytes <= 0:
+            return
+
         # Calculate chunks to download
         end_offset = min(start_offset + total_bytes, file_size)
-        total_chunks = (end_offset - start_offset + chunk_size - 1) // chunk_size
+        piece_size = settings.download_chunk_size
+        aligned_start = (start_offset // piece_size) * piece_size
+        offsets_to_fetch = list(range(aligned_start, end_offset, piece_size))
+        total_chunks = len(offsets_to_fetch)
+        bytes_sent = 0
 
         # Semaphore for concurrency control
         semaphore = asyncio.Semaphore(max_concurrent)
@@ -87,7 +94,7 @@ class FileStreamManager:
             batch_end = min(batch_start + batch_size, total_chunks)
 
             # Calculate offsets for this batch
-            offsets = [start_offset + (i * chunk_size) for i in range(batch_start, batch_end)]
+            offsets = offsets_to_fetch[batch_start:batch_end]
 
             # Download batch in parallel
             tasks = [download_with_semaphore(offset) for offset in offsets]
@@ -97,8 +104,29 @@ class FileStreamManager:
             results.sort(key=lambda x: x[0])
 
             for offset, data in results:
-                if data:
-                    yield data
+                if not data or bytes_sent >= total_bytes:
+                    continue
+
+                # Telegram requests are 1MB-aligned; trim to the exact requested byte window.
+                data_start = offset
+                data_end = offset + len(data)
+                send_start = max(data_start, start_offset)
+                send_end = min(data_end, end_offset)
+
+                if send_start >= send_end:
+                    continue
+
+                local_start = send_start - data_start
+                local_end = send_end - data_start
+                chunk = data[local_start:local_end]
+
+                remaining = total_bytes - bytes_sent
+                if len(chunk) > remaining:
+                    chunk = chunk[:remaining]
+
+                if chunk:
+                    bytes_sent += len(chunk)
+                    yield chunk
 
     @staticmethod
     async def stream_standard(
@@ -150,8 +178,16 @@ class FileStreamManager:
             if match:
                 start = int(match.group(1))
                 end = int(match.group(2)) if match.group(2) else file_size - 1
+                end = min(end, file_size - 1)
+                start = max(0, start)
+
+                if start >= file_size or start > end:
+                    start, end = 0, file_size - 1
+                    status_code = 200
+                else:
+                    status_code = 206
+
                 content_length = end - start + 1
-                status_code = 206
             else:
                 start, end = 0, file_size - 1
                 content_length = file_size
@@ -198,10 +234,7 @@ class FileStreamManager:
             file_iterator,
             media_type=mime_type,
             status_code=status_code,
-            headers={
-                "Accept-Ranges": "bytes",
-                "Content-Disposition": f'inline; filename="{file_name}"'
-            }
+            headers=headers
         )
 
 
