@@ -5,6 +5,7 @@ import PrivateRoute from "./PrivateRoute";
 import DashBoard from "../pages/DashBoard";
 import Folders from "../pages/Folders";
 import TelegramLink from "../_components/telegram/TelegramLink";
+import StreamPlayer from "../pages/StreamPlayer";
 
 const routesConfig = [
   { path: "/", component: <Home /> },
@@ -31,6 +32,14 @@ const routesConfig = [
     component: (
       <PrivateRoute>
         <TelegramLink />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/stream",
+    component: (
+      <PrivateRoute>
+        <StreamPlayer />
       </PrivateRoute>
     ),
   },

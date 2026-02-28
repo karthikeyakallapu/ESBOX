@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.folder_router import router as folder_router
 from app.api.v1.tele_router import router as telegram_router
+from app.api.v1.file_router import router as file_router
 from app.config import settings
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
@@ -16,6 +17,7 @@ router = APIRouter()
 
 router.include_router(telegram_router, prefix="/telegram")
 router.include_router(folder_router, prefix="/folders")
+router.include_router(file_router, prefix="/files")
 
 user_service = UserService()
 

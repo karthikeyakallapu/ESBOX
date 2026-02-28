@@ -8,7 +8,8 @@ type ModalComponent =
   | "deleteFolder"
   | "deleteFile"
   | "uploadFile"
-  | "telegramLink";
+  | "telegramLink"
+  | "streamImage";
 
 interface ModalStore<T = unknown> {
   isOpen: boolean;

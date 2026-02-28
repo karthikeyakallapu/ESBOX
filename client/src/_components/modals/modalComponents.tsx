@@ -4,6 +4,7 @@ import NewFolder from "../folder/NewFolder";
 import RenameFolder from "../folder/RenameFolder";
 import UploadFile from "../file/upload/UploadFile";
 import TelegramLink from "../telegram/TelegramLink";
+import Image from "../file/stream/Image";
 
 const modalComponents = [
   {
@@ -29,6 +30,10 @@ const modalComponents = [
   {
     name: "telegramLink",
     component: <TelegramLink />,
+  },
+  {
+    name: "streamImage",
+    component: <Image />,
   },
 ];
 

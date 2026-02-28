@@ -56,8 +56,6 @@ async def verify_code(auth: TelegramAuth, request: Request, db: AsyncSession = D
         raise err
 
 
-#
-
 @router.post("/upload")
 async def upload_file(file_metadata: FileMetadata = Depends(FileMetadata.as_form),
         file: UploadFile = File(...),
@@ -104,3 +102,4 @@ async def check_session_status(user=Depends(get_current_user), db: AsyncSession 
             "has_session": False,
             "message": "Error checking Telegram session status"
         }
+
