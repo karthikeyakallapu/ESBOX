@@ -4,11 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.logger import logger
 from app.models.refresh_token import RefreshToken
 from datetime import datetime, timezone
+from typing import Optional
 
 
 class RefreshTokenRepository:
     @staticmethod
-    async def create_refresh_token(db: AsyncSession, token: str, token_info: dict):
+    async def create_refresh_token(db: AsyncSession, token: str, token_info: Optional[dict] = None):
         try:
             refresh_token = RefreshToken(
                 token=token,
@@ -97,3 +98,6 @@ class RefreshTokenRepository:
         except Exception as e:
             logger.error(e)
             raise e
+
+
+refresh_token_repo = RefreshTokenRepository()

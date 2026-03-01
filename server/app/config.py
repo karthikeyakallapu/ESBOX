@@ -58,4 +58,10 @@ class Settings(BaseSettings):
     # frontend url
     frontend_url: str
 
+    # OAuth Config
+    google_client_id: str
+    google_client_secret: str
+    google_redirect_uri: str
+  
+
 settings = Settings()
