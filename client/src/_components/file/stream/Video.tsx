@@ -59,7 +59,6 @@ const Video = () => {
     }
   }, []);
 
-
   useEffect(() => {
     return () => clearTimeout(hideTimer.current);
   }, []);
@@ -69,6 +68,23 @@ const Video = () => {
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
+
+  const togglePlay = useCallback(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.paused) {
+      v.play();
+    } else {
+      v.pause();
+    }
+  }, []);
+
+  const toggleMute = useCallback(() => {
+    if (!videoRef.current) return;
+    const next = !muted;
+    setMuted(next);
+    videoRef.current.muted = next;
+  }, [muted]);
 
   // FIX: Keyboard shortcuts
   useEffect(() => {
@@ -88,24 +104,13 @@ const Video = () => {
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, []);
+  }, [togglePlay, toggleMute]);
 
   if (!file) return null;
 
   const videoUrl = `${baseURL}${API_BASE_URL}/files/${file.file_id}/view`;
 
   /* ------------------ Player Controls ------------------ */
-
-  const togglePlay = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.paused) {
-      v.play();
-    } else {
-      v.pause();
-    }
-  };
-
 
   const handleMetadataLoaded = () => {
     if (!videoRef.current) return;
@@ -130,13 +135,6 @@ const Video = () => {
     setMuted(val === 0);
   };
 
-  const toggleMute = () => {
-    if (!videoRef.current) return;
-    const next = !muted;
-    setMuted(next);
-    videoRef.current.muted = next;
-  };
-
   const cycleSpeed = () => {
     const next = (speedIdx + 1) % SPEEDS.length;
     setSpeedIdx(next);
@@ -155,7 +153,6 @@ const Video = () => {
       await document.exitFullscreen();
     }
   };
-
 
   const handleDownload = async () => {
     try {
@@ -181,8 +178,6 @@ const Video = () => {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-
-
   return (
     <div
       ref={containerRef}
@@ -191,7 +186,7 @@ const Video = () => {
     >
       {/* Top Bar */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-neutral-900">
-        <div className="font-semibold text-sm uppercase tracking-wide truncate max-w-[300px]">
+        <div className="font-semibold text-sm uppercase tracking-wide truncate max-w-75">
           {file.file_name || `file_${file.file_id}`}
         </div>
 
@@ -206,7 +201,6 @@ const Video = () => {
         className="relative flex-1 bg-black flex items-center justify-center overflow-hidden"
         onClick={togglePlay}
       >
-
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center z-10">
             <Loader2 size={40} className="text-amber-400 animate-spin" />
@@ -252,7 +246,7 @@ const Video = () => {
             className="h-1 bg-white/10 cursor-pointer"
           >
             <div
-              className="h-full bg-gradient-to-r from-amber-400 to-yellow-400"
+              className="h-full bg-linear-to-r from-amber-400 to-yellow-400"
               style={{ width: `${progress}%` }}
             />
           </div>
