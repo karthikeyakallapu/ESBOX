@@ -11,6 +11,7 @@ from app.config import settings
 from app.helpers.encryption import encryption
 from app.logger import logger
 from app.models import TelegramSession
+from app.repositories.telegram.storage import storage_repository
 from app.services.redis.RedisService import redis_service
 
 
@@ -24,6 +25,12 @@ class TelegramAuthService:
 
     async def phone_authenticate(self, phone: str, ip_address: str):
         try:
+
+            if storage_repository.is_number_registered(phone.strip() ,self.db):
+                return {
+                    'success': False,
+                    'error': 'This phone number is already registered with another account.'
+                }
 
             self.client = TelegramClient(
                 StringSession(),  # Empty session

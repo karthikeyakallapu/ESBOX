@@ -108,5 +108,15 @@ class TelegramStorageRepository:
             logger.error(e)
             raise
 
+    @staticmethod
+    async def is_number_registered(phone_number: str, db: AsyncSession) -> bool:
+        try:
+            result = await db.execute(
+                select(UserStorageChannel).where(UserStorageChannel.phone_number == phone_number)
+            )
+            return result.scalar_one_or_none() is not None
+        except Exception as e:
+            logger.error(f"Error checking if phone number {phone_number} is registered: {e}")
+            raise
 
 storage_repository = TelegramStorageRepository()
