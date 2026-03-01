@@ -4,12 +4,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.v1.folder_router import router as folder_router
 from app.api.v1.tele_router import router as telegram_router
-from app.api.v1.file_router import router as file_router
 from app.config import settings
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
 from app.logger import logger
-from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse, CurrentUserResponse, UpdateTrash
+from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse, CurrentUserResponse, UpdateTrash, \
+    UserPasswordReset, UserToken, UserEmail
 from app.services.auth.user import UserService
 from app.services.folders.folder_manager import folder_manager
 from app.api.v1.file_router import router as file_router
@@ -39,7 +39,7 @@ async def register(user: UserCreate, db=Depends(get_db)):
         user_response = UserResponse.model_validate(created_user)
 
         return {
-            "message": "User Created Successfully",
+            "message": "User Created Successfully. Please verify your email.",
             "user": user_response
         }
     except HTTPException as e:
@@ -192,6 +192,56 @@ async def logout_all(response: Response, current_user: dict = Depends(get_curren
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current authenticated user information"""
     return current_user
+
+
+@router.post("/auth/forgot-password")
+async def forgot_password(user : UserEmail , db: AsyncSession = Depends(get_db)):
+    try:
+        result = await user_service.initiate_password_reset(db, user.email)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(e)
+        return JSONResponse(status_code=500, content={"message": "Internal server error"})
+
+@router.post("/auth/reset-password")
+async def reset_password(user : UserPasswordReset , db: AsyncSession = Depends(get_db)):
+    try:
+        result = await user_service.validate_password_reset_token(db, user.token , user.new_password)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(e)
+        return JSONResponse(status_code=500, content={"message": "Internal server error"})
+
+@router.post("/auth/verify-email")
+async def verify_email(user : UserToken , db: AsyncSession = Depends(get_db)):
+    try:
+        result = await user_service.validate_email_verification_token(db, user.token)
+        return result
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(e)
+        return JSONResponse(status_code=500, content={"message": "Internal server error"})
+
+@router.post("/auth/resend-verification")
+async def resend_verification_email(user : UserEmail , db: AsyncSession = Depends(get_db)):
+    try:
+        token = await user_service.send_verification_email(db, user.email)
+
+        if token:
+            return {"message": "Verification email resent successfully"}
+
+        return {"message": "Verification email resent failed"}
+
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        logger.error(e)
+        return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
 @router.get("/trash")
 async def get_trash(user = Depends(get_current_user), db = Depends(get_db)):

@@ -50,4 +50,12 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
 
+
+    # mail service
+    mailer_user: str
+    mailer_passkey: str
+
+    # frontend url
+    frontend_url: str
+
 settings = Settings()

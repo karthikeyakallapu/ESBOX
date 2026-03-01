@@ -47,6 +47,61 @@ class APIService {
     }
   };
 
+  forgotPassword = async ({ email }: { email: string }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.FORGOT_PASSWORD, {
+        email,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  resetPassword = async ({
+    token,
+    new_password,
+  }: {
+    token: string;
+    new_password: string;
+  }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.RESET_PASSWORD, {
+        token,
+        new_password,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  verifyEmail = async ({ token }: { token: string }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.VERIFY_EMAIL, {
+        token,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  resendVerificationEmail = async ({ email }: { email: string }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.RESEND_VERIFICATION, {
+        email,
+      });
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
   getUserTrash = async () => {
     try {
       const response = await axiosInstance.get(ENDPOINTS.TRASH);
@@ -121,7 +176,7 @@ class APIService {
     parent_id: number | string | null;
   }) => {
     try {
-      const response = await axiosInstance.post(ENDPOINTS.CREATE_FOLDER, {
+      const response = await axiosInstance.post(ENDPOINTS.FILES_AND_FOLDERS, {
         name: folder_name,
         parent_id: parent_id,
       });
