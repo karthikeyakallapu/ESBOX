@@ -8,7 +8,11 @@ import TelegramLink from "../_components/telegram/TelegramLink";
 import Starred from "../pages/Starred";
 import Trash from "../pages/Trash";
 import PublicRoute from "./PublicRoute";
+import ForgotPassword from "../pages/auth/ForgotPassword";
 import StreamPlayer from "../pages/StreamPlayer";
+import ResetPassword from "../pages/auth/ResetPassword";
+import VerifyEmail from "../pages/auth/VerifyEmail";
+import ResendVerification from "../pages/auth/ResendVerification";
 
 const routesConfig = [
   {
@@ -81,6 +85,38 @@ const routesConfig = [
       <PrivateRoute>
         <StreamPlayer />
       </PrivateRoute>
+    ),
+  },
+  {
+    path: "/forgot-password",
+    component: (
+      <PublicRoute>
+        <ForgotPassword />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/reset-password",
+    component: (
+      <PublicRoute>
+        <ResetPassword />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/verify-email",
+    component: (
+      <PublicRoute>
+        <VerifyEmail />
+      </PublicRoute>
+    ),
+  },
+  {
+    path: "/resend-verification",
+    component: (
+      <PublicRoute>
+        <ResendVerification />
+      </PublicRoute>
     ),
   },
 ];

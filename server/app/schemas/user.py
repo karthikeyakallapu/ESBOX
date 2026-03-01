@@ -70,3 +70,25 @@ class CurrentUserResponse(BaseModel):
 class UpdateTrash(BaseModel):
     item_id: int
     item_type: str  # "folder" or "file"
+
+class UserEmail(BaseModel):
+    email: EmailStr
+
+class UserPasswordReset(BaseModel):
+    token: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_password_strength(cls, value: str) -> str:
+        if len(value) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        if value.islower() or value.isupper():
+            raise ValueError("Password must contain both upper and lower case letters")
+        if not any(char.isdigit() for char in value):
+            raise ValueError("Password must contain at least one number")
+        return value
+
+
+class UserToken(BaseModel):
+    token: str

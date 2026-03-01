@@ -5,6 +5,10 @@ import jwt
 
 from app.config import settings
 from app.logger import logger
+import secrets
+import hashlib
+from datetime import datetime, timedelta
+
 
 password_hash = PasswordHash.recommended()
 
@@ -55,3 +59,12 @@ def decode_token(token: str, token_type: str = "ACCESS"):
         logger.error(f"Token decode error: {e}")
         return None
 
+
+def generate_reset_token():
+    raw_token = secrets.token_urlsafe(32)
+    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    return raw_token, token_hash
+
+def get_computed_hash(raw_token):
+    computed_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    return computed_hash
