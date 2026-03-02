@@ -120,7 +120,7 @@ async def refresh_token(
                 max_age=access_token_expire
             )
 
-        return result
+        return {"message": "Token refreshed"}
     except HTTPException as e:
         raise e
     except Exception as e:

@@ -4,25 +4,44 @@ import type {
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from "axios";
-import Cookies from "js-cookie";
 
-export const baseURL: string = import.meta.env.VITE_BACKEND_URL;
+export const baseURL: string = import.meta.env.VITE_BACKEND_URL || "";
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: baseURL,
   withCredentials: true,
 });
 
-axiosInstance.interceptors.request.use(
-  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-    const accessToken = Cookies.get("access_token");
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error: AxiosError) => {
+    const originalRequest = error.config as
+      | (InternalAxiosRequestConfig & { _retry?: boolean })
+      | undefined;
 
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+    const status = error.response?.status;
+    const url = originalRequest?.url ?? "";
+    const isAuthEndpoint =
+      url.includes("/auth/login") ||
+      url.includes("/auth/refresh") ||
+      url.includes("/auth/logout");
+
+    if (
+      status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !isAuthEndpoint
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        await axiosInstance.post("/api/v1/auth/refresh");
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        return Promise.reject(refreshError);
+      }
     }
-    return config;
-  },
-  (error: AxiosError) => {
+
     return Promise.reject(error);
   },
 );
