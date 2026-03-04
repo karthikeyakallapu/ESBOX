@@ -1,1 +1,36 @@
- 
+ /* Custom Scrollbar Styles */
+ .canvas-container {
+     /* For Firefox */
+     scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+ }
+
+ /* For Chrome, Edge, and Safari */
+ .canvas-container::-webkit-scrollbar {
+     width: 8px;
+     height: 8px;
+ }
+
+ .canvas-container::-webkit-scrollbar-track {
+     background: rgba(255, 255, 255, 0.05);
+     border-radius: 100px;
+ }
+
+ .canvas-container::-webkit-scrollbar-thumb {
+     background: rgba(255, 255, 255, 0.2);
+     border-radius: 100px;
+     transition: background 0.2s ease;
+ }
+
+ .canvas-container::-webkit-scrollbar-thumb:hover {
+     background: rgba(255, 255, 255, 0.3);
+ }
+
+ .canvas-container::-webkit-scrollbar-corner {
+     background: transparent;
+ }
+
+ /* Optional: Add a subtle glow effect on hover */
+ .canvas-container:hover::-webkit-scrollbar-thumb {
+     background: rgba(255, 255, 255, 0.25);
+     box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+ }

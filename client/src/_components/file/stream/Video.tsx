@@ -182,7 +182,7 @@ const Video = () => {
     <div
       ref={containerRef}
       onMouseMove={resetHideTimer}
-      className="relative bg-black flex flex-col text-white w-full h-full max-h-[90vh] rounded-lg overflow-hidden"
+      className="relative bg-black flex  min-h-[82vh]  flex-col text-white w-full h-full max-h-[90vh] rounded-lg overflow-hidden"
     >
       {/* Top Bar */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-neutral-900">

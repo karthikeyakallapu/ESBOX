@@ -91,7 +91,7 @@ const PDF = () => {
       </div>
 
       {/* Canvas */}
-      <div className="flex-1 flex items-center justify-center p-6 overflow-auto bg-gradient-to-b from-black to-zinc-900">
+      <div className="flex-1 canvas-container flex items-center justify-center overflow-auto bg-linear-to-b from-black to-zinc-900">
         {isLoading && (
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 rounded-full border border-white/10 border-t-white/60 animate-spin" />
@@ -110,7 +110,7 @@ const PDF = () => {
 
         {!hasError && (
           <div
-            className={`transition-all duration-500 ${
+            className={`max-h-[65vh] transition-all duration-500 ${
               revealed
                 ? "opacity-100 scale-100 translate-y-0"
                 : "opacity-0 scale-95 translate-y-2"
