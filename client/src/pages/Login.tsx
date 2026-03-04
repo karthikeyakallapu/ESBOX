@@ -110,7 +110,7 @@ const Login = () => {
               </div>
             </div>
 
-            <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3 xs:gap-0">
+            <div className="flex xs:flex-row xs:items-center justify-between gap-3 xs:gap-0">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -125,7 +125,6 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-
               <div className="text-sm">
                 <Link
                   to={"/forgot-password"}
