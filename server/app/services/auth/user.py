@@ -98,6 +98,9 @@ class UserService:
             if not existing_user:
                 raise HTTPException(status_code=400, detail="Email does not exist")
 
+            if existing_user.password is None:
+                raise HTTPException(status_code=400, detail="No password set. Use \"Forgot Password\"")
+
             valid_password = verify_password(user.password, existing_user.password)
 
             if not valid_password:

@@ -106,7 +106,7 @@ const Folders = () => {
           ? data.files.map((file: UserFile) => (
               <div
                 key={file.id}
-                className="transition-transform hover:scale-105 hover:-translate-y-1 duration-200"
+                className=""
               >
                 <File file={file} />
               </div>
