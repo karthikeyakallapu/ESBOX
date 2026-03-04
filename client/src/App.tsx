@@ -6,6 +6,8 @@ import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import { useEffect } from "react";
 import useAuthStore from "./store/useAuth";
 import { SWRConfig } from "swr";
+import { Suspense } from "react";
+import Loading from "./_components/loaders/Loading";
 
 function App() {
   useEffect(() => {
@@ -25,19 +27,21 @@ function App() {
           dedupingInterval: Infinity,
         }}
       >
-        <Router>
-          <MainLayout>
-            <Routes>
-              {routesConfig.map((route) => (
-                <Route
-                  key={route.path}
-                  path={route.path}
-                  element={route.component}
-                />
-              ))}
-            </Routes>
-          </MainLayout>
-        </Router>
+        <Suspense fallback={<Loading />}>
+          <Router>
+            <MainLayout>
+              <Routes>
+                {routesConfig.map((route) => (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={route.component}
+                  />
+                ))}
+              </Routes>
+            </MainLayout>
+          </Router>
+        </Suspense>
         <Toaster />
       </SWRConfig>
     </>
