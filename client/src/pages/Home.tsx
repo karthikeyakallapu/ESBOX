@@ -94,20 +94,20 @@ const Home = () => {
       <style>{shimmerAnimation}</style>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-900 text-white rounded-full text-sm font-medium mb-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20">
+        <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div className="order-2 md:order-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-900 text-white rounded-full text-sm font-medium mb-4 sm:mb-6">
               <img src={Github} className="h-4 w-4 invert" alt="Github Icon" />
               Open Source
             </div>
-            <h1 className="text-5xl font-bold leading-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
               Your Files,{" "}
               <span className="bg-linear-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Your Control
               </span>
             </h1>
-            <p className="text-xl text-gray-600 mt-4">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-600 mt-3 sm:mt-4">
               Open source cloud storage with{" "}
               <span className="font-semibold text-gray-900">
                 unlimited space
@@ -115,10 +115,10 @@ const Home = () => {
               . Self-host or use our free instance. No limits, no hidden costs.
             </p>
 
-            <div className="flex gap-4 mt-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
               <Link
                 to="/dashboard"
-                className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-5 sm:px-6 py-2.5 sm:py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
               >
                 Get Started <ArrowRight size={18} />
               </Link>
@@ -126,64 +126,65 @@ const Home = () => {
                 href="https://github.com/karthikeyakallapu/ESBOX"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-6 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors flex items-center gap-2"
+                className="px-5 sm:px-6 py-2.5 sm:py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base"
               >
-                <img src={Github} className="h-7 w-7" alt="Github Icon" />
+                <img src={Github} className="h-5 w-5 sm:h-7 sm:w-7" alt="Github Icon" />
                 GitHub
               </a>
             </div>
 
-            <div className="flex items-center gap-6 mt-8 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-4 sm:gap-6 mt-6 sm:mt-8 text-xs sm:text-sm text-gray-500">
               <span className="flex items-center gap-1">
-                <CheckCircle size={16} className="text-green-500" /> Unlimited
+                <CheckCircle size={16} className="text-green-500 shrink-0" /> Unlimited
                 Storage
               </span>
               <span className="flex items-center gap-1">
-                <CheckCircle size={16} className="text-green-500" /> Open Source
+                <CheckCircle size={16} className="text-green-500 shrink-0" /> Open Source
               </span>
               <span className="flex items-center gap-1">
-                <CheckCircle size={16} className="text-green-500" /> Self-host
+                <CheckCircle size={16} className="text-green-500 shrink-0" /> Self-host
               </span>
             </div>
           </div>
 
           {/* Enhanced Cloud Storage Image Section */}
-          <div className="relative">
+          <div className="relative order-1 md:order-2 mb-8 md:mb-0 max-w-md mx-auto md:max-w-none w-full">
             {/* Animated background effect */}
             <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-600 rounded-3xl blur-3xl opacity-20 animate-pulse"></div>
 
             {/* Main container */}
-            <div className="relative bg-white rounded-3xl shadow-2xl p-4 border border-gray-100 overflow-hidden">
+            <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-3 sm:p-4 border border-gray-100 overflow-hidden">
               {/* Header with storage info */}
-              <div className="flex items-center justify-between mb-4 px-2">
+              <div className="flex items-center justify-between mb-3 sm:mb-4 px-1 sm:px-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                    <Cloud className="text-white" size={18} />
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 bg-linear-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center shrink-0">
+                    <Cloud className="text-white" size={16} />
                   </div>
-                  <div>
-                    <span className="font-medium text-gray-900">
+                  <div className="min-w-0">
+                    <span className="font-medium text-gray-900 text-sm sm:text-base truncate">
                       ESBOX Cloud
                     </span>
-                    <span className="text-xs text-gray-500 block">
+                    <span className="text-xs text-gray-500 block truncate">
                       Active • Synced
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <span className="text-xs bg-purple-100 text-purple-600 px-2 py-1 rounded-full font-medium flex items-center gap-1">
                     <InfinityIcon size={12} /> Unlimited
                   </span>
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shrink-0"></div>
                 </div>
               </div>
 
               {/* Storage visualization - Showing unlimited with infinity bar */}
-              <div className="mb-4">
+              <div className="mb-3 sm:mb-4">
                 <div className="flex justify-between text-xs text-gray-500 mb-1">
                   <span>Storage</span>
                   <span className="flex items-center gap-1">
-                    <InfinityIcon size={12} className="text-purple-500" />
-                    Unlimited • Free forever
+                    <InfinityIcon size={12} className="text-purple-500 shrink-0" />
+                    <span className="hidden xs:inline">Unlimited • Free forever</span>
+                    <span className="xs:hidden">Unlimited</span>
                   </span>
                 </div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden relative">
@@ -192,28 +193,28 @@ const Home = () => {
                     <div className="w-full h-full bg-linear-to-r from-transparent via-white to-transparent animate-shimmer"></div>
                   </div>
                 </div>
-                <p className="text-xs text-gray-400 mt-1 text-right">
+                <p className="text-xs text-gray-400 mt-1 text-right hidden sm:block">
                   No storage limits • Upload as much as you want
                 </p>
               </div>
 
               {/* Quick actions */}
-              <div className="flex gap-2 mb-4">
-                <button className="flex-1 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors flex items-center justify-center gap-1">
-                  <Upload size={14} /> Upload
+              <div className="flex gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                <button className="flex-1 py-1.5 sm:py-2 bg-blue-50 text-blue-600 rounded-lg text-xs sm:text-sm font-medium hover:bg-blue-100 transition-colors flex items-center justify-center gap-1">
+                  <Upload size={14} /> <span className="hidden xs:inline">Upload</span>
                 </button>
-                <button className="flex-1 py-2 bg-gray-50 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-1">
-                  <Download size={14} /> Download
+                <button className="flex-1 py-1.5 sm:py-2 bg-gray-50 text-gray-600 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-1">
+                  <Download size={14} /> <span className="hidden xs:inline">Download</span>
                 </button>
-                <button className="flex-1 py-2 bg-gray-50 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-1">
-                  <Share2 size={14} /> Share
+                <button className="flex-1 py-1.5 sm:py-2 bg-gray-50 text-gray-600 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-1">
+                  <Share2 size={14} /> <span className="hidden xs:inline">Share</span>
                 </button>
               </div>
 
               {/* Recent files section */}
               <div className="mb-3">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-xs sm:text-sm font-medium text-gray-700">
                     Recent files
                   </span>
                   <span className="text-xs text-blue-600 hover:underline cursor-pointer">
@@ -221,22 +222,22 @@ const Home = () => {
                   </span>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5 sm:space-y-2">
                   {recentFiles.slice(0, 4).map((file, index) => {
                     const Icon = file.icon;
                     return (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
+                        className="flex items-center justify-between p-1.5 sm:p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer group"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                           <div
-                            className={`p-1.5 rounded-lg ${colors[file.type]} bg-opacity-10 bg-current`}
+                            className={`p-1 sm:p-1.5 rounded-lg ${colors[file.type]} bg-opacity-10 bg-current shrink-0`}
                           >
-                            <Icon size={16} className={colors[file.type]} />
+                            <Icon size={14} className={colors[file.type]} />
                           </div>
-                          <div>
-                            <span className="text-sm font-medium text-gray-700 block">
+                          <div className="min-w-0 flex-1">
+                            <span className="text-xs sm:text-sm font-medium text-gray-700 block truncate">
                               {file.name}
                             </span>
                             <span className="text-xs text-gray-400">
@@ -246,7 +247,7 @@ const Home = () => {
                         </div>
                         <Star
                           size={14}
-                          className="text-gray-300 group-hover:text-yellow-400 transition-colors"
+                          className="text-gray-300 group-hover:text-yellow-400 transition-colors shrink-0 ml-1"
                         />
                       </div>
                     );
@@ -255,68 +256,68 @@ const Home = () => {
               </div>
 
               {/* Activity indicator */}
-              <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                <div className="flex items-center gap-2">
-                  <div className="flex -space-x-2">
-                    <div className="w-6 h-6 rounded-full bg-linear-to-br from-blue-500 to-purple-500 border-2 border-white flex items-center justify-center">
-                      <span className="text-[10px] text-white font-bold">
+              <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-1 sm:gap-2 min-w-0">
+                  <div className="flex -space-x-1.5 sm:-space-x-2">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-linear-to-br from-blue-500 to-purple-500 border-2 border-white flex items-center justify-center shrink-0">
+                      <span className="text-[8px] sm:text-[10px] text-white font-bold">
                         JD
                       </span>
                     </div>
-                    <div className="w-6 h-6 rounded-full bg-linear-to-br from-green-500 to-teal-500 border-2 border-white flex items-center justify-center">
-                      <span className="text-[10px] text-white font-bold">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-linear-to-br from-green-500 to-teal-500 border-2 border-white flex items-center justify-center shrink-0">
+                      <span className="text-[8px] sm:text-[10px] text-white font-bold">
                         MK
                       </span>
                     </div>
-                    <div className="w-6 h-6 rounded-full bg-linear-to-br from-orange-500 to-red-500 border-2 border-white flex items-center justify-center">
-                      <span className="text-[10px] text-white font-bold">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-linear-to-br from-orange-500 to-red-500 border-2 border-white flex items-center justify-center shrink-0">
+                      <span className="text-[8px] sm:text-[10px] text-white font-bold">
                         AL
                       </span>
                     </div>
                   </div>
-                  <span className="text-xs text-gray-500">+3 active users</span>
+                  <span className="text-xs text-gray-500 truncate">+3 active users</span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-gray-400">
+                <div className="flex items-center gap-1 text-xs text-gray-400 shrink-0">
                   <InfinityIcon size={12} className="text-purple-500" />
-                  <span>Unlimited storage</span>
+                  <span className="hidden xs:inline">Unlimited storage</span>
                 </div>
               </div>
 
               {/* Floating elements for visual interest */}
-              <div className="absolute -top-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full opacity-20 blur-xl"></div>
-              <div className="absolute -bottom-2 -left-2 w-16 h-16 bg-purple-400 rounded-full opacity-20 blur-xl"></div>
+              <div className="absolute -top-2 -right-2 w-8 h-8 sm:w-12 sm:h-12 bg-yellow-400 rounded-full opacity-20 blur-xl"></div>
+              <div className="absolute -bottom-2 -left-2 w-10 h-10 sm:w-16 sm:h-16 bg-purple-400 rounded-full opacity-20 blur-xl"></div>
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute -z-10 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
+            <div className="absolute -z-10 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-48 h-48 sm:w-64 sm:h-64 bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-4">
+      <section className="bg-white py-12 sm:py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <h2 className="text-2xl sm:text-3xl font-bold text-center mb-2 sm:mb-4">
             Why Choose ESBOX?
           </h2>
-          <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-gray-600 text-center mb-8 sm:mb-12 max-w-2xl mx-auto px-4">
             Built for developers, designed for everyone. Complete control over
             your data.
           </p>
 
-          <div className="grid md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {features.map((feature, i) => {
               const Icon = feature.icon;
               return (
                 <div
                   key={i}
-                  className="p-6 bg-gray-50 rounded-2xl hover:shadow-lg transition-shadow group"
+                  className="p-5 sm:p-6 bg-gray-50 rounded-xl sm:rounded-2xl hover:shadow-lg transition-shadow group"
                 >
-                  <div className="w-12 h-12 bg-linear-to-br from-blue-100 to-purple-100 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <Icon className="text-blue-600" size={24} />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-linear-to-br from-blue-100 to-purple-100 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:scale-110 transition-transform">
+                    <Icon className="text-blue-600" size={20} />
                   </div>
-                  <h3 className="font-semibold mb-2">{feature.title}</h3>
-                  <p className="text-sm text-gray-500">{feature.desc}</p>
+                  <h3 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2">{feature.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-500">{feature.desc}</p>
                 </div>
               );
             })}
@@ -325,44 +326,44 @@ const Home = () => {
       </section>
 
       {/* Open Source Section */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="bg-linear-to-br from-gray-900 to-gray-800 rounded-3xl p-12 text-white">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+      <section className="py-12 sm:py-16 md:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="bg-linear-to-br from-gray-900 to-gray-800 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-white">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               <div>
-                <h2 className="text-3xl font-bold mb-4">100% Open Source</h2>
-                <p className="text-gray-300 mb-6 text-lg">
+                <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">100% Open Source</h2>
+                <p className="text-gray-300 mb-5 sm:mb-6 text-base sm:text-lg">
                   ESBOX is completely open source. Self-host on your own
                   servers, contribute to the project, or just use our free
                   hosted version.
                 </p>
-                <div className="flex gap-4">
+                <div className="flex">
                   <a
                     href="https://github.com/karthikeyakallapu/ESBOX"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-6 py-3 bg-white text-gray-900 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2 font-medium"
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-gray-900 rounded-xl hover:bg-gray-100 transition-colors flex items-center gap-2 font-medium text-sm sm:text-base"
                   >
-                    <img src={Github} className="h-7 w-7" alt="Github Icon" />{" "}
-                    View on GitHub
+                    <img src={Github} className="h-5 w-5 sm:h-7 sm:w-7" alt="Github Icon" /> 
+                    <span>View on GitHub</span>
                   </a>
                 </div>
               </div>
-              <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700">
-                <div className="flex items-center gap-2 mb-4">
-                  <Server size={18} className="text-gray-400" />
+              <div className="bg-gray-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-gray-700 overflow-x-auto">
+                <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                  <Server size={18} className="text-gray-400 shrink-0" />
                   <span className="text-sm text-gray-400">Quick deploy</span>
                 </div>
-                <pre className="text-sm text-gray-300 font-mono">
+                <pre className="text-xs sm:text-sm text-gray-300 font-mono whitespace-pre-wrap break-all">
                   <code>{`git clone https://github.com/karthikeyakallapu/ESBOX
 cd esbox
 docker-compose up -d
 
 # Your cloud storage is ready!`}</code>
                 </pre>
-                <div className="mt-4 flex items-center gap-2 text-xs text-gray-500">
-                  <Lock size={12} />
-                  <span>Self-hosted • Full control • No vendor lock-in</span>
+                <div className="mt-3 sm:mt-4 flex items-center gap-2 text-xs text-gray-500">
+                  <Lock size={12} className="shrink-0" />
+                  <span className="truncate">Self-hosted • Full control • No vendor lock-in</span>
                 </div>
               </div>
             </div>
@@ -371,17 +372,17 @@ docker-compose up -d
       </section>
 
       {/* CTA Section */}
-      <section className="pb-20">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-3xl p-12 text-center text-white">
-            <h2 className="text-3xl font-bold mb-4">Start using ESBOX today</h2>
-            <p className="text-blue-100 mb-6 text-lg">
+      <section className="pb-12 sm:pb-16 md:pb-20">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="bg-linear-to-r from-blue-600 to-purple-600 rounded-2xl sm:rounded-3xl p-8 sm:p-10 lg:p-12 text-center text-white">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">Start using ESBOX today</h2>
+            <p className="text-blue-100 mb-5 sm:mb-6 text-base sm:text-lg">
               Unlimited storage, completely free. No signup required.
             </p>
 
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-blue-600 rounded-xl font-medium hover:bg-gray-100 transition-colors text-lg shadow-lg"
+              className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-white text-blue-600 rounded-xl font-medium hover:bg-gray-100 transition-colors text-base sm:text-lg shadow-lg"
             >
               Go to Dashboard <ArrowRight size={20} />
             </Link>
@@ -390,10 +391,10 @@ docker-compose up -d
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 py-8">
-        <div className="max-w-7xl mx-auto px-6 flex items-center justify-between text-sm text-gray-500">
+      <footer className="border-t border-gray-200 py-6 sm:py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-0 text-xs sm:text-sm text-gray-500">
           <span>© 2026 ESBOX. Open source forever.</span>
-          <div className="flex gap-6">
+          <div className="flex gap-4 sm:gap-6">
             <a href="/privacy" className="hover:text-gray-900">
               Privacy
             </a>

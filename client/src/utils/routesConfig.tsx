@@ -1,18 +1,22 @@
-import Login from "../pages/Login";
-import Register from "../pages/Register";
-import Home from "../pages/Home";
-import PrivateRoute from "./PrivateRoute";
-import DashBoard from "../pages/DashBoard";
-import Folders from "../pages/Folders";
-import TelegramLink from "../_components/telegram/TelegramLink";
-import Starred from "../pages/Starred";
-import Trash from "../pages/Trash";
-import PublicRoute from "./PublicRoute";
-import ForgotPassword from "../pages/auth/ForgotPassword";
-import StreamPlayer from "../pages/StreamPlayer";
-import ResetPassword from "../pages/auth/ResetPassword";
-import VerifyEmail from "../pages/auth/VerifyEmail";
-import ResendVerification from "../pages/auth/ResendVerification";
+import { lazy } from "react";
+
+const Login = lazy(() => import("../pages/Login"));
+const Register = lazy(() => import("../pages/Register"));
+const Home = lazy(() => import("../pages/Home"));
+const PrivateRoute = lazy(() => import("./PrivateRoute"));
+const DashBoard = lazy(() => import("../pages/DashBoard"));
+const Folders = lazy(() => import("../pages/Folders"));
+const TelegramLink = lazy(() => import("../_components/telegram/TelegramLink"));
+const Starred = lazy(() => import("../pages/Starred"));
+const Trash = lazy(() => import("../pages/Trash"));
+const PublicRoute = lazy(() => import("./PublicRoute"));
+const ForgotPassword = lazy(() => import("../pages/auth/ForgotPassword"));
+const StreamPlayer = lazy(() => import("../pages/StreamPlayer"));
+const ResetPassword = lazy(() => import("../pages/auth/ResetPassword"));
+const VerifyEmail = lazy(() => import("../pages/auth/VerifyEmail"));
+const ResendVerification = lazy(
+  () => import("../pages/auth/ResendVerification"),
+);
 
 const routesConfig = [
   {
