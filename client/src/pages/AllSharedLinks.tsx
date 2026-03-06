@@ -280,9 +280,12 @@ const AllSharedLinks = () => {
 
         <button
           onClick={handleRefresh}
-          className="p-2 border border-gray-200 rounded-lg hover:text-indigo-600"
+          className="p-2 hover:bg-white rounded-lg border border-gray-200 transition-colors group"
         >
-          <RefreshCw className="w-4 h-4" />
+          <RefreshCw
+            size={16}
+            className="text-gray-400 group-hover:text-gray-600 group-hover:rotate-180 transition-all duration-500"
+          />
         </button>
       </div>
 
