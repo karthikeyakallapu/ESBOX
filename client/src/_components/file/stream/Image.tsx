@@ -5,8 +5,9 @@ import useModalStore from "../../../store/useModal";
 import { X, ZoomIn, ZoomOut, RotateCw, Maximize2 } from "lucide-react";
 
 type StreamImagePayload = {
-  file_id: number;
-  file_name?: string;
+  id: number;
+  name?: string;
+  token?: string;
 };
 
 const Image = () => {
@@ -33,8 +34,14 @@ const Image = () => {
 
   if (!data) return null;
 
+  let imageUrl = "";
+
   const file = data as StreamImagePayload;
-  const imageUrl = `${baseURL}${API_BASE_URL}/files/${file.file_id}/view`;
+  if (!file.token) {
+    imageUrl = `${baseURL}${API_BASE_URL}/files/${file.id}/view`;
+  } else {
+    imageUrl = `${baseURL}${API_BASE_URL}/share/${file.token}/stream`;
+  }
 
   const handleImageLoad = () => {
     setIsLoading(false);
@@ -69,7 +76,7 @@ const Image = () => {
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
         <div>
           <p className="text-white/80 italic font-light truncate max-w-xs">
-            {file.file_name || `file_${file.file_id}`}
+            {file.name || `file_${file.id}`}
           </p>
           <p className="text-[10px] uppercase tracking-widest text-white/30">
             Image Preview
@@ -116,7 +123,7 @@ const Image = () => {
             <img
               ref={imgRef}
               src={imageUrl}
-              alt={file.file_name || "Image preview"}
+              alt={file.name || "Image preview"}
               onLoad={handleImageLoad}
               draggable={false}
               onError={() => {

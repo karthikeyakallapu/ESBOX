@@ -2,7 +2,7 @@ import useModalStore from "../../store/useModal";
 import Toast from "../../utils/Toast";
 import apiService from "../../service/apiService";
 import { mutate } from "swr";
-import type { UserFile } from "../../types/file";
+import type { UserFile, FileShareCreate } from "../../types/file";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import type { FolderData } from "../../types/folder";
@@ -148,6 +148,31 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
     openModal("deleteFile", { file, onDelete: handleDelete });
   };
 
+  const handleShare = async (file: FileShareCreate): Promise<unknown> => {
+    try {
+      const shared = await apiService.shareFile(file);
+      Toast({
+        type: "success",
+        message: "Shareable link created successfully",
+      });
+      return shared;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "File Share failed";
+      Toast({
+        type: "error",
+        message: errorMessage,
+      });
+      throw error;
+    }
+  };
+
+  const shareFile = () => {
+    closeMenu?.();
+    const { openModal } = useModalStore.getState();
+    openModal("shareFile", { file, onShare: handleShare });
+  };
+
   const renameFile = () => {
     closeMenu?.();
     console.log(`Renaming file with ID: ${file.id}`);
@@ -159,6 +184,7 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
     deleteFile,
     handleStar,
     renameFile,
+    shareFile,
   };
 };
 

@@ -21,8 +21,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 type StreamPdfPayload = {
-  file_id: number;
-  file_name?: string;
+  id: number;
+  name?: string;
+  token?: string; // Optional token for shared files
 };
 
 const PDF = () => {
@@ -54,7 +55,14 @@ const PDF = () => {
   if (!data) return null;
 
   const file = data as StreamPdfPayload;
-  const pdfUrl = `${baseURL}${API_BASE_URL}/files/${file.file_id}/view`;
+
+  console.log(file);
+
+  let pdfUrl = `${baseURL}${API_BASE_URL}/files/${file.id}/view`;
+
+  if (file.token) {
+    pdfUrl = `${baseURL}${API_BASE_URL}/share/${file.token}/stream`;
+  }
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -82,7 +90,7 @@ const PDF = () => {
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
         <div>
           <p className="text-white/80 italic font-light truncate max-w-xs">
-            {file.file_name || `file_${file.file_id}`}
+            {file.name || `file_${file.id}`}
           </p>
           <p className="text-[10px] uppercase tracking-widest text-white/30">
             PDF Preview · Page {pageNumber} / {numPages || "--"}
@@ -181,7 +189,7 @@ const PDF = () => {
 
           <div className="w-px h-6 bg-white/10 mx-3" />
 
-          <a href={pdfUrl} download={file.file_name} className="viewer-btn">
+          <a href={pdfUrl} download={file.name} className="viewer-btn">
             <Download size={15} />
           </a>
         </div>

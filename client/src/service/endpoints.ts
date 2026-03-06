@@ -23,6 +23,10 @@ export const ENDPOINTS = {
   DELETE_FILE: `${API_BASE_URL}/telegram/delete`,
   RENAME_FILE: `${API_BASE_URL}/telegram/rename`,
   UPDATE_FILE: (file_id: number) => `${API_BASE_URL}/files/${file_id}`,
+  SHARE_FILE: `${API_BASE_URL}/share`,
+  VERIFY_SHARED_FILE: (token: string) =>
+    `${API_BASE_URL}/share/${token}/verify`,
+  SHARED_FILE: (token: string) => `${API_BASE_URL}/share/${token}`,
 
   // Telegram APIs //
   TELEGRAM_LINK: `${API_BASE_URL}/telegram/login`,

@@ -3,17 +3,18 @@ import useModalStore from "../../store/useModal";
 
 interface Props {
   name: string;
-  file_id: string | number;
+  id: string | number;
   isLoading: boolean;
   children?: React.ReactNode;
   mime_type: string;
 }
 
-const FileCard = ({ mime_type, file_id, name, isLoading, children }: Props) => {
+const FileCard = ({ mime_type, id, name, isLoading, children }: Props) => {
   const { openModal } = useModalStore();
+  console.log(name);
 
   const handleOpen = () => {
-    const file = { file_id, file_name: name };
+    const file = { id, name: name };
 
     if (mime_type.startsWith("image/")) {
       openModal("streamImage", file);

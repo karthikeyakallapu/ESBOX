@@ -41,18 +41,22 @@ class TelegramStorageService:
             raise
 
     @staticmethod
-    async def get_telegram_message(file_id: int, user_id: int, db):
+    async def get_telegram_message(file_id: int, user_id: int | None, db):
 
         file = await db.get(UserFile, file_id)
 
-        if not file or file.user_id != user_id:
+        if not file:
             raise HTTPException(status_code=404, detail="File not found")
 
-        client = await telegram_client_manager.get_client(user_id, db)
+        # Only enforce ownership when user_id exists
+        if user_id is not None and file.user_id != user_id:
+            raise HTTPException(status_code=403, detail="Access denied")
+
+        client = await telegram_client_manager.get_client(file.user_id, db)
 
         entity = PeerChannel(int(file.telegram_chat_id))
 
-        message = await client.get_messages( entity,  ids=file.telegram_message_id)
+        message = await client.get_messages(entity, ids=file.telegram_message_id)
 
         if not message or not message.file:
             raise HTTPException(status_code=404, detail="Telegram file missing")

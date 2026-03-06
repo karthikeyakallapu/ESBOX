@@ -21,6 +21,12 @@ axiosInstance.interceptors.response.use(
 
     const status = error.response?.status;
     const url = originalRequest?.url ?? "";
+    const skipAuthRefresh =
+      typeof originalRequest?.headers?.get === "function"
+        ? originalRequest.headers.get("x-skip-auth-refresh") === "true"
+        : (originalRequest?.headers as Record<string, string> | undefined)?.[
+            "x-skip-auth-refresh"
+          ] === "true";
     const isAuthEndpoint =
       url.includes("/auth/login") ||
       url.includes("/auth/refresh") ||
@@ -30,6 +36,7 @@ axiosInstance.interceptors.response.use(
       status === 401 &&
       originalRequest &&
       !originalRequest._retry &&
+      !skipAuthRefresh &&
       !isAuthEndpoint
     ) {
       originalRequest._retry = true;

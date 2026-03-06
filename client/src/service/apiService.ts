@@ -3,7 +3,7 @@ import type { UserRegister, UserLogin } from "../types/user";
 import { ENDPOINTS } from "./endpoints";
 import { handleApiError } from "./errorHandler";
 import type { FolderUpdateData } from "../types/folder";
-import type { FileUpdate } from "../types/file";
+import type { FileUpdate, FileShareCreate } from "../types/file";
 
 class APIService {
   // User APIs //
@@ -307,6 +307,76 @@ class APIService {
         responseType: "blob",
       });
       return response.data as Blob;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  shareFile = async (file_data: FileShareCreate) => {
+    try {
+      const response = await axiosInstance.post(
+        ENDPOINTS.SHARE_FILE,
+        file_data,
+      );
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  verifySharedFilePassword = async ({
+    token,
+    password,
+  }: {
+    token: string;
+    password: string;
+  }) => {
+    try {
+      const response = await axiosInstance.post(
+        ENDPOINTS.VERIFY_SHARED_FILE(token),
+        {
+          password,
+        },
+        {
+          withCredentials: false,
+        },
+      );
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  getAllSharedLinks = async () => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.SHARE_FILE);
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  updateSharedLink = async (token: string, data: Partial<FileShareCreate>) => {
+    try {
+      const response = await axiosInstance.patch(
+        ENDPOINTS.SHARED_FILE(token),
+        data,
+      );
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  deleteSharedLink = async (token: string) => {
+    try {
+      const response = await axiosInstance.delete(ENDPOINTS.SHARED_FILE(token));
+      return response.data;
     } catch (error) {
       const err = handleApiError(error);
       throw new Error(err.message);

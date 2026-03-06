@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Star } from "lucide-react";
+import { Pencil, Trash2, Star, Share2 } from "lucide-react";
 
 interface Props {
   onRename: () => void;
@@ -7,6 +7,8 @@ interface Props {
   isDeleting: boolean;
   isRenaming: boolean;
   isStarred: boolean;
+  isSharing: boolean;
+  shareFile: () => void;
 }
 
 const ItemMenu = ({
@@ -16,8 +18,9 @@ const ItemMenu = ({
   onDelete,
   updateStar,
   isStarred,
+  isSharing,
+  shareFile,
 }: Props) => {
-  
   const handleRename = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -34,6 +37,12 @@ const ItemMenu = ({
     e.preventDefault();
     e.stopPropagation();
     updateStar(!isStarred);
+  };
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    shareFile();
   };
 
   return (
@@ -69,6 +78,15 @@ const ItemMenu = ({
       >
         <Star fill={isStarred ? "#FFD700" : "white"} className="h-4 w-4" />
         {isStarred ? "Remove from Starred" : "Add to Starred"}
+      </button>
+
+      <button
+        onClick={handleShare}
+        disabled={isSharing}
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-red-50"
+      >
+        <Share2 className="h-4 w-4" />
+        Share
       </button>
     </div>
   );

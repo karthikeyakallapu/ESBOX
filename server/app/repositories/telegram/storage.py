@@ -54,8 +54,8 @@ class TelegramStorageRepository:
                 user_id=user_id,
                 telegram_message_id=file_metadata.telegram_message_id,
                 telegram_chat_id=file_metadata.telegram_chat_id,
-                filename=file_metadata.filename,
-                file_size=file_metadata.file_size,
+                name=file_metadata.name,
+                size=file_metadata.size,
                 mime_type=file_metadata.mime_type,
                 content_hash=file_hash,
                 folder_path=file_metadata.folder_path,
@@ -73,12 +73,12 @@ class TelegramStorageRepository:
     async def get_files_in_folder(parent_id, user_id, db):
         try:
             result = await db.execute(
-                select(UserFile.id, UserFile.parent_id, UserFile.file_size, UserFile.filename, UserFile.mime_type, UserFile.updated_at ,UserFile.is_starred
+                select(UserFile.id, UserFile.parent_id, UserFile.size, UserFile.name, UserFile.mime_type, UserFile.updated_at ,UserFile.is_starred
                        , UserFile.uploaded_at).where(
                     UserFile.user_id == user_id,
                     UserFile.parent_id == parent_id,
                     UserFile.is_deleted == False
-                ).order_by(UserFile.filename.asc())
+                ).order_by(UserFile.name.asc())
             )
             files = result.mappings().all()
             return files

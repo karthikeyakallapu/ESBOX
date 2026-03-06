@@ -21,13 +21,13 @@ const RenameFile = () => {
   const file = modalData?.file;
   const onRename = modalData?.onRename;
 
-  const [name, setName] = useState(file?.filename ?? "");
+  const [name, setName] = useState(file?.name ?? "");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (file) {
-      setName(file.filename);
+      setName(file.name);
       setError(null);
     }
   }, [file]);
@@ -37,7 +37,7 @@ const RenameFile = () => {
   }
 
   const trimmedName = name.trim();
-  const isUnchanged = trimmedName === file.filename;
+  const isUnchanged = trimmedName === file.name;
   const isInvalid = !trimmedName;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,7 +69,7 @@ const RenameFile = () => {
         <div>
           <h3 className="text-sm font-semibold text-gray-800">Rename Folder</h3>
           <p className="text-xs text-gray-500 mt-0.5">
-            Current name: <span className="font-medium">{file.filename}</span>
+            Current name: <span className="font-medium">{file.name}</span>
           </p>
         </div>
       </div>

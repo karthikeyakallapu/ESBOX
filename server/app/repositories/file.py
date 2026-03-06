@@ -12,12 +12,10 @@ class FileRepository:
     @staticmethod
     async def get_file_by_id(
         file_id: int,
-        user_id: int,
         db: AsyncSession
     ):
         query = select(UserFile).where(
             UserFile.id == file_id,
-            UserFile.user_id == user_id
         )
         result = await db.execute(query)
         return result.scalar_one_or_none()
@@ -83,7 +81,7 @@ class FileRepository:
         name = name.strip().lower()
 
         query = select(UserFile).where(
-            func.lower(UserFile.filename) == name,
+            func.lower(UserFile.name) == name,
             UserFile.parent_id == parent_id,
             UserFile.user_id == user_id
         )
