@@ -8,7 +8,11 @@ import TelegramLink from "../telegram/TelegramLink";
 import Image from "../file/stream/Image";
 import type { ModalSize } from "./StorageOptionModal";
 import PDF from "../file/stream/PDF";
+import ShareFile from "../file/ShareFile";
 import Video from "../file/stream/Video";
+import DeleteSharedLink from "../share/DeleteSharedLink";
+import ChangeSharedLinkPassword from "../share/ChangeSharedLinkPassword ";
+import UpdateSharedLinkExpiry from "../share/UpdateSharedLinkExpiry";
 
 const modalComponents = [
   {
@@ -56,10 +60,27 @@ const modalComponents = [
     component: <PDF />,
     size: "full" as ModalSize,
   },
-  { name: "streamVideo", 
-    component: <Video />, 
-    size: "full" as ModalSize 
-  }
+  { name: "streamVideo", component: <Video />, size: "full" as ModalSize },
+  {
+    name: "shareFile",
+    component: <ShareFile />,
+    size: "md" as ModalSize,
+  },
+  {
+    name: "changeSharedLinkPassword",
+    component: <ChangeSharedLinkPassword />,
+    size: "md" as ModalSize,
+  },
+  {
+    name: "deleteSharedLink",
+    component: <DeleteSharedLink />,
+    size: "md" as ModalSize,
+  },
+  {
+    name: "updateSharedLinkExpiry",
+    component: <UpdateSharedLinkExpiry />,
+    size: "md" as ModalSize,
+  },
 ];
 
 export default modalComponents;

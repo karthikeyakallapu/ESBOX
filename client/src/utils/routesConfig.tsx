@@ -17,6 +17,8 @@ const VerifyEmail = lazy(() => import("../pages/auth/VerifyEmail"));
 const ResendVerification = lazy(
   () => import("../pages/auth/ResendVerification"),
 );
+const SharedFile = lazy(() => import("../pages/SharedFile"));
+const AllSharedLinks = lazy(() => import("../pages/AllSharedLinks"));
 
 const routesConfig = [
   {
@@ -122,6 +124,14 @@ const routesConfig = [
         <ResendVerification />
       </PublicRoute>
     ),
+  },
+  {
+    path: "/s/:token",
+    component: <SharedFile />,
+  },
+  {
+    path: "/shared-links",
+    component: <AllSharedLinks />,
   },
 ];
 

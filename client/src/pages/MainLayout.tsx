@@ -24,17 +24,23 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
         {isAuthenticated && <SideNav />}
 
         {/* Main content */}
-        <main className="flex-1  pl-2">
-          <div className="bg-white h-[99.9%]  rounded-xl  p-2">
+        <main className="flex-1 min-w-0 pl-2">
+          <div className="bg-white h-full rounded-xl p-2 flex flex-col overflow-hidden">
             {isAuthenticated && (
-              <>
-                <BreadCrumb />
+              <div className="shrink-0">
                 {location.pathname !== "/starred" &&
-                  location.pathname !== "/trash" && <StorageActions />}
-              </>
+                  !location.pathname.includes("/s/") &&
+                  location.pathname !== "/shared-links" &&
+                  location.pathname !== "/trash" && (
+                    <>
+                      <BreadCrumb />
+                      <StorageActions />
+                    </>
+                  )}
+              </div>
             )}
 
-            {children}
+            <div className="flex-1 overflow-auto">{children}</div>
           </div>
 
           {/* Modals */}

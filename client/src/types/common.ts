@@ -12,7 +12,11 @@ type ModalComponent =
   | "telegramLink"
   | "streamImage"
   | "streamPDF"
-  | "streamVideo";
+  | "streamVideo"
+  | "shareFile"
+  | "changeSharedLinkPassword"
+  | "deleteSharedLink"
+  | "updateSharedLinkExpiry";
 
 interface ModalStore<T = unknown> {
   isOpen: boolean;

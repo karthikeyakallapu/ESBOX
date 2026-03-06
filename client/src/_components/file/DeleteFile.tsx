@@ -53,7 +53,7 @@ const DeleteFile = () => {
           <h3 className="text-sm font-semibold text-red-700">Delete File</h3>
           <p className="text-xs text-red-600 mt-0.5">
             Are you sure you want to delete{" "}
-            <span className="font-medium">"{file.filename}"</span>?
+            <span className="font-medium">"{file.name}"</span>?
           </p>
         </div>
       </div>

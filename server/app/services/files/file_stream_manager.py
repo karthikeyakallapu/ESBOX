@@ -158,7 +158,7 @@ class FileStreamManager:
     @staticmethod
     async def stream_file(
             file_id: int,
-            user_id: int,
+            user_id: int | None,
             db,
             range_header: Optional[str] = None
     ):

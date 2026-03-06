@@ -34,3 +34,78 @@
      background: rgba(255, 255, 255, 0.25);
      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
  }
+
+
+ /* Custom Scrollbar Styles - No Arrows, Only Thumb */
+ .scrollbar-only {
+     /* For Firefox */
+     scrollbar-width: auto;
+     scrollbar-color: rgba(0, 87, 185, 0.4) transparent;
+ }
+
+ /* For Chrome, Edge, and Safari */
+ .scrollbar-only::-webkit-scrollbar {
+     width: 6px;
+     height: 6px;
+     background: transparent;
+ }
+
+ .scrollbar-only::-webkit-scrollbar-track {
+     background: transparent;
+     margin: 0;
+     /* Remove any default margin */
+ }
+
+ .scrollbar-only::-webkit-scrollbar-thumb {
+     background: rgba(0, 87, 185, 0.3);
+     border-radius: 100px;
+     transition: background 0.2s ease;
+     border: none;
+     /* Remove any default border */
+     min-height: 30px;
+     /* Minimum size */
+ }
+
+ .scrollbar-only::-webkit-scrollbar-thumb:hover {
+     background: rgba(0, 87, 185, 0.5);
+ }
+
+ .scrollbar-only::-webkit-scrollbar-corner {
+     background: transparent;
+ }
+
+ /* Explicitly hide all buttons */
+ .scrollbar-only::-webkit-scrollbar-button {
+     display: none !important;
+     width: 0 !important;
+     height: 0 !important;
+     background: transparent !important;
+ }
+
+ /* Hide the horizontal scrollbar buttons specifically */
+ .scrollbar-only::-webkit-scrollbar-button:horizontal {
+     display: none !important;
+ }
+
+ /* Hide the vertical scrollbar buttons specifically */
+ .scrollbar-only::-webkit-scrollbar-button:vertical {
+     display: none !important;
+ }
+
+ /* Hide the increment (down/right) buttons */
+ .scrollbar-only::-webkit-scrollbar-button:start {
+     display: none !important;
+ }
+
+ .scrollbar-only::-webkit-scrollbar-button:end {
+     display: none !important;
+ }
+
+ /* For IE and Edge */
+ .scrollbar-only {
+     -ms-overflow-style: none;
+     scrollbar-face-color: rgba(0, 87, 185, 0.3);
+     scrollbar-track-color: transparent;
+     scrollbar-arrow-color: transparent;
+     scrollbar-shadow-color: transparent;
+ }

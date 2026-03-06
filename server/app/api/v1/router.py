@@ -15,6 +15,7 @@ from app.services.folders.folder_manager import folder_manager
 from app.api.v1.file_router import router as file_router
 from app.api.v1.upload_router import router as upload_router
 from app.api.v1.oauth_router import router as oauth_router
+from app.api.v1.share_router import router as share_router
 
 router = APIRouter()
 
@@ -23,6 +24,7 @@ router.include_router(folder_router, prefix="/folders")
 router.include_router(file_router, prefix="/files")
 router.include_router(upload_router , prefix="/upload")
 router.include_router(oauth_router, prefix="/oauth")
+router.include_router(share_router, prefix="/share")
 
 
 user_service = UserService()

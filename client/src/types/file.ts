@@ -1,11 +1,11 @@
 interface UserFile {
   id: number;
   parent_id: number | string | null;
-  filename: string;
+  name: string;
   mime_type: string;
   size: number;
   is_starred: boolean;
-  created_at: string;
+  uploaded_at: string;
   updated_at: string;
 }
 
@@ -24,4 +24,23 @@ interface FileUpdate {
     new_name?: string;
   };
 }
-export type { UserFile, DeleteFileModalData, FileUpdate, RenameFileModalData };
+
+interface FileShareCreate {
+  file_id: number;
+  password: string;
+  expire_in_hours: number;
+}
+
+interface ShareFileModalData {
+  file: UserFile;
+  onShare: (file: FileShareCreate) => Promise<unknown>;
+}
+
+export type {
+  UserFile,
+  DeleteFileModalData,
+  FileUpdate,
+  RenameFileModalData,
+  FileShareCreate,
+  ShareFileModalData,
+};

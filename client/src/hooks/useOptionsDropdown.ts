@@ -4,6 +4,7 @@ const useOptionsDropdown = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -50,6 +51,8 @@ const useOptionsDropdown = () => {
     toggleMenu,
     isDeleting,
     setIsDeleting,
+    isSharing,
+    setIsSharing,
     isRenaming,
     setIsRenaming,
     menuRef,

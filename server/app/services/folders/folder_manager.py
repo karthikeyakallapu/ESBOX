@@ -144,7 +144,7 @@ class FolderManager:
                 deleted_item = await folder_repository.delete_folder_from_trash(item_id, user_id, db)
             elif item_type == "file":
 
-                file_record = await file_repository.get_file_by_id(item_id, user_id, db)
+                file_record = await file_repository.get_file_by_id(item_id, db)
 
                 if not file_record:
                     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")

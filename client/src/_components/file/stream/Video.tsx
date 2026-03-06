@@ -15,8 +15,9 @@ import {
 } from "lucide-react";
 
 type StreamVideoPayload = {
-  file_id: number;
-  file_name?: string;
+  id: number;
+  name?: string;
+  token?: string; // Optional token for shared files
 };
 
 const SPEEDS = [0.5, 1, 1.25, 1.5, 2];
@@ -108,7 +109,11 @@ const Video = () => {
 
   if (!file) return null;
 
-  const videoUrl = `${baseURL}${API_BASE_URL}/files/${file.file_id}/view`;
+  let videoUrl = `${baseURL}${API_BASE_URL}/files/${file.id}/view`;
+
+  if (file.token) {
+    videoUrl = `${baseURL}${API_BASE_URL}/share/${file.token}/stream`;
+  }
 
   /* ------------------ Player Controls ------------------ */
 
@@ -162,7 +167,7 @@ const Video = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = file.file_name || `file_${file.file_id}`;
+      a.download = file.name || `file_${file.id}`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (err) {
@@ -187,7 +192,7 @@ const Video = () => {
       {/* Top Bar */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-neutral-900">
         <div className="font-semibold text-sm uppercase tracking-wide truncate max-w-75">
-          {file.file_name || `file_${file.file_id}`}
+          {file.name || `file_${file.id}`}
         </div>
 
         <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-amber-400 bg-amber-400/10 border border-amber-400/30 px-2 py-1 rounded">

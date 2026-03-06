@@ -13,7 +13,6 @@ class FileManager:
 
             current_file = await file_repository.get_file_by_id(
                 file_id=file_id,
-                user_id=user_id,
                 db=db
             )
 
@@ -62,7 +61,7 @@ class FileManager:
                         detail="File with same name already exists"
                     )
 
-                fields_to_update["filename"] = new_name
+                fields_to_update["name"] = new_name
 
             elif data.action == "delete":
                 fields_to_update["is_deleted"] = True
