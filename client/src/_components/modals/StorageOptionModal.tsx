@@ -3,12 +3,13 @@ import { X } from "lucide-react";
 import useModalStore from "../../store/useModal";
 import { useRef } from "react";
 
-export type ModalSize = "md" | "lg" | "xl" | "full";
+export type ModalSize = "md" | "lg" | "xl" | "xl5" | "full";
 
 const modalSizeClasses: Record<ModalSize, string> = {
   md: "max-w-md",
   lg: "max-w-lg",
   xl: "max-w-3xl",
+  xl5: "max-w-5xl",
   full: "max-w-[95vw]",
 };
 
@@ -28,8 +29,6 @@ const StorageOptionModal = ({
         modalRef.current &&
         !modalRef.current.contains(event.target as Node)
       ) {
-        console.log("entered");
-
         closeModal();
       }
     };

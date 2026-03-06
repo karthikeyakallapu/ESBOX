@@ -5,11 +5,8 @@ import RenameFolder from "../folder/RenameFolder";
 import RenameFile from "../file/RenameFile";
 import UploadFile from "../file/upload/UploadFile";
 import TelegramLink from "../telegram/TelegramLink";
-import Image from "../file/stream/Image";
 import type { ModalSize } from "./StorageOptionModal";
-import PDF from "../file/stream/PDF";
 import ShareFile from "../file/ShareFile";
-import Video from "../file/stream/Video";
 import DeleteSharedLink from "../share/DeleteSharedLink";
 import ChangeSharedLinkPassword from "../share/ChangeSharedLinkPassword ";
 import UpdateSharedLinkExpiry from "../share/UpdateSharedLinkExpiry";
@@ -50,17 +47,6 @@ const modalComponents = [
     component: <TelegramLink />,
     size: "md" as ModalSize,
   },
-  {
-    name: "streamImage",
-    component: <Image />,
-    size: "full" as ModalSize,
-  },
-  {
-    name: "streamPDF",
-    component: <PDF />,
-    size: "full" as ModalSize,
-  },
-  { name: "streamVideo", component: <Video />, size: "full" as ModalSize },
   {
     name: "shareFile",
     component: <ShareFile />,

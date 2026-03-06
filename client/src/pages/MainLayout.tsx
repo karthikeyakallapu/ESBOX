@@ -8,6 +8,8 @@ import { useLocation } from "react-router-dom";
 import modalComponents from "../_components/modals/modalComponents";
 import useModalStore from "../store/useModal";
 import StorageOptionModal from "../_components/modals/StorageOptionModal";
+import spreadComponents from "../_components/modals/spreadComponents";
+import SpreadModal from "../_components/modals/SpreadModal";
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
   const { isAuthenticated } = useAuthStore();
@@ -16,7 +18,7 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
 
   return (
     <div className="flex h-screen flex-col bg-slate-100">
-      <header className="h-16 shrink-0 bg-white">
+      <header className="h-18 shrink-0 bg-white">
         <Navbar />
       </header>
 
@@ -42,7 +44,6 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
 
             <div className="flex-1 overflow-auto">{children}</div>
           </div>
-
           {/* Modals */}
           {modalComponents.map((modal) => {
             if (isOpen && component === modal.name) {
@@ -50,6 +51,17 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
                 <StorageOptionModal key={modal.name} size={modal.size}>
                   {modal.component}
                 </StorageOptionModal>
+              );
+            }
+          })}
+
+          {/* Spread Modals */}
+          {spreadComponents.map((modal) => {
+            if (isOpen && component === modal.name) {
+              return (
+                <SpreadModal key={modal.name} size={modal.size}>
+                  {modal.component}
+                </SpreadModal>
               );
             }
           })}

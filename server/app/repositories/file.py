@@ -123,4 +123,33 @@ class FileRepository:
          deleted_file = result.scalar_one_or_none()
          return deleted_file
 
+
+    @staticmethod
+    async def search_files(query: str, limit: int, user_id: int, db: AsyncSession):
+        query = query.strip()
+
+        if not query:
+            return []
+
+        stmt = (
+            select(
+                UserFile.id,
+                UserFile.name,
+                UserFile.mime_type,
+                UserFile.size,
+                UserFile.parent_id,
+                UserFile.uploaded_at
+            )
+            .where(
+                UserFile.user_id == user_id,
+                UserFile.name.ilike(f"%{query}%"),
+                UserFile.is_deleted.is_(False)
+            )
+            .order_by(UserFile.uploaded_at.desc())
+            .limit(limit)
+        )
+
+        result = await db.execute(stmt)
+        return result.mappings().all()
+
 file_repository = FileRepository()
