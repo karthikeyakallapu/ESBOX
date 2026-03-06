@@ -90,5 +90,30 @@ class FileManager:
                 detail="Internal server error"
             )
 
+    @staticmethod
+    async def search_files(query: str, user_id: int, db: AsyncSession):
+        try:
+            if not query.strip():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Query cannot be empty"
+                )
+
+            limit = 10
+
+            results = await file_repository.search_files(
+                query=query,
+                user_id=user_id,
+                db=db,
+                limit=limit
+            )
+
+            return results
+        except Exception as e:
+            logger.exception(f"Failed to search files with query '{query}': {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Internal server error"
+            )
 
 file_manager = FileManager()

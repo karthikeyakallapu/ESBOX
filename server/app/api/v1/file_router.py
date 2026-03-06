@@ -1,6 +1,8 @@
 from typing import Optional
 
+from alembic.autogenerate import render_op_text
 from fastapi import APIRouter, Depends ,HTTPException , Header
+from fastapi.params import Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
@@ -59,3 +61,17 @@ async def update_file(file_id: int,file: FileUpdate,user=Depends(get_current_use
     except Exception as e:
         logger.error(e)
         raise e
+
+
+@router.get("/search")
+async def search_files( q: str = Query(...), user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    try:
+        results = await file_manager.search_files(
+            query=q,
+            user_id=user.get("id"),
+            db=db,
+        )
+        return results
+    except Exception as e:
+        logger.error(f"Error searching files with query '{q}': {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error searching files: {str(e)}")

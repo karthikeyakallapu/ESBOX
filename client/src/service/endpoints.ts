@@ -27,6 +27,8 @@ export const ENDPOINTS = {
   VERIFY_SHARED_FILE: (token: string) =>
     `${API_BASE_URL}/share/${token}/verify`,
   SHARED_FILE: (token: string) => `${API_BASE_URL}/share/${token}`,
+  SEARCH_FILES: (query: string) =>
+    `${API_BASE_URL}/files/search?q=${encodeURIComponent(query)}`,
 
   // Telegram APIs //
   TELEGRAM_LINK: `${API_BASE_URL}/telegram/login`,

@@ -275,6 +275,16 @@ class APIService {
     }
   };
 
+  searchFiles = async (query: string) => {
+    try {
+      const response = await axiosInstance.get(ENDPOINTS.SEARCH_FILES(query));
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
   // File APIs //
 
   sendTelegramCode = async ({ phone }: { phone: string }) => {
