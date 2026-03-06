@@ -109,8 +109,11 @@ class FileManager:
             )
 
             return results
+        except HTTPException as e:
+            logger.error(f"Failed to search file {query}: {str(e)}")
+            raise e
         except Exception as e:
-            logger.exception(f"Failed to search files with query '{query}': {str(e)}")
+            logger.error(f"Failed to search files with query '{query}': {str(e)}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Internal server error"
