@@ -13,6 +13,7 @@ class UserFile(Base):
     telegram_chat_id = Column(String(50), nullable=False)
     name = Column(String(255), nullable=False)
     is_starred = Column(Boolean, default=False)
+    is_archived = Column(Boolean, default=False)
     is_deleted = Column(Boolean, default=False)
     size = Column(BigInteger, nullable=False)
     mime_type = Column(String(100))

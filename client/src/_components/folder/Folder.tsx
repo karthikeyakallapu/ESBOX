@@ -19,10 +19,8 @@ const Folder = ({ folder }: { folder: UserFolder }) => {
     setIsMenuOpen,
   } = useOptionsDropdown();
 
-  const { deleteFolder, renameFolder, updateStar } = useFolderActions(
-    folder,
-    () => setIsMenuOpen(false),
-  );
+  const { deleteFolder, renameFolder, updateStar, handleArchive } =
+    useFolderActions(folder, () => setIsMenuOpen(false));
 
   const isLoading = isDeleting || isRenaming;
 
@@ -45,6 +43,8 @@ const Folder = ({ folder }: { folder: UserFolder }) => {
       {isMenuOpen && (
         <div ref={menuRef}>
           <FolderMenu
+            onArchive={handleArchive}
+            isArchived={folder.is_archived}
             onDelete={deleteFolder}
             onRename={renameFolder}
             updateStar={updateStar}

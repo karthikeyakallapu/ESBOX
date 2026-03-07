@@ -1,0 +1,55 @@
+import { useParams } from "react-router-dom";
+import useSWR from "swr";
+import apiService from "../service/apiService";
+import Folder from "../_components/folder/Folder";
+import type { UserFolder } from "../types/folder";
+import useFolderNavStore from "../store/useFolderNav";
+import type { UserFile } from "../types/file";
+import File from "../_components/file/File";
+import Loading from "../_components/loaders/Loading";
+
+const Archive = () => {
+  const { id } = useParams();
+  const { enterFolder } = useFolderNavStore();
+
+  const { data, error, isLoading } = useSWR(`archived_items`, () =>
+    apiService.getAllFilesAndFolders({
+      parentId: id || null,
+      isArchived: true,
+    }),
+  );
+
+  if (isLoading) return <Loading />;
+  if (error) return <div>Error: {error.message || "error..."}</div>;
+
+  const handleFolderNav = (folder: UserFolder) => {
+    enterFolder({ id: folder.id.toString(), name: folder.name });
+  };
+
+  return (
+    <div className="p-4">
+      {data.folders.length === 0 && data.files.length === 0 && (
+        <div className="h-screen flex items-center justify-center">
+          Empty folder.
+        </div>
+      )}
+      {/*  folders  */}
+      <div className="flex items-center flex-wrap gap-4">
+        {data?.folders.map((folder: UserFolder) => (
+          <div key={folder.id} onClick={() => handleFolderNav(folder)}>
+            <Folder folder={folder} />
+          </div>
+        )) || "No folders found."}
+
+        {/*  files */}
+        {data?.files.map((file: UserFile) => (
+          <div key={file.id}>
+            <File file={file} />
+          </div>
+        )) || "No files found."}
+      </div>
+    </div>
+  );
+};
+
+export default Archive;

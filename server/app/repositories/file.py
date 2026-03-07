@@ -67,6 +67,19 @@ class FileRepository:
         result = await db.execute(query)
         return result.scalars().all()
 
+    @staticmethod
+    async def get_archived_files(
+        user_id: int,
+        db: AsyncSession
+    ):
+        query = select(UserFile).where(
+            UserFile.user_id == user_id,
+            UserFile.is_archived.is_(True)
+        )
+        result = await db.execute(query)
+        return result.scalars().all()
+
+
     # --------------------------------------
     # FIND DUPLICATE NAME
     # --------------------------------------

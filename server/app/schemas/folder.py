@@ -52,3 +52,4 @@ class FolderUpdate(BaseModel):
    name: Optional[str] = None
    parent_id: Optional[int] = None
    is_starred: Optional[bool] = None
+   is_archived: Optional[bool] = None

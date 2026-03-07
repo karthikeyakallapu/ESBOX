@@ -7,6 +7,7 @@ interface UserFolder {
   created_at: string;
   id: number;
   is_starred: boolean;
+  is_archived: boolean;
   parent_id: number | null;
   updated_at: string | null;
 }
@@ -40,6 +41,7 @@ interface FolderUpdateData {
   name?: string;
   parent_id?: number | string | null;
   is_starred?: boolean;
+  is_archived?: boolean;
 }
 
 interface FolderData {

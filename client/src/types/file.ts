@@ -5,6 +5,7 @@ interface UserFile {
   mime_type: string;
   size: number;
   is_starred: boolean;
+  is_archived: boolean;
   uploaded_at: string;
   updated_at: string;
 }
@@ -19,7 +20,14 @@ interface RenameFileModalData {
   onRename: (new_name: string) => Promise<void>;
 }
 interface FileUpdate {
-  action: "rename" | "move" | "star" | "unstar" | "delete";
+  action:
+    | "rename"
+    | "move"
+    | "star"
+    | "unstar"
+    | "delete"
+    | "archive"
+    | "unarchive";
   payload?: {
     new_name?: string;
   };

@@ -56,6 +56,18 @@ class FolderManager:
             logger.error(e)
             raise e
 
+
+    @staticmethod
+    async def get_archived_folders(user_id: int, db:AsyncSession):
+        try:
+            inner_folders = await folder_repository.get_archived_folders(user_id, db)
+
+            inner_files  = await file_repository.get_archived_files(user_id, db)
+            return {"folders": inner_folders, "files": inner_files}
+        except Exception as e:
+            logger.error(e)
+            raise e
+
     @staticmethod
     async def delete_folder(folder_id :int , user_id: int, db: AsyncSession):
         try:

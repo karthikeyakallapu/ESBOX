@@ -77,7 +77,8 @@ class TelegramStorageRepository:
                        , UserFile.uploaded_at).where(
                     UserFile.user_id == user_id,
                     UserFile.parent_id == parent_id,
-                    UserFile.is_deleted == False
+                    UserFile.is_deleted == False,
+                    UserFile.is_archived == False
                 ).order_by(UserFile.name.asc())
             )
             files = result.mappings().all()

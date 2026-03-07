@@ -19,6 +19,7 @@ const ResendVerification = lazy(
 );
 const SharedFile = lazy(() => import("../pages/SharedFile"));
 const AllSharedLinks = lazy(() => import("../pages/AllSharedLinks"));
+const Archive = lazy(() => import("../pages/Archive"));
 
 const routesConfig = [
   {
@@ -74,6 +75,14 @@ const routesConfig = [
     component: (
       <PrivateRoute>
         <Starred />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/archive",
+    component: (
+      <PrivateRoute>
+        <Archive />
       </PrivateRoute>
     ),
   },

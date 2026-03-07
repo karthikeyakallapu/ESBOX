@@ -65,6 +65,13 @@ class FileManager:
 
             elif data.action == "delete":
                 fields_to_update["is_deleted"] = True
+
+            elif data.action == "archive":
+                fields_to_update["is_archived"] = True
+
+            elif data.action == "unarchive":
+                fields_to_update["is_archived"] = False
+
             else:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,

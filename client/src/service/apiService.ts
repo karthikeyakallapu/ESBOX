@@ -150,14 +150,17 @@ class APIService {
   getAllFilesAndFolders = async ({
     parentId,
     isStarred,
+    isArchived,
   }: {
     parentId: number | string | null;
     isStarred?: boolean;
+    isArchived?: boolean;
   }) => {
     try {
       const parent_id = parentId !== null ? { parent_id: parentId } : {};
       const starred = isStarred ? { is_starred: true } : {};
-      const params = { ...parent_id, ...starred };
+      const archived = isArchived ? { is_archived: true } : {};
+      const params = { ...parent_id, ...starred, ...archived };
       const response = await axiosInstance.get(ENDPOINTS.FILES_AND_FOLDERS, {
         params,
       });

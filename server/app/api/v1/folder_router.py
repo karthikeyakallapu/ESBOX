@@ -23,10 +23,14 @@ async def create_folder(folder: FolderCreate, user=Depends(get_current_user),
         raise e
 
 @router.get("")
-async def get_folders(parent_id: int | None = None, is_starred : bool = False, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def get_folders(parent_id: int | None = None, is_starred : bool = False, is_archived:bool = False, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         if is_starred:
             children = await folder_manager.get_starred_folders(user.get("id"), db)
+            return children
+
+        if is_archived:
+            children = await folder_manager.get_archived_folders(user.get("id"), db)
             return children
 
         children = await folder_manager.get_children(parent_id, user.get("id"),db)

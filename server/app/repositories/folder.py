@@ -58,7 +58,8 @@ class FolderRepository:
                 .where(
                     UserFolder.parent_id.is_(None),
                     UserFolder.user_id == user_id,
-                    UserFolder.is_deleted == False
+                    UserFolder.is_deleted == False,
+                    UserFolder.is_archived == False
                 )
                 .order_by(UserFolder.name.asc())
             )
@@ -69,7 +70,9 @@ class FolderRepository:
             select(UserFolder)
             .where(
                 UserFolder.parent_id == parent_id,
-                UserFolder.user_id == user_id
+                UserFolder.user_id == user_id,
+                UserFolder.is_archived == False,
+                UserFolder.is_deleted == False,
             )
             .order_by(UserFolder.name.asc())
         )
@@ -103,6 +106,14 @@ class FolderRepository:
     async def get_starred_folders(user_id: int, db: AsyncSession):
         result = await db.execute(
             select(UserFolder).where(UserFolder.user_id == user_id, UserFolder.is_starred == True, UserFolder.is_deleted == False)
+        )
+        return result.scalars().all()
+
+
+    @staticmethod
+    async def get_archived_folders(user_id: int, db: AsyncSession):
+        result = await db.execute(
+            select(UserFolder).where(UserFolder.user_id == user_id, UserFolder.is_archived == True, UserFolder.is_deleted == False)
         )
         return result.scalars().all()
 

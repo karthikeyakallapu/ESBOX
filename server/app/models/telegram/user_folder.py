@@ -12,6 +12,7 @@ class UserFolder(Base):
     is_root = Column(Boolean, default=False)
     is_deleted = Column(Boolean, default=False)
     is_starred = Column(Boolean, default=False)
+    is_archived = Column(Boolean, default=False)
     name = Column(String(64), index=True)
     parent_id = Column(Integer, ForeignKey("user_folders.id", ondelete="CASCADE"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -5,6 +5,7 @@ import {
   Trash2,
   Settings,
   ChevronLeft,
+  Archive,
   Link as LinkIcon,
   LogOut,
 } from "lucide-react";
@@ -20,6 +21,7 @@ const SideNav = () => {
 
   const navItems = [
     { path: "/starred", label: "Starred", icon: Star },
+    { path: "/archive", label: "Archive", icon: Archive },
     { path: "/trash", label: "Trash", icon: Trash2 },
     { path: "/shared-links", label: "Shared Links", icon: LinkIcon },
     { path: "/settings", label: "Settings", icon: Settings },

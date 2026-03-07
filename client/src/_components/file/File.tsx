@@ -17,11 +17,22 @@ const File = ({ file }: { file: UserFile }) => {
     buttonRef,
   } = useOptionsDropdown();
 
-  const { deleteFile, handleStar, renameFile, shareFile, downloadFile } =
-    useFileActions(file, () => setIsMenuOpen(false));
+  const {
+    deleteFile,
+    handleStar,
+    renameFile,
+    shareFile,
+    downloadFile,
+    handleArchive,
+  } = useFileActions(file, () => setIsMenuOpen(false));
 
   const handleStarClick = async () => {
     await handleStar(file.id);
+    setIsMenuOpen(false);
+  };
+
+  const handleArchiveClick = async () => {
+    await handleArchive(file.id);
     setIsMenuOpen(false);
   };
 
@@ -49,8 +60,10 @@ const File = ({ file }: { file: UserFile }) => {
             shareFile={shareFile}
             isDeleting={isDeleting}
             updateStar={handleStarClick}
+            onArchive={handleArchiveClick}
             isSharing={isSharing}
             isStarred={file.is_starred}
+            isArchived={file.is_archived}
             downloadFile={() => downloadFile(file.id, file.name)}
           />
         </div>

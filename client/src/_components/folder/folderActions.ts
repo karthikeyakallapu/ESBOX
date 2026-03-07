@@ -15,6 +15,10 @@ const useFolderActions = (folder: UserFolder, closeMenu?: () => void) => {
       return "starred_items";
     }
 
+    if (location.pathname.includes("/archive")) {
+      return "archived_items";
+    }
+
     if (location.pathname.includes("/trash")) {
       return "trash_items";
     }
@@ -59,6 +63,39 @@ const useFolderActions = (folder: UserFolder, closeMenu?: () => void) => {
         type: "error",
         message:
           error instanceof Error ? error.message : "Folder delete failed",
+      });
+      throw error;
+    }
+  };
+
+  // =========================
+  // ARCHIVE / UNARCHIVE
+  // =========================
+
+  const handleArchive = async (is_archived: boolean) => {
+    try {
+      const archivedFolder = await apiService.updateFolder(folder.id, {
+        is_archived,
+      });
+
+      await mutateFolderList((current) => ({
+        ...current,
+        folders: current.folders.filter((f) => f.id !== archivedFolder.id),
+      }));
+
+      
+
+      Toast({
+        type: "success",
+        message: archivedFolder.is_archived
+          ? "Folder Archived successfully"
+          : "Folder UnArchived successfully",
+      });
+    } catch (error) {
+      Toast({
+        type: "error",
+        message:
+          error instanceof Error ? error.message : "Folder archive failed",
       });
       throw error;
     }
@@ -172,6 +209,7 @@ const useFolderActions = (folder: UserFolder, closeMenu?: () => void) => {
     deleteFolder,
     renameFolder,
     updateStar,
+    handleArchive,
   };
 };
 

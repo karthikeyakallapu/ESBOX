@@ -18,6 +18,10 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
       return "starred_items";
     }
 
+    if (location.pathname.includes("/archive")) {
+      return "archived_items";
+    }
+
     if (location.pathname.includes("/trash")) {
       return "trash_items";
     }
@@ -98,6 +102,38 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
       Toast({
         type: "success",
         message: `File ${file.is_starred ? "removed from" : "added to"} starred`,
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "File update failed";
+      Toast({
+        type: "error",
+        message: errorMessage,
+      });
+      throw error;
+    }
+  };
+
+  const handleArchive = async (file_id: number): Promise<void> => {
+    try {
+      const updatedFile = await apiService.updateFile(file_id, {
+        action: file.is_archived ? "unarchive" : "archive",
+      });
+
+      await mutateFolderList((current) => {
+        if (!current) return current;
+        const updatedFiles = current.files.filter(
+          (f) => f.id !== updatedFile.id,
+        );
+        return {
+          ...current,
+          files: updatedFiles,
+        };
+      });
+
+      Toast({
+        type: "success",
+        message: `File ${file.is_archived ? "removed from" : "moved to"} Archive`,
       });
     } catch (error) {
       const errorMessage =
@@ -204,6 +240,7 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
     renameFile,
     shareFile,
     downloadFile,
+    handleArchive,
   };
 };
 
