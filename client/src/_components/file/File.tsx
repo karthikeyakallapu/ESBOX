@@ -17,10 +17,8 @@ const File = ({ file }: { file: UserFile }) => {
     buttonRef,
   } = useOptionsDropdown();
 
-  const { deleteFile, handleStar, renameFile, shareFile } = useFileActions(
-    file,
-    () => setIsMenuOpen(false),
-  );
+  const { deleteFile, handleStar, renameFile, shareFile, downloadFile } =
+    useFileActions(file, () => setIsMenuOpen(false));
 
   const handleStarClick = async () => {
     await handleStar(file.id);
@@ -28,12 +26,7 @@ const File = ({ file }: { file: UserFile }) => {
   };
 
   return (
-    <FileCard
-      mime_type={file.mime_type}
-      id={file.id}
-      name={file.name}
-      isLoading={false}
-    >
+    <FileCard mime_type={file.mime_type} file={file} isLoading={false}>
       <h1></h1>
       <button
         ref={buttonRef}
@@ -58,6 +51,7 @@ const File = ({ file }: { file: UserFile }) => {
             updateStar={handleStarClick}
             isSharing={isSharing}
             isStarred={file.is_starred}
+            downloadFile={() => downloadFile(file.id, file.name)}
           />
         </div>
       )}

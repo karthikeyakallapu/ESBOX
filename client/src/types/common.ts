@@ -17,7 +17,8 @@ type ModalComponent =
   | "changeSharedLinkPassword"
   | "deleteSharedLink"
   | "updateSharedLinkExpiry"
-  | "fileSearch";
+  | "fileSearch"
+  | "unSupported";
 
 interface ModalStore<T = unknown> {
   isOpen: boolean;

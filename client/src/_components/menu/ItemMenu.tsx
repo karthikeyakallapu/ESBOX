@@ -1,4 +1,4 @@
-import { Pencil, Trash2, Star, Share2 } from "lucide-react";
+import { Pencil, Trash2, Star, Share2, Download } from "lucide-react";
 
 interface Props {
   onRename: () => void;
@@ -9,6 +9,7 @@ interface Props {
   isStarred: boolean;
   isSharing: boolean;
   shareFile: () => void;
+  downloadFile: () => void;
 }
 
 const ItemMenu = ({
@@ -20,6 +21,7 @@ const ItemMenu = ({
   isStarred,
   isSharing,
   shareFile,
+  downloadFile,
 }: Props) => {
   const handleRename = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -56,9 +58,9 @@ const ItemMenu = ({
       <button
         onClick={handleRename}
         disabled={isDeleting || isRenaming}
-        className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100"
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
       >
-        <Pencil className="h-4 w-4" />
+        <Pencil className="h-4 w-4 text-gray-500" />
         Rename
       </button>
 
@@ -67,26 +69,43 @@ const ItemMenu = ({
         disabled={isDeleting || isRenaming}
         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
       >
-        <Trash2 className="h-4 w-4" />
+        <Trash2 className="h-4 w-4 text-red-500" />
         Delete
       </button>
 
       <button
         onClick={handleUpdateStar}
         disabled={isDeleting || isRenaming}
-        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-yellow-600 hover:bg-yellow-50"
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-amber-600 hover:bg-amber-50"
       >
-        <Star fill={isStarred ? "#FFD700" : "white"} className="h-4 w-4" />
+        <Star
+          className="h-4 w-4"
+          fill={isStarred ? "currentColor" : "none"}
+          color={isStarred ? "#d97706" : "#9ca3af"}
+        />
         {isStarred ? "Remove from Starred" : "Add to Starred"}
       </button>
 
       <button
         onClick={handleShare}
         disabled={isSharing}
-        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-red-50"
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-blue-600 hover:bg-blue-50"
       >
-        <Share2 className="h-4 w-4" />
+        <Share2 className="h-4 w-4 text-blue-500" />
         Share
+      </button>
+
+      <button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          downloadFile();
+        }}
+        disabled={isSharing}
+        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-green-600 hover:bg-green-50"
+      >
+        <Download className="h-4 w-4 text-green-500" />
+        Download
       </button>
     </div>
   );

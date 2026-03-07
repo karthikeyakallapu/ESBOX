@@ -9,6 +9,7 @@ import type { ModalSize } from "./StorageOptionModal";
 import ShareFile from "../file/ShareFile";
 import DeleteSharedLink from "../share/DeleteSharedLink";
 import ChangeSharedLinkPassword from "../share/ChangeSharedLinkPassword ";
+import UnSupported from "../file/stream/UnSupported";
 import UpdateSharedLinkExpiry from "../share/UpdateSharedLinkExpiry";
 
 const modalComponents = [
@@ -65,6 +66,11 @@ const modalComponents = [
   {
     name: "updateSharedLinkExpiry",
     component: <UpdateSharedLinkExpiry />,
+    size: "md" as ModalSize,
+  },
+  {
+    name: "unSupported",
+    component: <UnSupported />,
     size: "md" as ModalSize,
   },
 ];
