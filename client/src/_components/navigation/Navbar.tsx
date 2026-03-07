@@ -76,7 +76,7 @@ const Navbar = () => {
 
                 {/* Search Hint */}
                 <span className="text-sm text-gray-500 font-medium px-2">
-                  ⌘K
+                  ⌘+K
                 </span>
               </div>
             </div>
