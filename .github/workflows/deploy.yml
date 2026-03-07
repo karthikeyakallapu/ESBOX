@@ -1,0 +1,24 @@
+name: ESBOX Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy Frontend
+        run: |
+          cd ~/deployments
+          ./deploy_frontend.sh
+
+      - name: Deploy Backend
+        run: |
+          cd ~/deployments
+          ./deploy_backend.sh
