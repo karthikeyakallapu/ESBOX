@@ -6,6 +6,8 @@ import type { UserFile, FileShareCreate } from "../../types/file";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import type { FolderData } from "../../types/folder";
+import { ENDPOINTS } from "../../service/endpoints";
+import { baseURL } from "../../service/axiosHelper";
 
 const useFileActions = (file: UserFile, closeMenu?: () => void) => {
   const location = useLocation();
@@ -180,11 +182,28 @@ const useFileActions = (file: UserFile, closeMenu?: () => void) => {
     openModal("renameFile", { file, onRename: handleRename });
   };
 
+  const downloadFile = async (fileId: number, filename: string) => {
+    try {
+      const link = document.createElement("a");
+      link.href = baseURL + ENDPOINTS.DOWNLOAD_FILE(fileId);
+      link.download = filename;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Download failed", err);
+    } finally {
+      closeMenu?.();
+    }
+  };
+
   return {
     deleteFile,
     handleStar,
     renameFile,
     shareFile,
+    downloadFile,
   };
 };
 

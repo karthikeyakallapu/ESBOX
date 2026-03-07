@@ -160,7 +160,7 @@ const SearchFiles = () => {
     } else if (file.mime_type.startsWith("video/")) {
       openModal("streamVideo", file);
     } else {
-      window.open(`/api/files/${file.id}/download`, "_blank");
+      openModal("unSupported", file);
     }
   };
 

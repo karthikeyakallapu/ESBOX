@@ -37,4 +37,7 @@ export const ENDPOINTS = {
   // Stream APIs //
   STREAM_FILE: (file_id: number | string) =>
     `${API_BASE_URL}/files/${file_id}/view`,
+
+  DOWNLOAD_FILE: (file_id: number) =>
+    `${API_BASE_URL}/files/${file_id}/download`,
 };

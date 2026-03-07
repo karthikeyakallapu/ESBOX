@@ -1,27 +1,25 @@
 import FileIconMapper from "./FileIconMapper";
 import useModalStore from "../../store/useModal";
+import type { UserFile } from "../../types/file";
 
 interface Props {
-  name: string;
-  id: string | number;
   isLoading: boolean;
   children?: React.ReactNode;
-  mime_type: string;
+  file?: UserFile;
 }
 
-const FileCard = ({ mime_type, id, name, isLoading, children }: Props) => {
+const FileCard = ({ file, isLoading, children }: Props) => {
   const { openModal } = useModalStore();
-  console.log(name);
 
   const handleOpen = () => {
-    const file = { id, name: name };
-
-    if (mime_type.startsWith("image/")) {
+    if (file?.mime_type.startsWith("image/")) {
       openModal("streamImage", file);
-    } else if (mime_type.startsWith("application/pdf")) {
+    } else if (file?.mime_type.startsWith("application/pdf")) {
       openModal("streamPDF", file);
-    } else if (mime_type.startsWith("video/")) {
+    } else if (file?.mime_type.startsWith("video/")) {
       openModal("streamVideo", file);
+    } else {
+      openModal("unSupported", file);
     }
   };
 
@@ -35,14 +33,14 @@ const FileCard = ({ mime_type, id, name, isLoading, children }: Props) => {
         {children}
 
         <img
-          src={FileIconMapper(mime_type)}
+          src={FileIconMapper(file?.mime_type || "")}
           className="h-24 w-24 mb-2"
           alt=""
           draggable={false}
         />
 
         <p className="font-medium text-gray-700 truncate max-w-full px-2">
-          {name}
+          {file?.name}
         </p>
       </div>
     </div>
