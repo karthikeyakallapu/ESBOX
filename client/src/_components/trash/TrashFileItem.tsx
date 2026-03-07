@@ -78,7 +78,7 @@ const TrashFileItem = ({ file }: { file: UserFile }) => {
   };
 
   return (
-    <FileCard mime_type={file.mime_type} id={file.id} name={file.name} isLoading={false}>
+    <FileCard file={file} isLoading={false}>
       <button
         ref={buttonRef}
         onClick={toggleMenu}

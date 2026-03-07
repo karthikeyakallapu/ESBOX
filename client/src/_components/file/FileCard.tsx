@@ -5,7 +5,6 @@ import type { UserFile } from "../../types/file";
 interface Props {
   isLoading: boolean;
   children?: React.ReactNode;
-  mime_type: string;
   file?: UserFile;
 }
 
