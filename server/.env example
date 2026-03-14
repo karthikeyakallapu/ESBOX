@@ -1,0 +1,68 @@
+# ESBOX
+
+TITLE=ESBOX_SERVER
+VERSION=1.0.0
+
+# Server Config
+
+HOST=127.0.0.1
+PORT=8000
+ENVIRONMENT=development
+
+# Logs
+
+LOG_LEVEL=INFO
+
+# Database
+
+# Example Supabase connection
+
+# DATABASE_URL=postgresql+asyncpg://<user>:<password>@<host>:6543/postgres
+
+# Local PostgreSQL example
+
+DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/esbox
+
+# Allowed Origins (CORS)
+
+ALLOWED_ORIGINS=[http://localhost:5173,http://localhost:5174](http://localhost:5173,http://localhost:5174)
+
+# JWT Token
+
+ACCESS_TOKEN_SECRET=your_access_token_secret
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+ALGORITHM=HS256
+
+# Telegram Auth
+
+TELEGRAM_API_ID=your_telegram_api_id
+TELEGRAM_API_HASH=your_telegram_api_hash
+SESSION_ENCRYPTION_KEY=your_session_encryption_key
+
+# Redis Configuration
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+# File Upload Config
+
+MAX_FILE_SIZE=1000000000
+
+# File Download Config
+
+DOWNLOAD_CHUNK_SIZE=1048576
+
+# Mail Config
+
+MAILER_USER=[your_email@gmail.com](mailto:your_email@gmail.com)
+MAILER_PASSKEY=your_mail_app_password
+
+# Frontend Config
+
+FRONTEND_URL=http://localhost:5173
+
+# OAuth Config
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:8000/api/v1/oauth/google/callback

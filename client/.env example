@@ -1,0 +1,3 @@
+VITE_BACKEND_URL=<backend_url>
+DEV=<backend_url>
+

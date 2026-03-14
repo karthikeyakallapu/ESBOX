@@ -104,7 +104,7 @@ class UserService:
             valid_password = verify_password(user.password, existing_user.password)
 
             if not valid_password:
-                raise HTTPException(status_code=400, detail="Invalid password")
+                raise HTTPException(status_code=400, detail="Invalid Email or Password")
 
             if existing_user and not existing_user.is_verified:
                 raise HTTPException(status_code=400, detail="Please Verify your mail")

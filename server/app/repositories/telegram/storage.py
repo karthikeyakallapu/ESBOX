@@ -2,8 +2,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.logger import logger
-from app.models import UserStorageChannel, UserFile
-
+from app.models import UserStorageChannel, UserFile, TelegramSession
 
 class TelegramStorageRepository:
 
@@ -113,9 +112,10 @@ class TelegramStorageRepository:
     async def is_number_registered(phone_number: str, db: AsyncSession) -> bool:
         try:
             result = await db.execute(
-                select(UserStorageChannel).where(UserStorageChannel.phone_number == phone_number)
+                select(TelegramSession).where(TelegramSession.phone_number == phone_number)
             )
-            return result.scalar_one_or_none() is not None
+            number_registered = result.scalar_one_or_none()
+            return number_registered is not None
         except Exception as e:
             logger.error(f"Error checking if phone number {phone_number} is registered: {e}")
             raise

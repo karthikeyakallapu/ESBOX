@@ -123,7 +123,7 @@ const TelegramLink = () => {
                 id="phone"
                 value={data.phone}
                 onChange={handleChange}
-                placeholder="+91 999 999 9999"
+                placeholder="91 999 999 9999"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                 required
               />

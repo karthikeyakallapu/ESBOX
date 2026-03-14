@@ -26,7 +26,9 @@ class TelegramAuthService:
     async def phone_authenticate(self, phone: str, ip_address: str):
         try:
 
-            if storage_repository.is_number_registered(phone.strip() ,self.db):
+            existing_number = await storage_repository.is_number_registered(phone.strip().lstrip('+') ,self.db)
+
+            if existing_number :
                 return {
                     'success': False,
                     'error': 'This phone number is already registered with another account.'
@@ -45,7 +47,7 @@ class TelegramAuthService:
             session_key = f"telegram_auth_{self.user_id}"
 
             session_value = {
-                'phone_number': phone,
+                'phone_number': "+" + phone,
                 'phone_code_hash': sent_code.phone_code_hash,
                 'client_session': self.client.session.save(),
                 "ip_address": ip_address

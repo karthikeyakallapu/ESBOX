@@ -6,7 +6,6 @@ from typing import BinaryIO, Optional
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from starlette import status
 from telethon import TelegramClient
 from telethon.errors import FloodWaitError
 from telethon.tl.functions.channels import CreateChannelRequest
@@ -120,6 +119,7 @@ class TelegramUploadService:
                 "status": "success",
                 "message_id": message.id,
                 "file_id": message.file.id if message.file else None,
+                "chat_id": str(chat_id),
                 "file_name": file_name,
                 "file_size": file_size,
                 "upload_time": round(upload_time, 2),
@@ -241,14 +241,6 @@ class TelegramUploadService:
 
                 return result
 
-            storage_location = await storage_repository.get_storage_location(user_id, db)
-
-            if not storage_location:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="No Telegram session found. Please connect your Telegram account first."
-                )
-
             result = await self.upload_to_telegram(
                 file=file,
                 file_name=upload_file.get("name"),
@@ -258,9 +250,19 @@ class TelegramUploadService:
             )
 
             if result.get("status") == "success" :
+                chat_id = result.get("chat_id")
+                if not chat_id:
+                    storage_location = await storage_repository.get_storage_location(user_id, db)
+                    if not storage_location:
+                        raise HTTPException(
+                            status_code=500,
+                            detail="Storage channel was not found after upload."
+                        )
+                    chat_id = str(storage_location.channel_id)
+
                 user_file = UserFile(user_id= user_id ,
                 telegram_message_id = result.get("message_id"),
-                telegram_chat_id = str(storage_location.channel_id),
+                telegram_chat_id = chat_id,
                 name = upload_file["name"],
                 size = upload_file["size"],
                 mime_type = upload_file["type"],
