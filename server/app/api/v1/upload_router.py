@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from io import BytesIO
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
+from app.dependencies.rate_limit import rate_limiter
 from app.schemas.folder import FileMetadata
 from app.services.telegram.telegram_upload_service import upload_service
 from app.logger import logger
@@ -13,7 +14,10 @@ from app.logger import logger
 router = APIRouter()
 
 
-@router.post("/fast")
+@router.post(
+    "/fast",
+    dependencies=[Depends(rate_limiter(20, 600))],
+)
 async def upload_ultra_fast_method(
         file_metadata: FileMetadata = Depends(FileMetadata.as_form),
         file: UploadFile = File(...),

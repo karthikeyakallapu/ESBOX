@@ -10,12 +10,16 @@ from app.helpers.auth import create_token
 from app.models.user import User
 from app.db.db import get_db
 from app.config import settings
+from app.dependencies.rate_limit import open_rate_limiter
 import secrets
 
 router = APIRouter()
 
 
-@router.get("/google")
+@router.get(
+    "/google",
+    dependencies=[Depends(open_rate_limiter(20, 60))],
+)
 async def google_login():
 
     state = secrets.token_urlsafe(32)
@@ -44,7 +48,10 @@ async def google_login():
     return response
 
 
-@router.get("/google/callback")
+@router.get(
+    "/google/callback",
+    dependencies=[Depends(open_rate_limiter(20, 60))],
+)
 async def google_callback(
     request: Request,
     code: str,

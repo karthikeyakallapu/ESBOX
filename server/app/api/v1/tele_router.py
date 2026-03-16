@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
+from app.dependencies.rate_limit import rate_limiter
 from app.logger import logger
 from app.schemas.folder import FileMetadata
 from app.schemas.telegram import TelegramLoginBase, TelegramAuthResponse, TelegramAuth
@@ -13,7 +14,10 @@ from app.services.telegram.storage_service import tele_storage_service
 router = APIRouter()
 
 
-@router.post("/login")
+@router.post(
+    "/login",
+    dependencies=[Depends(rate_limiter(5, 300))],
+)
 async def login_telegram(login_data: TelegramLoginBase, request: Request, current_user=Depends(get_current_user),
                          db: AsyncSession = Depends(get_db)):
     try:
@@ -40,7 +44,10 @@ async def login_telegram(login_data: TelegramLoginBase, request: Request, curren
         raise err
 
 
-@router.post("/verify")
+@router.post(
+    "/verify",
+    dependencies=[Depends(rate_limiter(10, 300))],
+)
 async def verify_code(auth: TelegramAuth, request: Request, db: AsyncSession = Depends(get_db),
                       current_user=Depends(get_current_user)):
     try:
@@ -56,7 +63,10 @@ async def verify_code(auth: TelegramAuth, request: Request, db: AsyncSession = D
         raise err
 
 
-@router.get("/session-status")
+@router.get(
+    "/session-status",
+    dependencies=[Depends(rate_limiter(60, 60))],
+)
 async def check_session_status(user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     """Check if the current user has a valid Telegram session"""
     try:

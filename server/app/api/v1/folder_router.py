@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
+from app.dependencies.rate_limit import rate_limiter
 from app.logger import logger
 from app.schemas.folder import FolderCreate, FolderUpdate
 from app.services.folders.folder_manager import folder_manager
@@ -10,7 +11,10 @@ from app.services.folders.folder_manager import folder_manager
 router = APIRouter()
 
 
-@router.post("")
+@router.post(
+    "",
+    dependencies=[Depends(rate_limiter(30, 60))],
+)
 async def create_folder(folder: FolderCreate, user=Depends(get_current_user),
                         db: AsyncSession = Depends(get_db)):
     try:
@@ -22,7 +26,10 @@ async def create_folder(folder: FolderCreate, user=Depends(get_current_user),
         logger.error(e)
         raise e
 
-@router.get("")
+@router.get(
+    "",
+    dependencies=[Depends(rate_limiter(120, 60))],
+)
 async def get_folders(parent_id: int | None = None, is_starred : bool = False, is_archived:bool = False, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         if is_starred:
@@ -40,7 +47,10 @@ async def get_folders(parent_id: int | None = None, is_starred : bool = False, i
         raise e
 
 
-@router.delete("/{folder_id}")
+@router.delete(
+    "/{folder_id}",
+    dependencies=[Depends(rate_limiter(30, 60))],
+)
 async def delete_folder(folder_id :int, user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         folder = await folder_manager.delete_folder(folder_id, user.get("id"),db)
@@ -54,7 +64,10 @@ async def delete_folder(folder_id :int, user=Depends(get_current_user), db: Asyn
         logger.error(e)
         raise e
 
-@router.patch("/{folder_id}")
+@router.patch(
+    "/{folder_id}",
+    dependencies=[Depends(rate_limiter(30, 60))],
+)
 async def update_folder(folder_id: int, folder: FolderUpdate, user=Depends(get_current_user), db=Depends(get_db)):
     try:
         updated_folder = await folder_manager.update_folder(folder_id, folder, user.get("id"), db)

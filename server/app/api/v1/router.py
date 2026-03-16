@@ -7,6 +7,7 @@ from app.api.v1.tele_router import router as telegram_router
 from app.config import settings
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
+from app.dependencies.rate_limit import rate_limiter, open_rate_limiter
 from app.logger import logger
 from app.schemas.user import UserCreate, RegisterResponse, UserLogin, UserResponse, CurrentUserResponse, UpdateTrash, \
     UserPasswordReset, UserToken, UserEmail
@@ -30,12 +31,20 @@ router.include_router(share_router, prefix="/share")
 user_service = UserService()
 
 
-@router.get("/health")
+@router.get(
+    "/health",
+    dependencies=[Depends(open_rate_limiter(120, 60))],
+)
 async def health():
     return {"status": "Server up with version {}".format(settings.version)}
 
 
-@router.post("/auth/register", response_model=RegisterResponse, status_code=201)
+@router.post(
+    "/auth/register",
+    response_model=RegisterResponse,
+    status_code=201,
+    dependencies=[Depends(open_rate_limiter(5, 60))],
+)
 async def register(user: UserCreate, db=Depends(get_db)):
     try:
         created_user = await user_service.register_user(db, user)
@@ -54,7 +63,11 @@ async def register(user: UserCreate, db=Depends(get_db)):
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
 
-@router.post("/auth/login", status_code=200)
+@router.post(
+    "/auth/login",
+    status_code=200,
+    dependencies=[Depends(open_rate_limiter(10, 60))],
+)
 async def login(user: UserLogin, response: Response, db=Depends(get_db)):
     try:
         tokens = await user_service.login_user(db, user)
@@ -87,7 +100,10 @@ async def login(user: UserLogin, response: Response, db=Depends(get_db)):
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
 
-@router.post("/auth/refresh")
+@router.post(
+    "/auth/refresh",
+    dependencies=[Depends(open_rate_limiter(30, 60))],
+)
 async def refresh_token(
         request: Request,
         response: Response,
@@ -130,7 +146,10 @@ async def refresh_token(
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
 
-@router.post("/auth/logout")
+@router.post(
+    "/auth/logout",
+    dependencies=[Depends(open_rate_limiter(30, 60))],
+)
 async def logout(request: Request, response: Response, db: AsyncSession = Depends(get_db)):
     try:
         """Logout by revoking the refresh token"""
@@ -172,7 +191,10 @@ async def logout(request: Request, response: Response, db: AsyncSession = Depend
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
 
-@router.post("/auth/logout-all")
+@router.post(
+    "/auth/logout-all",
+    dependencies=[Depends(rate_limiter(20, 60))],
+)
 async def logout_all(response: Response, current_user: dict = Depends(get_current_user),
                      db: AsyncSession = Depends(get_db)):
     """Logout from all devices by revoking all refresh tokens"""
@@ -194,13 +216,20 @@ async def logout_all(response: Response, current_user: dict = Depends(get_curren
     return result
 
 
-@router.get("/auth/me", response_model=CurrentUserResponse)
+@router.get(
+    "/auth/me",
+    dependencies=[Depends(rate_limiter(30, 60))],
+    response_model=CurrentUserResponse,
+)
 async def get_current_user_info(current_user: dict = Depends(get_current_user)):
     """Get current authenticated user information"""
     return current_user
 
 
-@router.post("/auth/forgot-password")
+@router.post(
+    "/auth/forgot-password",
+    dependencies=[Depends(open_rate_limiter(3, 600))],
+)
 async def forgot_password(user : UserEmail , db: AsyncSession = Depends(get_db)):
     try:
         result = await user_service.initiate_password_reset(db, user.email)
@@ -211,7 +240,10 @@ async def forgot_password(user : UserEmail , db: AsyncSession = Depends(get_db))
         logger.error(e)
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
-@router.post("/auth/reset-password")
+@router.post(
+    "/auth/reset-password",
+    dependencies=[Depends(open_rate_limiter(10, 600))],
+)
 async def reset_password(user : UserPasswordReset , db: AsyncSession = Depends(get_db)):
     try:
         result = await user_service.validate_password_reset_token(db, user.token , user.new_password)
@@ -222,7 +254,10 @@ async def reset_password(user : UserPasswordReset , db: AsyncSession = Depends(g
         logger.error(e)
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
-@router.post("/auth/verify-email")
+@router.post(
+    "/auth/verify-email",
+    dependencies=[Depends(open_rate_limiter(10, 600))],
+)
 async def verify_email(user : UserToken , db: AsyncSession = Depends(get_db)):
     try:
         result = await user_service.validate_email_verification_token(db, user.token)
@@ -233,7 +268,10 @@ async def verify_email(user : UserToken , db: AsyncSession = Depends(get_db)):
         logger.error(e)
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
-@router.post("/auth/resend-verification")
+@router.post(
+    "/auth/resend-verification",
+    dependencies=[Depends(open_rate_limiter(3, 600))],
+)
 async def resend_verification_email(user : UserEmail , db: AsyncSession = Depends(get_db)):
     try:
         token = await user_service.send_verification_email(db, user.email)
@@ -249,7 +287,10 @@ async def resend_verification_email(user : UserEmail , db: AsyncSession = Depend
         logger.error(e)
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
-@router.get("/trash")
+@router.get(
+    "/trash",
+    dependencies=[Depends(rate_limiter(60, 60))],
+)
 async def get_trash(user = Depends(get_current_user), db = Depends(get_db)):
     try :
         trash = await folder_manager.get_user_trash(user.get('id'), db)
@@ -261,7 +302,10 @@ async def get_trash(user = Depends(get_current_user), db = Depends(get_db)):
         logger.error(e)
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
-@router.patch("/trash")
+@router.patch(
+    "/trash",
+    dependencies=[Depends(rate_limiter(30, 60))],
+)
 async def restore_from_trash(trash : UpdateTrash, user = Depends(get_current_user), db = Depends(get_db)):
     try :
         restored_item = await folder_manager.restore_from_trash(trash.item_id, trash.item_type, user.get('id'), db)
@@ -274,7 +318,10 @@ async def restore_from_trash(trash : UpdateTrash, user = Depends(get_current_use
         return JSONResponse(status_code=500, content={"message": "Internal server error"})
 
 
-@router.delete("/trash")
+@router.delete(
+    "/trash",
+    dependencies=[Depends(rate_limiter(30, 60))],
+)
 async def delete_from_trash(trash : UpdateTrash, user=Depends(get_current_user), db=Depends(get_db)):
     try:
         deleted_item = await folder_manager.delete_from_trash(trash.item_id, trash.item_type, user.get('id'), db)

@@ -7,13 +7,17 @@ from fastapi import Request
 
 from app.db.db import get_db
 from app.dependencies.auth import get_current_user
+from app.dependencies.rate_limit import rate_limiter
 from app.logger import logger
 from app.schemas.file import FileUpdate
 from app.services.files.file_manager import file_manager
 from app.services.files.file_stream_manager import file_stream_manager
 router = APIRouter()
 
-@router.get("/{file_id}/view")
+@router.get(
+    "/{file_id}/view",
+    dependencies=[Depends(rate_limiter(300, 60))],
+)
 async def get_file(
     file_id: int,
     request: Request,
@@ -46,7 +50,10 @@ async def get_file(
         )
 
 
-@router.get("/{file_id}/download")
+@router.get(
+    "/{file_id}/download",
+    dependencies=[Depends(rate_limiter(300, 60))],
+)
 async def download_file(
     file_id: int,
     request: Request,
@@ -78,7 +85,10 @@ async def download_file(
             detail=f"Error streaming file: {str(e)}"
         )
 
-@router.patch("/{file_id}")
+@router.patch(
+    "/{file_id}",
+    dependencies=[Depends(rate_limiter(30, 60))],
+)
 async def update_file(file_id: int,file: FileUpdate,user=Depends(get_current_user),db: AsyncSession = Depends(get_db)):
     try:
         updated_file = await file_manager.update_file(
@@ -100,7 +110,10 @@ async def update_file(file_id: int,file: FileUpdate,user=Depends(get_current_use
         raise e
 
 
-@router.get("/search")
+@router.get(
+    "/search",
+    dependencies=[Depends(rate_limiter(60, 60))],
+)
 async def search_files( q: str = Query(...), user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     try:
         results = await file_manager.search_files(
