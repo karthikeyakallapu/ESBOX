@@ -1,8 +1,10 @@
 import useModalStore from "../../store/useModal";
 import { FolderPlus, Upload, Link } from "lucide-react";
+import useAuthStore from "../../store/useAuth";
 
 const StorageActions = () => {
   const { openModal } = useModalStore();
+  const { user } = useAuthStore();
 
   return (
     <>
@@ -25,7 +27,9 @@ const StorageActions = () => {
             strokeWidth={1.5}
             className="relative group-hover:rotate-3 transition-transform"
           />
-          <span className="relative text-xs sm:text-sm whitespace-nowrap">New Folder</span>
+          <span className="relative text-xs sm:text-sm whitespace-nowrap">
+            New Folder
+          </span>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 sm:w-12 h-0.5 bg-white/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
         </button>
@@ -52,25 +56,29 @@ const StorageActions = () => {
         </button>
 
         {/* Connect Telegram Button */}
-        <button
-          onClick={() => openModal("telegramLink")}
-          className="group relative flex flex-row sm:flex-col items-center justify-center sm:justify-start gap-2 sm:gap-2 px-4 sm:px-8 py-3 sm:py-4
+        {user && !user.is_telegram_connected && (
+          <button
+            onClick={() => openModal("telegramLink")}
+            className="group relative flex flex-row sm:flex-col items-center justify-center sm:justify-start gap-2 sm:gap-2 px-4 sm:px-8 py-3 sm:py-4
                      bg-white hover:bg-gray-50
                      text-gray-700 hover:text-gray-900 font-medium text-sm rounded-lg sm:rounded-xl
                      border border-gray-200 hover:border-gray-300
                      transition-all duration-300 shadow-sm hover:shadow-md
                      focus:outline-none focus:ring-2 focus:ring-gray-200
                      active:scale-[0.98] flex-1 w-full sm:w-auto "
-        >
-          <Link
-            size={20}
-            strokeWidth={1.5}
-            className="group-hover:scale-110 group-hover:rotate-6 transition-all"
-          />
-          <span className="text-xs sm:text-sm whitespace-nowrap">Connect Telegram</span>
+          >
+            <Link
+              size={20}
+              strokeWidth={1.5}
+              className="group-hover:scale-110 group-hover:rotate-6 transition-all"
+            />
+            <span className="text-xs sm:text-sm whitespace-nowrap">
+              Connect Telegram
+            </span>
 
-          <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-        </button>
+            <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          </button>
+        )}
       </div>
     </>
   );

@@ -15,6 +15,7 @@ class User(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+    is_telegram_connected = Column(Boolean, default=False)
 
     # Oauth
     provider = Column(String, nullable=False, default="local")

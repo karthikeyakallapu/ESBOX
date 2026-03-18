@@ -65,6 +65,7 @@ class CurrentUserResponse(BaseModel):
     id: int
     username: str
     email: EmailStr
+    is_telegram_connected : bool | None
     model_config = ConfigDict(from_attributes=True)
 
 class UpdateTrash(BaseModel):

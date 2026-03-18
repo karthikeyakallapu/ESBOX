@@ -3,6 +3,7 @@ import apiService from "../../service/apiService";
 import { useState } from "react";
 import Toast from "../../utils/Toast";
 import useModalStore from "../../store/useModal";
+import useAuthStore from "../../store/useAuth";
 
 const TelegramLink = () => {
   const [showCodeInput, setShowCodeInput] = useState(false);
@@ -23,9 +24,11 @@ const TelegramLink = () => {
         if (showCodeInput) {
           Toast({ type: "success", message: response.message });
           closeModal();
+          useAuthStore.getState().hydrate();
+        } else {
+          Toast({ type: "success", message: response.message });
+          setShowCodeInput((prev) => !prev);
         }
-        Toast({ type: "success", message: response.message });
-        setShowCodeInput((prev) => !prev);
       } else {
         Toast({
           type: "error",

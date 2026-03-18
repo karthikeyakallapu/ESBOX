@@ -74,6 +74,7 @@ async def get_current_user(
         "email": user.email,
         "is_active": user.is_active,
         "is_verified": user.is_verified,
+        "is_telegram_connected" : user.is_telegram_connected
     }
 
 

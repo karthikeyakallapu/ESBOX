@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import status, HTTPException
 from telethon import TelegramClient
@@ -10,7 +10,7 @@ from telethon.sessions import StringSession
 from app.config import settings
 from app.helpers.encryption import encryption
 from app.logger import logger
-from app.models import TelegramSession
+from app.models import TelegramSession, User
 from app.repositories.telegram.storage import storage_repository
 from app.services.redis.RedisService import redis_service
 
@@ -92,6 +92,14 @@ class TelegramAuthService:
 
             # Success! Save session
             result = await self._save_authenticated_session()
+
+            await self.db.execute(
+                update(User)
+                .where(User.id == self.user_id)
+                .values(is_telegram_connected=True)
+            )   
+
+            await self.db.commit()
 
             return result
 
