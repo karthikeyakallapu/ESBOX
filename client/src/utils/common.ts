@@ -5,5 +5,9 @@ const formatFileSize = (bytes: number) => {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 };
+const handleOverflowText = (text: string, limit = 50) => {
+  if (!text) return "";
 
-export { formatFileSize };
+  return text.length > limit ? text.slice(0, limit) + "..." : text;
+};
+export { formatFileSize, handleOverflowText };

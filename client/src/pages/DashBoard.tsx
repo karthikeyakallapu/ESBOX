@@ -56,7 +56,8 @@ const DashBoard = () => {
 
       <div className="flex flex-wrap gap-4">
         {/* Folders */}
-        {data?.folders && data.folders.length > 0 ? (
+        {data?.folders &&
+          data.folders.length > 0 &&
           data.folders.map((folder: UserFolder) => (
             <div
               key={folder.id}
@@ -65,26 +66,25 @@ const DashBoard = () => {
             >
               <Folder folder={folder} />
             </div>
-          ))
-        ) : (
-          <div className="w-full text-center py-8 text-gray-400">
-            No folders found.
-          </div>
-        )}
+          ))}
 
         {/* Files */}
-        {data?.files && data.files.length > 0
-          ? data.files.map((file: UserFile) => (
-              <div key={file.id}>
-                <File file={file} />
-              </div>
-            ))
-          : data?.folders &&
-            data.folders.length === 0 && (
-              <div className="w-full text-center py-8 text-gray-400">
-                No files found.
-              </div>
-            )}
+        {data?.files &&
+          data.files.length > 0 &&
+          data.files.map((file: UserFile) => (
+            <div key={file.id}>
+              <File file={file} />
+            </div>
+          ))}
+
+        {data?.folders &&
+          data?.files &&
+          data.folders.length === 0 &&
+          data.files.length === 0 && (
+            <div className="w-full text-center py-8 text-gray-400">
+              No files found.
+            </div>
+          )}
       </div>
     </div>
   );

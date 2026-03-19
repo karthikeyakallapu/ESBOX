@@ -1,6 +1,7 @@
 import asyncio
 import re
 from typing import Optional, AsyncGenerator
+from urllib.parse import quote
 
 from fastapi.responses import StreamingResponse
 from fastapi import Request
@@ -251,10 +252,21 @@ class FileStreamManager:
             max_concurrent=params["concurrent"]
         )
 
+        # Properly encode filename for Content-Disposition header
+        # Use RFC 5987 encoding for non-ASCII characters
+        try:
+            # Try ASCII encoding first
+            file_name.encode('ascii')
+            content_disposition = f'{disposition}; filename="{file_name}"'
+        except UnicodeEncodeError:
+            # If filename contains non-ASCII characters, use RFC 5987 encoding
+            encoded_filename = quote(file_name)
+            content_disposition = f"{disposition}; filename*=UTF-8''{encoded_filename}"
+
         headers = {
             "Content-Length": str(content_length),
             "Accept-Ranges": "bytes",
-            "Content-Disposition": f'{disposition}; filename="{file_name}"',
+            "Content-Disposition": content_disposition,
             "Cache-Control": "private, max-age=3600"
         }
 

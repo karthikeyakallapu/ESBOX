@@ -2,6 +2,7 @@ import { Upload, File, X, CheckCircle, AlertCircle } from "lucide-react";
 import { formatFileSize } from "../../../utils/common";
 import useFileUpload from "../../../hooks/useFileUpload";
 import useFolderNavStore from "../../../store/useFolderNav";
+import { handleOverflowText } from "../../../utils/common";
 
 const UploadFile = () => {
   const {
@@ -71,7 +72,7 @@ const UploadFile = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-700 truncate">
-                  {selectedFile.name}
+                  {handleOverflowText(selectedFile.name, 30)}
                 </p>
                 <p className="text-xs text-gray-500">
                   {formatFileSize(selectedFile.size)}
@@ -80,7 +81,7 @@ const UploadFile = () => {
             </div>
             <button
               onClick={handleRemove}
-              className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-1.5 ml-2 hover:bg-gray-100 rounded-full transition-colors"
             >
               <X size={18} className="text-gray-400" />
             </button>
@@ -92,7 +93,9 @@ const UploadFile = () => {
       {uploadStatus === "uploading" && (
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-gray-600">Uploading Please wait. Don't refresh...</span>
+            <span className="text-gray-600">
+              Uploading Please wait. Don't refresh...
+            </span>
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div className="h-full bg-blue-500 rounded-full transition-all duration-300" />
