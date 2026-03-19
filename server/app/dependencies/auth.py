@@ -1,3 +1,5 @@
+import json
+
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.db import get_db
 from app.helpers.auth import decode_token
 from app.repositories.user import UserRepository
+from app.services.redis.RedisService import redis_service
 
 security = HTTPBearer()
 
@@ -51,6 +54,14 @@ async def get_current_user(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    cache_key = f"user:{user_id}"
+
+    # CHECK REDIS CACHE
+    cached =  redis_service.get_key(cache_key,as_json=True)
+
+    if cached:
+        return cached
+
     # Fetch user from database
     user_repo = UserRepository()
     user = await user_repo.get_user_by_id(db, user_id)
@@ -67,8 +78,7 @@ async def get_current_user(
             detail="User account is inactive",
         )
 
-    # Return user data as dict
-    return {
+    user_data =  {
         "id": user.id,
         "username": user.username,
         "email": user.email,
@@ -77,6 +87,13 @@ async def get_current_user(
         "is_telegram_connected" : user.is_telegram_connected
     }
 
+    await redis_service.redis_client.setex(
+        cache_key,
+        300,
+        json.dumps(user_data)
+    )
+
+    return user_data
 
 async def get_refresh_token_from_request(
     request: Request = None,

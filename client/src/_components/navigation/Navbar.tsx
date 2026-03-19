@@ -1,8 +1,8 @@
 import Logo from "./Logo";
 import useAuthStore from "../../store/useAuth";
 import { useNavigate } from "react-router-dom";
-import { LogOut, User, Search, Mic } from "lucide-react";
-import { useState, useRef } from "react";
+import { LogOut, User, Search } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import useModalStore from "../../store/useModal";
 
 const Navbar = () => {
@@ -18,9 +18,24 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const handleSearchClick = () => {
+  const handleSearchClick = useCallback(() => {
     openModal("fileSearch", null);
-  };
+  }, [openModal]);
+
+  useEffect(() => {
+    const handleSearchShortcut = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        e.stopPropagation();
+        openModal("fileSearch", null);
+      }
+    };
+
+    window.addEventListener("keydown", handleSearchShortcut);
+    return () => {
+      window.removeEventListener("keydown", handleSearchShortcut);
+    };
+  }, [handleSearchClick, openModal]);
 
   return (
     <div className="flex h-full items-center justify-between px-3 sm:px-4 md:px-6 bg-white border-b border-gray-100">
@@ -66,17 +81,12 @@ const Navbar = () => {
 
               {/* Right side elements */}
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                {/* Voice Search Button */}
-                <div className="p-2 hover:bg-gray-200 rounded-lg transition-colors">
-                  <Mic size={18} className="text-gray-500" />
-                </div>
-
                 {/* Divider */}
                 <div className="w-px h-6 bg-gray-300"></div>
 
                 {/* Search Hint */}
                 <span className="text-sm text-gray-500 font-medium px-2">
-                  ⌘+K
+                  Ctrl+K
                 </span>
               </div>
             </div>
