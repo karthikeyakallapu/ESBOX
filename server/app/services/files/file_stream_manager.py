@@ -22,19 +22,19 @@ class FileStreamManager:
         is_video = mime_type.startswith("video/") if mime_type else False
 
         if file_size < 5_000_000:
-            return {"concurrent": 4}
+            return {"concurrent": 2}
 
         elif file_size < 20_000_000:
-            return {"concurrent": 6}
+            return {"concurrent": 3}
 
         elif file_size < 50_000_000:
-            return {"concurrent": 8 if not is_video else 10}
+            return {"concurrent": 4 if not is_video else 5}
 
         elif file_size < 100_000_000:
-            return {"concurrent": 10}
+            return {"concurrent": 5}
 
         else:
-            return {"concurrent": 12}
+            return {"concurrent": 6}
 
     @staticmethod
     def get_request_size(file_size: int):
@@ -115,7 +115,8 @@ class FileStreamManager:
                     request_size
                 )
 
-        batch_size = max_concurrent * 3
+        # Reduced batch size to prevent flood wait
+        batch_size = max_concurrent * 2
 
         bytes_sent = 0
         total_chunks = len(offsets)
@@ -160,27 +161,16 @@ class FileStreamManager:
                 if send_start >= send_end:
                     continue
 
-                local_start = send_start - data_start
-                local_end = send_end - data_start
+                chunk = data[send_start - data_start:send_end - data_start]
 
-                chunk = data[local_start:local_end]
+                bytes_sent += len(chunk)
 
-                remaining = total_bytes - bytes_sent
+                yield chunk
 
-                if len(chunk) > remaining:
-                    chunk = chunk[:remaining]
+            # Small delay between batches to prevent flood wait
+            if batch_start + batch_size < total_chunks:
+                await asyncio.sleep(0.05)
 
-                if chunk:
-                    bytes_sent += len(chunk)
-
-                    try:
-                        yield chunk
-                    except asyncio.CancelledError:
-                        logger.info("Streaming cancelled while sending chunk")
-                        return
-
-                if bytes_sent >= total_bytes:
-                    return
 
     # -----------------------------------------------------
 
