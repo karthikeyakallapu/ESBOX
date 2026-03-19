@@ -1,6 +1,6 @@
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.db import get_db
@@ -95,11 +95,12 @@ async def verify_share_link(token: str, share  :FileShareVerify, db = Depends(ge
 )
 async def stream_shared_file(
     token: str,
+    request: Request,
     range_header: Optional[str] = Header(None, alias="Range"),
     db: AsyncSession = Depends(get_db)
 ):
     try:
-        stream_response = await share_link_manager.stream_shared_file(token, range_header, db)
+        stream_response = await share_link_manager.stream_shared_file(token, request, range_header, db)
         return stream_response
     except HTTPException as e:
         logger.error(e)

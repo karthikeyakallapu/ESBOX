@@ -91,7 +91,7 @@ class ShareLinkManager:
            raise e
 
    @staticmethod
-   async def stream_shared_file(share_token, range_header, db):
+   async def stream_shared_file(share_token, request, range_header, db):
          try:
               share_link = await share_file_repository.get_link(share_token,db)
 
@@ -106,7 +106,14 @@ class ShareLinkManager:
               if not file:
                  raise HTTPException(404, "File not found")
 
-              stream_response = await file_stream_manager.stream_file(file.id, None, db, range_header)
+              stream_response = await file_stream_manager.stream_file(
+                  file_id=file.id,
+                  user_id=None,
+                  db=db,
+                  request=request,
+                  range_header=range_header,
+                  disposition="inline"
+              )
               return stream_response
 
          except HTTPException as e:

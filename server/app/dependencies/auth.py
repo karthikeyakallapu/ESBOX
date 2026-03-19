@@ -87,7 +87,7 @@ async def get_current_user(
         "is_telegram_connected" : user.is_telegram_connected
     }
 
-    await redis_service.redis_client.setex(
+    redis_service.redis_client.setex(
         cache_key,
         300,
         json.dumps(user_data)
