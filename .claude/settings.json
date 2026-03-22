@@ -1,8 +1,0 @@
-{  
-"env": {
-    "ANTHROPIC_BASE_URL": "https://openrouter.ai/api",
-    "ANTHROPIC_AUTH_TOKEN": "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",
-    "ANTHROPIC_API_KEY": "",
-    "ANTHROPIC_MODEL": "nvidia/llama-nemotron-embed-vl-1b-v2:free"
-  }
-}
