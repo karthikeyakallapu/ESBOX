@@ -72,7 +72,7 @@ const UploadFile = () => {
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-700 truncate">
-                  {handleOverflowText(selectedFile.name, 30)}
+                  {handleOverflowText(selectedFile.name, 25)}
                 </p>
                 <p className="text-xs text-gray-500">
                   {formatFileSize(selectedFile.size)}

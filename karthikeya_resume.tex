@@ -1,0 +1,157 @@
+\documentclass[10pt, a4paper]{article}
+
+%---- Required Packages ----
+\usepackage{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\usepackage{lmodern}
+\usepackage{fontawesome}
+\usepackage{titlesec}
+\usepackage{xcolor}
+
+\geometry{left=1.4cm, top=0.8cm, right=1.2cm, bottom=1cm}
+
+% Sections formatting
+\titleformat{\section}{
+  \vspace{-4pt}\scshape\raggedright\large
+}{}{0em}{}[\color{black}\titlerule \vspace{-7pt}]
+
+%-------------------------
+% Custom commands
+\newcommand{\resumeSubheading}[4]{%
+  \vspace{0.6mm}%
+  \begin{tabular*}{0.98\textwidth}[t]{l@{\extracolsep{\fill}}r}%
+      \textbf{#1} & \footnotesize{#4} \\%
+    \footnotesize{#3} & \fontsize{9}{10}\selectfont#2%
+  \end{tabular*}%
+  \vspace{-2.4mm}%
+}
+
+\renewcommand{\labelitemi}{$\vcenter{\hbox{\tiny$\bullet$}}$}
+
+\begin{document}
+
+\vspace*{-1.0cm}
+
+%----------HEADING----------
+\begin{center}
+    {\fontsize{22}{24}\selectfont\textbf{KARTHIKEYA KALLAPU}} \\[4pt]
+    \small
+    \faPhone~+91-9440903979 \hspace{1pt} $|$
+    \faEnvelope~\href{mailto:karthikeyakallapu@gmail.com}{karthikeyakallapu@gmail.com} \hspace{1pt} $|$
+    \faGlobe~\href{https://karthikeyakallapu.vercel.app}{karthikeyakallapu.vercel.app} \hspace{1pt} $|$
+    \faGithub~\href{https://github.com/karthikeyakallapu}{github.com/karthikeyakallapu} \hspace{1pt} $|$
+    \faLinkedin~\href{https://linkedin.com/in/karthikeyakallapu}{linkedin.com/in/karthikeyakallapu}
+    \\ \vspace{-3pt}
+\end{center}
+
+\vspace{0.2cm}
+
+% ---------------- EDUCATION ----------------
+\section{\textbf{EDUCATION}}
+
+\resumeSubheading
+{CMR College of Engineering and Technology, Hyderabad.}{ 2020 - 2024 }
+{Bachelor of Technology in Computer Science and Engineering (Cyber Security)}{CGPA: \textbf{8.81}}
+
+\vspace{-3.0mm}
+
+% ---------------- EXPERIENCE ----------------
+\section{\textbf{EXPERIENCE}}
+
+\resumeSubheading
+{Software Engineer}{ July 2024 - Present }{
+  Planful, Inc.
+}{}
+
+\begin{itemize}[itemsep=-5pt]
+  \item Developed UI and API automation frameworks, reducing overall test execution time by \textbf{73}\%.
+  \item Migrated automation test results from local storage to a centralized database and built UI dashboards to analyze execution metrics across multiple environments.
+\end{itemize}
+
+\vspace{-3.0mm}
+
+\resumeSubheading
+{Software Engineering Intern}{ Dec 2023 - June 2024 }{
+  Planful, Inc.
+}{}
+
+\begin{itemize}[itemsep=-5pt]
+  \item Conducted a proof of concept on various UI automation tools, selecting pywinauto for Excel UI automation and contributing to API automation efforts.
+\end{itemize}
+
+% ---------------- PROJECTS ----------------
+\vspace{-3.0mm}
+\section{\textbf{PROJECTS}}
+
+\resumeSubheading
+{Tunemate \fontsize{9}{9}\selectfont\fontseries{l}\selectfont - React.js, Tailwind CSS, Zustand, Node.js, Express.js, Redis, Prisma, MongoDB, Web Sockets.}{} {}{}
+\vspace{-4.2mm}
+
+\begin{itemize}[itemsep=-4pt]
+  \item Built a real-time collaborative music platform using WebSockets and Redis, enabling synchronized playback actions such as play, pause, and seek with low latency.
+  \item Increased user engagement by implementing custom playlist creation and interactive listening experiences across connected users.
+  \item \textbf{Project: } \href{https://github.com/ikarthik21/tunemate}{GitHub} - \href{https://tunemate.vercel.app/}{Live}
+\end{itemize}
+
+\vspace{-2.0mm}
+
+\resumeSubheading
+{E-Restaurant \fontsize{9}{9}\selectfont\fontseries{l}\selectfont - React.js, Express.js, Node.js, MongoDB, Razorpay.}{} {}{}
+\vspace{-4.2mm}
+
+\begin{itemize}[itemsep=-4pt]
+  \item Digitized a restaurant system with a manual-to-digital conversion, resulting in a reduction in wait times and an increase in overall efficiency.
+  \item Facilitated rapid customer transactions, enabling users to register, book tables, order food, and make payments in an average of \textbf{3} minutes.
+  \item Streamlined table bookings and order processing, reducing admin workload and ensuring seamless customer experiences.
+  \item \textbf{Project: } \href{https://github.com/ikarthik21/RestobayFoods}{GitHub} - \href{https://restobayfoods.vercel.app/}{Live}
+\end{itemize}
+
+\vspace{-2.0mm}
+
+\resumeSubheading
+{ESBOX \fontsize{9}{9}\selectfont\fontseries{l}\selectfont - React.js, Tailwind CSS, FastAPI, PostgreSQL, Redis, Docker, Nginx.}{} {}{}
+\vspace{-4.2mm}
+
+\begin{itemize}[itemsep=-4pt]
+  \item Built a secure cloud-based file storage and sharing platform supporting file uploads, downloads, and workspace-based collaboration for registered users.
+  \item Designed backend services using FastAPI with streaming-based file handling to efficiently serve large files without loading them fully into memory.
+  \item Implemented Redis-based locking to manage concurrent operations and integrated shareable links for controlled file access.
+  \item Deployed the platform using Docker, Nginx, and CI/CD pipelines for automated builds and deployments.
+  \item \textbf{Project: } \href{https://github.com/karthikeyakallapu/esbox}{GitHub}
+\end{itemize}
+
+% ---------------- SKILLS ----------------
+\vspace{-3.5mm}
+\section{\textbf{TECHNICAL SKILLS}}
+
+\resumeSubheading
+{Languages: \fontsize{11.5}{11.5}\selectfont\fontseries{l}\selectfont C, C++, JavaScript, Python}{}{}{}
+\vspace{-5.15mm}
+
+\resumeSubheading
+{Frontend: \fontsize{11.5}{11.5}\selectfont\fontseries{l}\selectfont HTML, CSS, Tailwind CSS, React.js, Next.js, Zustand.}{}{}{}
+\vspace{-5.15mm}
+
+\resumeSubheading
+{Backend: \fontsize{11.5}{11.5}\selectfont\fontseries{l}\selectfont Node.js, Express.js, REST APIs, FastAPI, SQLAlchemy, Alembic.}{}{}{}
+\vspace{-5.15mm}
+
+\resumeSubheading
+{Databases: \fontsize{11.5}{11.5}\selectfont\fontseries{l}\selectfont PostgreSQL, MySQL, MongoDB, Redis.}{}{}{}
+\vspace{-5.15mm}
+
+\resumeSubheading
+{Tools \& Platforms: \fontsize{11.5}{11.5}\selectfont\fontseries{l}\selectfont Docker, Git, GitHub, Postman.}{}{}{}
+
+% ---------------- ACHIEVEMENTS ----------------
+\vspace{-5.0mm}
+\section{\textbf{ACHIEVEMENTS}}
+
+\begin{itemize}[itemsep=-4pt]
+  \item Received Spot Award at Planful for outstanding contributions in Excel UI automation.
+  \item Implemented automation script for smoke tests achieving a \textbf{73}\% reduction in execution time.
+  \item Secured a global rank of 154 in Code Chef Starters 71.
+\end{itemize}
+
+\end{document}

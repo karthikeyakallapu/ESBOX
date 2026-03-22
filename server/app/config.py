@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     redis_port: int
 
     # File Upload Limit Config
-    max_file_size: int = 2 * 1024 * 1024 * 1024
+    max_file_size: int = int(1.9 * 1024 * 1024 * 1024)  # ~1.9 GiB
 
     # File Download Limit Config
     download_chunk_size: int = 1048576  # 1MB
