@@ -9,6 +9,9 @@ const UploadFile = () => {
     dragActive,
     selectedFile,
     uploadStatus,
+    uploadStage,
+    progress,
+    statusMessage,
     handleDrag,
     handleDrop,
     handleFileSelect,
@@ -17,6 +20,8 @@ const UploadFile = () => {
   } = useFileUpload({
     parent_id: useFolderNavStore.getState().getCurrentFolderId(),
   });
+
+  const isUploading = uploadStatus === "uploading";
 
   return (
     <div className="p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
@@ -61,7 +66,7 @@ const UploadFile = () => {
                 </span>{" "}
                 or drag and drop
               </p>
-              <p className="text-xs text-gray-500 mt-1">Any file up to 100MB</p>
+              <p className="text-xs text-gray-500 mt-1">Any file up to 1.9GB</p>
             </div>
           </label>
         ) : (
@@ -79,27 +84,44 @@ const UploadFile = () => {
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleRemove}
-              className="p-1.5 ml-2 hover:bg-gray-100 rounded-full transition-colors"
-            >
-              <X size={18} className="text-gray-400" />
-            </button>
+            {!isUploading && (
+              <button
+                onClick={handleRemove}
+                className="p-1.5 ml-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X size={18} className="text-gray-400" />
+              </button>
+            )}
           </div>
         )}
       </div>
 
-      {/* Progress Bar */}
-      {uploadStatus === "uploading" && (
+      {/* Progress Bar + Status */}
+      {isUploading && (
         <div className="mt-4">
-          <div className="flex items-center justify-between text-sm mb-1">
-            <span className="text-gray-600">
-              Uploading Please wait. Don't refresh...
+          <div className="flex items-center justify-between text-sm mb-1.5">
+            <span className="text-gray-600 truncate max-w-[70%]">
+              {statusMessage || "Uploading…"}
+            </span>
+            <span className="text-gray-500 font-medium tabular-nums">
+              {progress}%
             </span>
           </div>
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full bg-blue-500 rounded-full transition-all duration-300" />
+            <div
+              className={`h-full rounded-full transition-all duration-300 ${
+                uploadStage === "processing"
+                  ? "bg-amber-500"
+                  : "bg-blue-500"
+              }`}
+              style={{ width: `${Math.max(progress, 2)}%` }}
+            />
           </div>
+          {uploadStage === "processing" && (
+            <p className="text-xs text-amber-600 mt-1.5">
+              Processing on server — don't close this window
+            </p>
+          )}
         </div>
       )}
 
@@ -127,18 +149,18 @@ const UploadFile = () => {
         <div className="mt-4 flex items-center gap-2">
           <button
             onClick={handleUpload}
-            disabled={uploadStatus === "uploading"}
+            disabled={isUploading}
             className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 
                      disabled:bg-blue-300 disabled:cursor-not-allowed
                      text-white font-medium text-sm rounded-lg
                      transition-colors duration-200
                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-            {uploadStatus === "uploading" ? "Uploading..." : "Upload File"}
+            {isUploading ? "Uploading…" : "Upload File"}
           </button>
           <button
             onClick={handleRemove}
-            disabled={uploadStatus === "uploading"}
+            disabled={isUploading}
             className="px-4 py-2.5 bg-white hover:bg-gray-50
                      disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed
                      text-gray-600 font-medium text-sm rounded-lg

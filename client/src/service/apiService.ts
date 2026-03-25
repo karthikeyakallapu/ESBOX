@@ -252,6 +252,78 @@ class APIService {
     }
   };
 
+  uploadChunk = async (formData: FormData) => {
+    try {
+      const response = await axiosInstance.post(
+        ENDPOINTS.CHUNK_FILE,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  uploadInit = async (data: {
+    file_name: string;
+    file_size: number;
+    mime_type: string;
+    total_chunks: number;
+    chunk_size: number;
+    content_hash: string;
+    parent_id?: number | string | null;
+  }) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.UPLOAD_INIT, data);
+      return response.data as { upload_id: string; status: string; message: string };
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  uploadComplete = async (upload_id: string) => {
+    try {
+      const response = await axiosInstance.post(ENDPOINTS.UPLOAD_COMPLETE, {
+        upload_id,
+      });
+      return response.data as {
+        status: string;
+        upload_id: string;
+        message: string;
+      };
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
+  getUploadStatus = async (upload_id: string) => {
+    try {
+      const response = await axiosInstance.get(
+        ENDPOINTS.UPLOAD_STATUS(upload_id),
+      );
+      return response.data as {
+        upload_id: string;
+        status: string;
+        progress: number;
+        chunks_received?: number;
+        total_chunks?: number;
+        message: string;
+        file?: Record<string, unknown>;
+      };
+    } catch (error) {
+      const err = handleApiError(error);
+      throw new Error(err.message);
+    }
+  };
+
   updateFile = async (fileId: number, data: FileUpdate) => {
     try {
       const response = await axiosInstance.patch(
