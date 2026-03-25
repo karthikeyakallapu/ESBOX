@@ -16,14 +16,16 @@ from app.models import UserStorageChannel, UserFile
 from app.repositories.telegram.storage import storage_repository
 from app.services.telegram.client_manager import telegram_client_manager
 from app.services.telegram.file_manager import file_manager
-
+from app.storage import storage
+from app.db.db import AsyncSessionLocal
 
 
 class TelegramUploadService:
 
     SAFE_PART_SIZE_KB = 1024
-    DEFAULT_WORKERS = 8
-    ULTRA_CONCURRENCY = 20
+    DEFAULT_WORKERS = 4
+    UPLOAD_CONCURRENCY = 4        # Keep low to avoid flood waits
+    PART_DELAY_SECONDS = 0.05     # 50ms between parts to pace requests
 
     @staticmethod
     async def _create_storage_location(user_id, db):
@@ -101,9 +103,9 @@ class TelegramUploadService:
             message = await TelegramUploadService._ultra_fast_upload(
             client, file, file_name, file_size, entity)
 
-            workers_used = TelegramUploadService.ULTRA_CONCURRENCY
+            workers_used = TelegramUploadService.UPLOAD_CONCURRENCY
 
-            part_size_used = 1024
+            part_size_used = 512
 
             upload_time = time.time() - upload_start
             total_time = time.time() - total_start
@@ -148,41 +150,52 @@ class TelegramUploadService:
         file_size: int,
         entity
     ):
-
-        part_size = 512 * 1024  # 1MB
-        total_parts = math.ceil(file_size / part_size)
+        part_size = 512 * 1024  # 512KB — max valid part size for SaveBigFilePartRequest
 
         file_id = int.from_bytes(os.urandom(8), "big", signed=True)
 
-        semaphore = asyncio.Semaphore(
-            TelegramUploadService.ULTRA_CONCURRENCY
-        )
+        semaphore = asyncio.Semaphore(TelegramUploadService.UPLOAD_CONCURRENCY)
 
-        async def upload_part(index: int, data: bytes):
-            async with semaphore:
-                await client(
-                    SaveBigFilePartRequest(
-                        file_id=file_id,
-                        file_part=index,
-                        file_total_parts=total_parts,
-                        bytes=data
-                    )
-                )
-
-        tasks = []
-        part_index = 0
-
+        # Read all parts upfront so total_parts is accurate
+        parts: list[bytes] = []
         file.seek(0)
-
         while True:
             chunk = file.read(part_size)
             if not chunk:
                 break
+            parts.append(chunk)
 
-            tasks.append(upload_part(part_index, chunk))
-            part_index += 1
+        total_parts = len(parts)
 
-        await asyncio.gather(*tasks)
+        async def upload_part(index: int, data: bytes):
+            async with semaphore:
+                retries = 5
+                for attempt in range(retries):
+                    try:
+                        await client(
+                            SaveBigFilePartRequest(
+                                file_id=file_id,
+                                file_part=index,
+                                file_total_parts=total_parts,
+                                bytes=data
+                            )
+                        )
+                        await asyncio.sleep(TelegramUploadService.PART_DELAY_SECONDS)
+                        return
+                    except FloodWaitError as e:
+                        wait = e.seconds + 1
+                        logger.warning(f"⏳ Flood wait on part {index}, sleeping {wait}s (attempt {attempt + 1}/{retries})")
+                        await asyncio.sleep(wait)
+                    except Exception:
+                        if attempt == retries - 1:
+                            raise
+                        await asyncio.sleep(1)
+
+        BATCH_SIZE = TelegramUploadService.UPLOAD_CONCURRENCY * 2
+        for batch_start in range(0, total_parts, BATCH_SIZE):
+            batch = parts[batch_start:batch_start + BATCH_SIZE]
+            tasks = [upload_part(batch_start + i, data) for i, data in enumerate(batch)]
+            await asyncio.gather(*tasks)
 
         input_file = InputFileBig(
             id=file_id,
@@ -281,5 +294,293 @@ class TelegramUploadService:
             logger.error(f"Unexpected error during file upload: {err}", exc_info=True)
             raise err
 
+
+    async def ultra_fast_stream_upload(
+            self,
+            generator,
+            file_name: str,
+            file_size: int,
+            user_id: int,
+            db: AsyncSession,
+            on_progress=None,   # optional async callable(percent: float, message: str)
+    ):
+        client = await telegram_client_manager.get_client(user_id, db)
+
+        if not isinstance(client, TelegramClient):
+            raise TypeError(f"Invalid client type: {type(client)}")
+
+        logger.info(
+            f"📤 Upload start | file={file_name} | "
+            f"size={file_size / 1_000_000:.2f}MB | "
+        )
+
+        try:
+
+            chat_id = await self._get_storage_location(user_id, db)
+
+            entity = PeerChannel(int(chat_id))
+
+            # Telegram requires part sizes that are multiples of 1KB and a power of 2, max 512KB
+            part_size = 512 * 1024  # 512KB — max valid part size for SaveBigFilePartRequest
+
+            file_id = int.from_bytes(os.urandom(8), "big", signed=True)
+
+            semaphore = asyncio.Semaphore(
+                TelegramUploadService.UPLOAD_CONCURRENCY
+            )
+
+            # Collect all parts from the stream so we know total_parts upfront
+            parts: list[bytes] = []
+            buffer = b""
+
+            async for chunk in generator:
+                buffer += chunk
+                while len(buffer) >= part_size:
+                    parts.append(buffer[:part_size])
+                    buffer = buffer[part_size:]
+
+            if buffer:
+                parts.append(buffer)
+
+            total_parts = len(parts)
+
+            logger.info(
+                f"Streaming | size={file_size / 1_000_000:.1f}MB | "
+                f"parts={total_parts} | part_size={part_size // 1024}KB"
+            )
+
+            completed_parts = 0
+
+            async def upload_part(index: int, data: bytes):
+                nonlocal completed_parts
+                async with semaphore:
+                    retries = 5
+                    for attempt in range(retries):
+                        try:
+                            await client(
+                                SaveBigFilePartRequest(
+                                    file_id=file_id,
+                                    file_part=index,
+                                    file_total_parts=total_parts,
+                                    bytes=data
+                                )
+                            )
+                            await asyncio.sleep(TelegramUploadService.PART_DELAY_SECONDS)
+                            completed_parts += 1
+                            return
+                        except FloodWaitError as e:
+                            wait = e.seconds + 1
+                            logger.warning(f"⏳ Flood wait on part {index}, sleeping {wait}s (attempt {attempt + 1}/{retries})")
+                            await asyncio.sleep(wait)
+                        except Exception:
+                            if attempt == retries - 1:
+                                raise
+                            await asyncio.sleep(1)
+
+            # Upload parts with bounded concurrency, batch by batch
+            BATCH_SIZE = TelegramUploadService.UPLOAD_CONCURRENCY * 2
+            for batch_start in range(0, total_parts, BATCH_SIZE):
+                batch = parts[batch_start:batch_start + BATCH_SIZE]
+                tasks = [upload_part(batch_start + i, data) for i, data in enumerate(batch)]
+                await asyncio.gather(*tasks)
+
+                # Report progress after each batch (15–90% range reserved for Telegram upload)
+                if on_progress and total_parts > 0:
+                    pct = 15 + round((completed_parts / total_parts) * 75, 1)
+                    await on_progress(pct, f"Uploading… {round(completed_parts / total_parts * 100)}%")
+
+            input_file = InputFileBig(
+                id=file_id,
+                parts=total_parts,
+                name=file_name
+            )
+
+            return await client.send_file(
+                entity,
+                input_file,
+                force_document=True
+            )
+
+        except FloodWaitError as e:
+            logger.error(f"⏳ Rate limited | wait={e.seconds}s")
+            raise Exception(f"Rate limited. Wait {e.seconds} seconds.")
+        except Exception as e:
+            logger.error(f"Upload failed: {e}", exc_info=True)
+            raise
+
+
+    @staticmethod
+    async def merged_stream(storage, upload_id: str, total_chunks: int):
+
+        for i in range(total_chunks):
+            obj = await storage.get_chunk_stream(upload_id, i)
+
+            while True:
+                data = obj.read(512 * 1024)  # 512KB
+                if not data:
+                    break
+                yield data
+
+            obj.close()
+
+
+    async def process_upload(self, upload_id: str, meta: dict, user_id: int):
+        """Run as a background task with its own DB session."""
+        try:
+            async with AsyncSessionLocal() as db:
+                generator = self.merged_stream(
+                    storage,
+                    upload_id,
+                    meta["total_chunks"]
+                )
+
+                await self.ultra_fast_stream_upload(
+                    generator=generator,
+                    file_name=meta["file_name"],
+                    file_size=meta["file_size"],
+                    user_id=user_id,
+                    db=db
+                )
+
+                # 🔥 CLEANUP AFTER SUCCESS
+                await storage.delete_upload(upload_id)
+
+        except Exception as e:
+            logger.error(f"Background upload failed for upload_id={upload_id}: {e}", exc_info=True)
+
+
+    async def process_chunked_upload(self, upload_id: str, meta: dict, user_id: int):
+        """
+        Background job: stream chunks from MinIO → upload to Telegram → save DB record → cleanup.
+        Updates Redis progress throughout so the client can poll /upload/status.
+        """
+        from app.services.upload.upload_state import upload_state
+
+        try:
+            async with AsyncSessionLocal() as db:
+                file_name = meta["file_name"]
+                file_size = meta["file_size"]
+                mime_type = meta.get("mime_type", "application/octet-stream")
+                content_hash = meta.get("content_hash", "")
+                parent_id = meta.get("parent_id")
+                if parent_id == "":
+                    parent_id = None
+                else:
+                    parent_id = int(parent_id) if parent_id else None
+                total_chunks = meta["total_chunks"]
+
+                # ── 1. Ensure all chunks are available in MinIO ──
+                upload_state.update_processing_progress(upload_id, 5, "Validating chunks…")
+                await storage.wait_for_all_chunks(upload_id, total_chunks)
+
+                # ── 2. Check for duplicate files ──
+                upload_state.update_processing_progress(upload_id, 10, "Checking duplicates…")
+
+                existing_file = await storage_repository.is_file_exists(
+                    parent_id, user_id, db, content_hash
+                )
+                if existing_file:
+                    upload_state.set_failed(upload_id, "File already exists in the current folder")
+                    await storage.delete_upload(upload_id)
+                    upload_state.cleanup(upload_id)
+                    return
+
+                # Check for same file elsewhere in channel (dedup at storage level)
+                channel_file = await storage_repository.is_file_exists_in_channel(
+                    parent_id, user_id, db, content_hash
+                )
+
+                if channel_file:
+                    # Reuse existing Telegram upload — just create a new DB record
+                    new_metadata = UserFile(
+                        user_id=channel_file.user_id,
+                        telegram_message_id=channel_file.telegram_message_id,
+                        telegram_chat_id=channel_file.telegram_chat_id,
+                        name=file_name,
+                        size=channel_file.size,
+                        mime_type=channel_file.mime_type,
+                        content_hash=channel_file.content_hash,
+                        folder_path=channel_file.folder_path,
+                        parent_id=parent_id,
+                    )
+                    record = await storage_repository.save_file_record(
+                        user_id, new_metadata, content_hash, db
+                    )
+                    file_record = {
+                        "id": record.id,
+                        "name": record.name,
+                        "size": record.size,
+                        "mime_type": record.mime_type,
+                        "parent_id": record.parent_id,
+                    }
+                    upload_state.set_completed(upload_id, file_record)
+                    await storage.delete_upload(upload_id)
+                    upload_state.cleanup(upload_id)
+                    logger.info(f"Dedup match — reused Telegram file for upload_id={upload_id}")
+                    return
+
+                # ── 3. Stream from MinIO → Telegram ──
+                upload_state.update_processing_progress(upload_id, 15, "Uploading to Telegram…")
+
+                generator = self.merged_stream(storage, upload_id, total_chunks)
+
+                async def on_progress(pct: float, msg: str):
+                    upload_state.update_processing_progress(upload_id, pct, msg)
+
+                message = await self.ultra_fast_stream_upload(
+                    generator=generator,
+                    file_name=file_name,
+                    file_size=file_size,
+                    user_id=user_id,
+                    db=db,
+                    on_progress=on_progress,
+                )
+
+                upload_state.update_processing_progress(upload_id, 85, "Saving file record…")
+
+                # ── 4. Save DB record ──
+                chat_id = None
+                storage_location = await storage_repository.get_storage_location(user_id, db)
+                if storage_location:
+                    chat_id = str(storage_location.channel_id)
+
+                user_file = UserFile(
+                    user_id=user_id,
+                    telegram_message_id=message.id,
+                    telegram_chat_id=chat_id or "",
+                    name=file_name,
+                    size=file_size,
+                    mime_type=mime_type,
+                    content_hash=content_hash,
+                    folder_path="/",
+                    parent_id=parent_id,
+                )
+                record = await storage_repository.save_file_record(
+                    user_id, user_file, content_hash, db
+                )
+
+                file_record = {
+                    "id": record.id,
+                    "name": record.name,
+                    "size": record.size,
+                    "mime_type": record.mime_type,
+                    "parent_id": record.parent_id,
+                }
+
+                # ── 5. Cleanup MinIO chunks ──
+                upload_state.update_processing_progress(upload_id, 95, "Cleaning up…")
+                await storage.delete_upload(upload_id)
+
+                # ── 6. Done ──
+                upload_state.set_completed(upload_id, file_record)
+                upload_state.cleanup(upload_id)
+                logger.info(f"✅ Chunked upload complete | upload_id={upload_id} | file_id={record.id}")
+
+        except Exception as e:
+            logger.error(f"Background chunked upload failed | upload_id={upload_id}: {e}", exc_info=True)
+            try:
+                upload_state.set_failed(upload_id, str(e))
+            except Exception:
+                pass
 
 upload_service = TelegramUploadService()
