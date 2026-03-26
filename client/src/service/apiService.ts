@@ -304,25 +304,7 @@ class APIService {
     }
   };
 
-  getUploadStatus = async (upload_id: string) => {
-    try {
-      const response = await axiosInstance.get(
-        ENDPOINTS.UPLOAD_STATUS(upload_id),
-      );
-      return response.data as {
-        upload_id: string;
-        status: string;
-        progress: number;
-        chunks_received?: number;
-        total_chunks?: number;
-        message: string;
-        file?: Record<string, unknown>;
-      };
-    } catch (error) {
-      const err = handleApiError(error);
-      throw new Error(err.message);
-    }
-  };
+
 
   updateFile = async (fileId: number, data: FileUpdate) => {
     try {

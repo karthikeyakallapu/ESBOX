@@ -23,8 +23,8 @@ export const ENDPOINTS = {
   UPLOAD_INIT: `${API_BASE_URL}/upload/init`,
   CHUNK_FILE: `${API_BASE_URL}/upload/chunk`,
   UPLOAD_COMPLETE: `${API_BASE_URL}/upload/complete`,
-  UPLOAD_STATUS: (upload_id: string) =>
-    `${API_BASE_URL}/upload/status?upload_id=${encodeURIComponent(upload_id)}`,
+  UPLOAD_PROGRESS: (upload_id: string) =>
+    `${API_BASE_URL}/upload/progress/${encodeURIComponent(upload_id)}`,
   DELETE_FILE: `${API_BASE_URL}/telegram/delete`,
   RENAME_FILE: `${API_BASE_URL}/telegram/rename`,
   UPDATE_FILE: (file_id: number) => `${API_BASE_URL}/files/${file_id}`,

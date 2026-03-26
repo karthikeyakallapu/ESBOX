@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback } from "react";
 import apiService from "../service/apiService";
+import { baseURL } from "../service/axiosHelper";
+import { ENDPOINTS } from "../service/endpoints";
 import { mutate } from "swr";
 import Toast from "../utils/Toast";
 import useModalStore from "../store/useModal";
@@ -21,7 +23,6 @@ type UploadStage =
 const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
 const CONCURRENCY = 4;
 const MAX_RETRIES = 3;
-const POLL_INTERVAL = 1500; // ms
 
 // ── SHA-256 via Web Crypto API ────────────────────────────────
 
@@ -149,25 +150,46 @@ const useFileUpload = ({ parent_id }: UseFileUploadProps) => {
     await Promise.all(Array.from({ length: CONCURRENCY }, () => worker()));
   }
 
-  // ── Poll processing status ─────────────────────────────────
+  // ── SSE progress stream ────────────────────────────────────
 
-  async function pollStatus(uploadId: string): Promise<void> {
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      if (abortRef.current) return;
-      await new Promise((r) => setTimeout(r, POLL_INTERVAL));
+  function listenProgress(uploadId: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const url = `${baseURL}${ENDPOINTS.UPLOAD_PROGRESS(uploadId)}`;
+      const evtSource = new EventSource(url, { withCredentials: true });
 
-      const status = await apiService.getUploadStatus(uploadId);
-      setProgress(status.progress);
-      setStatusMessage(status.message);
+      const cleanup = () => evtSource.close();
 
-      if (status.status === "completed") {
-        return;
-      }
-      if (status.status === "failed") {
-        throw new Error(status.message || "Processing failed");
-      }
-    }
+      evtSource.onmessage = (event) => {
+        if (abortRef.current) { cleanup(); resolve(); return; }
+
+        try {
+          const data = JSON.parse(event.data) as {
+            status: string;
+            progress: number;
+            message: string;
+            file?: Record<string, unknown>;
+          };
+
+          setProgress(data.progress);
+          setStatusMessage(data.message);
+
+          if (data.status === "completed") {
+            cleanup();
+            resolve();
+          } else if (data.status === "failed" || data.status === "expired") {
+            cleanup();
+            reject(new Error(data.message || "Processing failed"));
+          }
+        } catch {
+          // ignore malformed frames
+        }
+      };
+
+      evtSource.onerror = () => {
+        cleanup();
+        reject(new Error("Lost connection to upload progress stream"));
+      };
+    });
   }
 
   // ── Main upload flow ───────────────────────────────────────
@@ -210,11 +232,11 @@ const useFileUpload = ({ parent_id }: UseFileUploadProps) => {
       setStatusMessage("Finalising upload…");
       await apiService.uploadComplete(upload_id);
 
-      // 5. Poll background processing
+      // 5. Stream background processing progress via SSE
       setUploadStage("processing");
       setProgress(0);
       setStatusMessage("Processing file…");
-      await pollStatus(upload_id);
+      await listenProgress(upload_id);
 
       // 6. Done
       setUploadStage("success");
