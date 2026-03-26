@@ -20,7 +20,9 @@ from app.schemas.upload import (
     UploadStatusResponse,
 )
 from app.services.telegram.telegram_upload_service import upload_service
+from app.services.telegram.file_manager import FileManager, file_manager
 from app.services.upload.upload_state import upload_state, UploadStatus
+from app.repositories.telegram.storage import storage_repository
 from app.logger import logger
 from app.storage import storage
 
@@ -40,6 +42,9 @@ async def upload_ultra_fast_method(
         db: AsyncSession = Depends(get_db)
 ):
     try:
+        # ── Validate file before reading ─────────────────────────
+        await file_manager.is_valid_file(file)
+
         buffer = BytesIO()
         hasher = hashlib.sha256()
         file_size = 0
@@ -79,8 +84,26 @@ async def upload_ultra_fast_method(
 async def upload_init(
     body: UploadInitRequest,
     user=Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
     try:
+        # ── Validate metadata before creating the upload session ─
+        FileManager.validate_upload_metadata(
+            file_name=body.file_name,
+            file_size=body.file_size,
+            mime_type=body.mime_type,
+        )
+
+        # ── Check if file already exists in the target folder ────
+        existing = await storage_repository.is_file_exists(
+            body.parent_id, user.get("id"), db, body.content_hash
+        )
+        if existing:
+            raise HTTPException(
+                status_code=409,
+                detail="File already exists in the current folder",
+            )
+
         upload_id = upload_state.init_upload(
             user_id=user.get("id"),
             file_name=body.file_name,
@@ -94,6 +117,8 @@ async def upload_init(
 
         return UploadInitResponse(upload_id=upload_id)
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"❌ Upload init error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to initialise upload")

@@ -61,5 +61,36 @@ class FileManager:
 
         return {"name": filename, "size": file.size, "type": mime, "extension": real_ext}
 
+    @staticmethod
+    def validate_upload_metadata(file_name: str, file_size: int, mime_type: str) -> None:
+        """
+        Validate file metadata at upload init time (before any bytes are received).
+        Raises HTTPException for:
+          - file too large          → 413
+          - unsupported MIME type   → 415
+          - extension / MIME mismatch → 400
+        """
+        # ── Size check ───────────────────────────────────────────
+        if file_size > settings.max_file_size:
+            raise HTTPException(
+                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                detail=f"File too large. Maximum size: {settings.max_file_size / (1024 ** 3):.1f}GB",
+            )
+
+        # ── MIME allow-list + extension check ────────────────────
+        if ALLOWED_MIME_TYPES is not None:
+            if mime_type not in ALLOWED_MIME_TYPES:
+                raise HTTPException(
+                    status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+                    detail=f"Unsupported file type: {mime_type}",
+                )
+
+            ext = Path(file_name).suffix.lower()
+            if ext not in ALLOWED_MIME_TYPES[mime_type]:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="File extension does not match declared MIME type",
+                )
+
 
 file_manager = FileManager()
