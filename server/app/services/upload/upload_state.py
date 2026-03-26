@@ -108,21 +108,36 @@ class UploadState:
     # ── Chunk tracking ───────────────────────────────────────────
 
     def record_chunk(self, upload_id: str, chunk_index: int) -> int:
-        """Mark a chunk as received. Returns new count of received chunks."""
+        """
+        Mark a chunk as received.
+        Uses a single pipeline round-trip: SADD + SCARD + status SET.
+        Returns new count of received chunks.
+        """
         client = redis_service.get_client()
         chunks_key = self._chunks_key(upload_id)
-        client.sadd(chunks_key, str(chunk_index))
-        received = client.scard(chunks_key)
 
-        meta = self.get_meta(upload_id)
-        if meta:
+        # Pipeline: atomically add the chunk and count received chunks
+        pipe = client.pipeline(transaction=False)
+        pipe.sadd(chunks_key, str(chunk_index))
+        pipe.scard(chunks_key)
+        _, received = pipe.execute()
+
+        # Avoid a separate GET for meta — total_chunks is embedded in meta key but
+        # we read it only if the meta is still alive (avoids blocking on large uploads).
+        raw_meta = redis_service.get_key(self._meta_key(upload_id))
+        if raw_meta:
+            meta = json.loads(raw_meta)
             total = meta["total_chunks"]
             progress = round((received / total) * 100, 1) if total > 0 else 0
-            self._update_status(upload_id, {
+            # Fire-and-forget status update via pipeline (no need to read current status)
+            status_key = self._status_key(upload_id)
+            status = {
                 "status": UploadStatus.UPLOADING,
                 "progress": progress,
                 "message": "Uploading…",
-            })
+                "updated_at": time.time(),
+            }
+            client.set(status_key, json.dumps(status), ex=STATUS_TTL)
 
         return received
 

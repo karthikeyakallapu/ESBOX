@@ -2,7 +2,7 @@ import asyncio
 import math
 import os
 import time
-from typing import BinaryIO, Optional
+from typing import BinaryIO
 
 from fastapi import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,8 +24,8 @@ class TelegramUploadService:
 
     SAFE_PART_SIZE_KB = 1024
     DEFAULT_WORKERS = 4
-    UPLOAD_CONCURRENCY = 4        # Keep low to avoid flood waits
-    PART_DELAY_SECONDS = 0.05     # 50ms between parts to pace requests
+    UPLOAD_CONCURRENCY = 12       # Concurrent Telegram part uploads
+    PART_DELAY_SECONDS = 0.0      # No artificial delay — rely on semaphore + retry backoff
 
     @staticmethod
     async def _create_storage_location(user_id, db):
@@ -150,22 +150,20 @@ class TelegramUploadService:
         file_size: int,
         entity
     ):
-        part_size = 512 * 1024  # 512KB — max valid part size for SaveBigFilePartRequest
+        part_size = 512 * 1024  # 512 KB — Telegram maximum part size
 
         file_id = int.from_bytes(os.urandom(8), "big", signed=True)
 
-        semaphore = asyncio.Semaphore(TelegramUploadService.UPLOAD_CONCURRENCY)
-
-        # Read all parts upfront so total_parts is accurate
-        parts: list[bytes] = []
-        file.seek(0)
-        while True:
-            chunk = file.read(part_size)
-            if not chunk:
-                break
-            parts.append(chunk)
-
+        # Pre-read all parts so total_parts is accurate (needed by the API).
+        # We read lazily in a thread so we don't block the event loop.
+        loop = asyncio.get_running_loop()
+        parts: list[bytes] = await loop.run_in_executor(
+            None,
+            lambda: [chunk for chunk in iter(lambda: file.read(part_size), b"")]
+        )
         total_parts = len(parts)
+
+        semaphore = asyncio.Semaphore(TelegramUploadService.UPLOAD_CONCURRENCY)
 
         async def upload_part(index: int, data: bytes):
             async with semaphore:
@@ -180,7 +178,6 @@ class TelegramUploadService:
                                 bytes=data
                             )
                         )
-                        await asyncio.sleep(TelegramUploadService.PART_DELAY_SECONDS)
                         return
                     except FloodWaitError as e:
                         wait = e.seconds + 1
@@ -189,13 +186,10 @@ class TelegramUploadService:
                     except Exception:
                         if attempt == retries - 1:
                             raise
-                        await asyncio.sleep(1)
+                        await asyncio.sleep(0.5 * (attempt + 1))
 
-        BATCH_SIZE = TelegramUploadService.UPLOAD_CONCURRENCY * 2
-        for batch_start in range(0, total_parts, BATCH_SIZE):
-            batch = parts[batch_start:batch_start + BATCH_SIZE]
-            tasks = [upload_part(batch_start + i, data) for i, data in enumerate(batch)]
-            await asyncio.gather(*tasks)
+        # Upload ALL parts concurrently (bounded by semaphore) — no batching overhead
+        await asyncio.gather(*[upload_part(i, data) for i, data in enumerate(parts)])
 
         input_file = InputFileBig(
             id=file_id,
@@ -311,95 +305,110 @@ class TelegramUploadService:
 
         logger.info(
             f"📤 Upload start | file={file_name} | "
-            f"size={file_size / 1_000_000:.2f}MB | "
+            f"size={file_size / 1_000_000:.2f}MB"
         )
 
         try:
-
             chat_id = await self._get_storage_location(user_id, db)
-
             entity = PeerChannel(int(chat_id))
 
-            # Telegram requires part sizes that are multiples of 1KB and a power of 2, max 512KB
-            part_size = 512 * 1024  # 512KB — max valid part size for SaveBigFilePartRequest
-
+            part_size = 512 * 1024  # 512 KB — Telegram maximum
             file_id = int.from_bytes(os.urandom(8), "big", signed=True)
 
-            semaphore = asyncio.Semaphore(
-                TelegramUploadService.UPLOAD_CONCURRENCY
-            )
-
-            # Collect all parts from the stream so we know total_parts upfront
-            parts: list[bytes] = []
-            buffer = b""
-
-            async for chunk in generator:
-                buffer += chunk
-                while len(buffer) >= part_size:
-                    parts.append(buffer[:part_size])
-                    buffer = buffer[part_size:]
-
-            if buffer:
-                parts.append(buffer)
-
-            total_parts = len(parts)
+            # ── Compute total_parts upfront from file_size ──────────────────
+            total_parts = math.ceil(file_size / part_size)
 
             logger.info(
                 f"Streaming | size={file_size / 1_000_000:.1f}MB | "
-                f"parts={total_parts} | part_size={part_size // 1024}KB"
+                f"parts={total_parts} | part_size={part_size // 1024}KB | "
+                f"concurrency={TelegramUploadService.UPLOAD_CONCURRENCY}"
             )
 
+            # ── Producer/consumer pipeline ───────────────────────────────────
+            # The generator (MinIO reads) produces parts into a bounded queue.
+            # Telegram upload workers consume from that queue concurrently.
+            # Both sides run truly in parallel — MinIO and Telegram I/O overlap.
+
+            QUEUE_DEPTH = TelegramUploadService.UPLOAD_CONCURRENCY * 2
+            queue: asyncio.Queue[tuple[int, bytes] | None] = asyncio.Queue(maxsize=QUEUE_DEPTH)
+
+            upload_semaphore = asyncio.Semaphore(TelegramUploadService.UPLOAD_CONCURRENCY)
             completed_parts = 0
+            progress_interval = max(1, total_parts // 20)   # report every ~5 %
 
-            async def upload_part(index: int, data: bytes):
+            # ── Producer: read generator → assemble 512 KB parts → enqueue ──
+            async def producer():
+                buffer = b""
+                index = 0
+                async for chunk in generator:
+                    buffer += chunk
+                    while len(buffer) >= part_size:
+                        await queue.put((index, buffer[:part_size]))
+                        buffer = buffer[part_size:]
+                        index += 1
+                if buffer:
+                    await queue.put((index, buffer))
+                    index += 1
+                # Signal consumers that production is done
+                for _ in range(TelegramUploadService.UPLOAD_CONCURRENCY):
+                    await queue.put(None)
+
+            # ── Consumer: dequeue parts → upload to Telegram ─────────────────
+            async def consumer():
                 nonlocal completed_parts
-                async with semaphore:
-                    retries = 5
-                    for attempt in range(retries):
-                        try:
-                            await client(
-                                SaveBigFilePartRequest(
-                                    file_id=file_id,
-                                    file_part=index,
-                                    file_total_parts=total_parts,
-                                    bytes=data
-                                )
-                            )
-                            await asyncio.sleep(TelegramUploadService.PART_DELAY_SECONDS)
-                            completed_parts += 1
-                            return
-                        except FloodWaitError as e:
-                            wait = e.seconds + 1
-                            logger.warning(f"⏳ Flood wait on part {index}, sleeping {wait}s (attempt {attempt + 1}/{retries})")
-                            await asyncio.sleep(wait)
-                        except Exception:
-                            if attempt == retries - 1:
-                                raise
-                            await asyncio.sleep(1)
+                while True:
+                    item = await queue.get()
+                    if item is None:
+                        queue.task_done()
+                        return
+                    index, data = item
+                    try:
+                        async with upload_semaphore:
+                            retries = 5
+                            for attempt in range(retries):
+                                try:
+                                    await client(
+                                        SaveBigFilePartRequest(
+                                            file_id=file_id,
+                                            file_part=index,
+                                            file_total_parts=total_parts,
+                                            bytes=data,
+                                        )
+                                    )
+                                    completed_parts += 1
+                                    if on_progress and (
+                                        completed_parts % progress_interval == 0
+                                        or completed_parts == total_parts
+                                    ):
+                                        pct = 15 + round((completed_parts / total_parts) * 75, 1)
+                                        await on_progress(
+                                            pct,
+                                            f"Uploading… {round(completed_parts / total_parts * 100)}%"
+                                        )
+                                    break
+                                except FloodWaitError as e:
+                                    wait = e.seconds + 1
+                                    logger.warning(
+                                        f"⏳ Flood wait on part {index}, sleeping {wait}s "
+                                        f"(attempt {attempt + 1}/{retries})"
+                                    )
+                                    await asyncio.sleep(wait)
+                                except Exception:
+                                    if attempt == retries - 1:
+                                        raise
+                                    await asyncio.sleep(0.5 * (attempt + 1))
+                    finally:
+                        queue.task_done()
 
-            # Upload parts with bounded concurrency, batch by batch
-            BATCH_SIZE = TelegramUploadService.UPLOAD_CONCURRENCY * 2
-            for batch_start in range(0, total_parts, BATCH_SIZE):
-                batch = parts[batch_start:batch_start + BATCH_SIZE]
-                tasks = [upload_part(batch_start + i, data) for i, data in enumerate(batch)]
-                await asyncio.gather(*tasks)
+            # Run producer + N consumers concurrently
+            consumers = [
+                asyncio.ensure_future(consumer())
+                for _ in range(TelegramUploadService.UPLOAD_CONCURRENCY)
+            ]
+            await asyncio.gather(producer(), *consumers)
 
-                # Report progress after each batch (15–90% range reserved for Telegram upload)
-                if on_progress and total_parts > 0:
-                    pct = 15 + round((completed_parts / total_parts) * 75, 1)
-                    await on_progress(pct, f"Uploading… {round(completed_parts / total_parts * 100)}%")
-
-            input_file = InputFileBig(
-                id=file_id,
-                parts=total_parts,
-                name=file_name
-            )
-
-            return await client.send_file(
-                entity,
-                input_file,
-                force_document=True
-            )
+            input_file = InputFileBig(id=file_id, parts=total_parts, name=file_name)
+            return await client.send_file(entity, input_file, force_document=True)
 
         except FloodWaitError as e:
             logger.error(f"⏳ Rate limited | wait={e.seconds}s")
@@ -410,18 +419,28 @@ class TelegramUploadService:
 
 
     @staticmethod
-    async def merged_stream(storage, upload_id: str, total_chunks: int):
+    async def merged_stream(storage, upload_id: str, total_chunks: int, prefetch: int = 4):
+        """
+        Yield 512 KB Telegram parts assembled from MinIO chunks.
 
-        for i in range(total_chunks):
-            obj = await storage.get_chunk_stream(upload_id, i)
+        *prefetch* chunks are downloaded from MinIO in parallel while the
+        previous chunk is being consumed, eliminating the sequential
+        MinIO-download → Telegram-upload pipeline stall.
+        """
+        loop = asyncio.get_running_loop()
+        semaphore = asyncio.Semaphore(prefetch)
 
-            while True:
-                data = obj.read(512 * 1024)  # 512KB
-                if not data:
-                    break
-                yield data
+        async def _fetch(i: int) -> bytes:
+            async with semaphore:
+                return await storage.get_chunk_bytes(upload_id, i)
 
-            obj.close()
+        # Start all fetches immediately; asyncio.gather preserves order
+        chunk_futures = [asyncio.ensure_future(_fetch(i)) for i in range(total_chunks)]
+
+        for fut in chunk_futures:
+            data = await fut
+            yield data
+
 
 
     async def process_upload(self, upload_id: str, meta: dict, user_id: int):
