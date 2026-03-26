@@ -274,14 +274,18 @@ class APIService {
     file_name: string;
     file_size: number;
     mime_type: string;
-    total_chunks: number;
-    chunk_size: number;
     content_hash: string;
     parent_id?: number | string | null;
   }) => {
     try {
       const response = await axiosInstance.post(ENDPOINTS.UPLOAD_INIT, data);
-      return response.data as { upload_id: string; status: string; message: string };
+      return response.data as {
+        upload_id: string;
+        chunk_size: number;
+        total_chunks: number;
+        status: string;
+        message: string;
+      };
     } catch (error) {
       const err = handleApiError(error);
       throw new Error(err.message);

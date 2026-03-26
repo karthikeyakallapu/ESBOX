@@ -8,8 +8,6 @@ class UploadInitRequest(BaseModel):
     file_name: str = Field(..., min_length=1, max_length=255)
     file_size: int = Field(..., gt=0)
     mime_type: str = Field(..., min_length=1, max_length=100)
-    total_chunks: int = Field(..., gt=0)
-    chunk_size: int = Field(..., gt=0)
     content_hash: str = Field(..., min_length=64, max_length=64, description="SHA-256 hex digest")
     parent_id: Optional[int] = None
 
@@ -22,6 +20,8 @@ class UploadCompleteRequest(BaseModel):
 
 class UploadInitResponse(BaseModel):
     upload_id: str
+    chunk_size: int
+    total_chunks: int
     status: str = "pending"
     message: str = "Upload session created"
 

@@ -20,7 +20,6 @@ type UploadStage =
   | "success"
   | "error";
 
-const CHUNK_SIZE = 5 * 1024 * 1024; // 5 MB
 const CONCURRENCY = 4;
 const MAX_RETRIES = 3;
 
@@ -103,15 +102,16 @@ const useFileUpload = ({ parent_id }: UseFileUploadProps) => {
     file: File,
     uploadId: string,
     totalChunks: number,
+    chunkSize: number,
   ) {
     let pointer = 0;
     let uploaded = 0;
 
     const chunks: { index: number; blob: Blob }[] = [];
-    for (let i = 0; i < file.size; i += CHUNK_SIZE) {
+    for (let i = 0; i < file.size; i += chunkSize) {
       chunks.push({
-        index: Math.floor(i / CHUNK_SIZE),
-        blob: file.slice(i, i + CHUNK_SIZE),
+        index: Math.floor(i / chunkSize),
+        blob: file.slice(i, i + chunkSize),
       });
     }
 
@@ -205,16 +205,13 @@ const useFileUpload = ({ parent_id }: UseFileUploadProps) => {
       setStatusMessage("Computing file hash…");
       const contentHash = await computeSHA256(selectedFile);
 
-      // 2. Init
+      // 2. Init — server decides chunk_size & total_chunks
       setUploadStage("initializing");
       setStatusMessage("Initialising upload…");
-      const totalChunks = Math.ceil(selectedFile.size / CHUNK_SIZE);
-      const { upload_id } = await apiService.uploadInit({
+      const { upload_id, chunk_size, total_chunks } = await apiService.uploadInit({
         file_name: selectedFile.name,
         file_size: selectedFile.size,
         mime_type: selectedFile.type || "application/octet-stream",
-        total_chunks: totalChunks,
-        chunk_size: CHUNK_SIZE,
         content_hash: contentHash,
         parent_id: parent_id,
       });
@@ -222,7 +219,7 @@ const useFileUpload = ({ parent_id }: UseFileUploadProps) => {
       // 3. Upload chunks
       setUploadStage("uploading");
       setProgress(0);
-      await uploadChunks(selectedFile, upload_id, totalChunks);
+      await uploadChunks(selectedFile, upload_id, total_chunks, chunk_size);
 
       if (abortRef.current) return;
 

@@ -2,6 +2,7 @@ import { Pencil } from "lucide-react";
 import useModalStore from "../../store/useModal";
 import { useEffect, useMemo, useState } from "react";
 import type { RenameFileModalData } from "../../types/file";
+import { handleOverflowText } from "../../utils/common";
 
 const RenameFile = () => {
   const { closeModal, data } = useModalStore();
@@ -69,7 +70,7 @@ const RenameFile = () => {
         <div>
           <h3 className="text-sm font-semibold text-gray-800">Rename Folder</h3>
           <p className="text-xs text-gray-500 mt-0.5">
-            Current name: <span className="font-medium">{file.name}</span>
+            Current name: <span className="font-medium">{handleOverflowText(file.name,40)}</span>
           </p>
         </div>
       </div>

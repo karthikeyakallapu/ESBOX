@@ -2,6 +2,7 @@ import { Trash2 } from "lucide-react";
 import useModalStore from "../../store/useModal";
 import { useEffect, useMemo, useState } from "react";
 import type { DeleteFileModalData } from "../../types/file";
+import { handleOverflowText } from "../../utils/common";
 
 const DeleteFile = () => {
   const { closeModal, data } = useModalStore();
@@ -35,8 +36,8 @@ const DeleteFile = () => {
     try {
       setLoading(true);
       setError(null);
-      await onDelete(file.id);
       closeModal();
+      await onDelete(file.id);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to delete folder.");
     } finally {
@@ -53,7 +54,10 @@ const DeleteFile = () => {
           <h3 className="text-sm font-semibold text-red-700">Delete File</h3>
           <p className="text-xs text-red-600 mt-0.5">
             Are you sure you want to delete{" "}
-            <span className="font-medium">"{file.name}"</span>?
+            <span className="font-bold">
+              {handleOverflowText(file.name, 40)}
+            </span>
+            ?
           </p>
         </div>
       </div>

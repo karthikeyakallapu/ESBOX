@@ -66,7 +66,7 @@ const UploadFile = () => {
                 </span>{" "}
                 or drag and drop
               </p>
-              <p className="text-xs text-gray-500 mt-1">Any file up to 1.9GB</p>
+              <p className="text-xs text-gray-500 mt-1">Any file up to 2GB</p>
             </div>
           </label>
         ) : (

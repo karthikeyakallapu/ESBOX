@@ -37,6 +37,7 @@ const modalComponents = [
     name: "uploadFile",
     component: <UploadFile />,
     size: "md" as ModalSize,
+    closeOnOutsideClick: false,
   },
   {
     name: "renameFile",

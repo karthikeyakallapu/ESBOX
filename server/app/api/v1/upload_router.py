@@ -1,6 +1,7 @@
 import asyncio
 import hashlib
 import json
+import math
 
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, Form, Request
 from fastapi.responses import StreamingResponse
@@ -104,18 +105,35 @@ async def upload_init(
                 detail="File already exists in the current folder",
             )
 
+        # ── Compute chunk size and total chunks server-side ───────
+        # Use 10 MB chunks for files ≤ 100 MB, 50 MB for everything larger,
+        # capped to never exceed Telegram's 512 KB part-upload limit in practice.
+        MB = 1024 * 1024
+        if body.file_size <= 100 * MB:
+            chunk_size = 10 * MB          # 10 MB
+        elif body.file_size <= 500 * MB:
+            chunk_size = 25 * MB          # 25 MB
+        else:
+            chunk_size = 50 * MB          # 50 MB
+
+        total_chunks = math.ceil(body.file_size / chunk_size)
+
         upload_id = upload_state.init_upload(
             user_id=user.get("id"),
             file_name=body.file_name,
             file_size=body.file_size,
             mime_type=body.mime_type,
-            total_chunks=body.total_chunks,
-            chunk_size=body.chunk_size,
+            total_chunks=total_chunks,
+            chunk_size=chunk_size,
             content_hash=body.content_hash,
             parent_id=body.parent_id,
         )
 
-        return UploadInitResponse(upload_id=upload_id)
+        return UploadInitResponse(
+            upload_id=upload_id,
+            chunk_size=chunk_size,
+            total_chunks=total_chunks,
+        )
 
     except HTTPException:
         raise

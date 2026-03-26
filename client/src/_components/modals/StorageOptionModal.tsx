@@ -16,9 +16,11 @@ const modalSizeClasses: Record<ModalSize, string> = {
 const StorageOptionModal = ({
   children,
   size = "md",
+  closeOnOutsideClick = true,
 }: {
   children: ReactNode;
   size?: ModalSize;
+  closeOnOutsideClick?: boolean;
 }) => {
   const { closeModal } = useModalStore();
   const modalRef = useRef<HTMLDivElement>(null);
@@ -27,6 +29,7 @@ const StorageOptionModal = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (
         modalRef.current &&
+        closeOnOutsideClick &&
         !modalRef.current.contains(event.target as Node)
       ) {
         closeModal();
