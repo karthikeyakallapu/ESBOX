@@ -134,7 +134,7 @@ class TelegramClientManager:
     async def _get_session_string(self, user_id: int, db: AsyncSession) -> str | None:
         redis_data = redis_service.get_key(self._get_redis_key(user_id), as_json=True)
         if redis_data:
-            return redis_data.get("session_string")
+            return redis_data.get("client_session")
 
         logger.debug(f"Session for user {user_id} not in Redis, fetching from DB")
         return await self._fetch_session_from_db(user_id, db)

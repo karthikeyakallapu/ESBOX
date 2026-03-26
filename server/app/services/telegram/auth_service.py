@@ -47,7 +47,7 @@ class TelegramAuthService:
             session_key = f"telegram_auth_{self.user_id}"
 
             session_value = {
-                'phone_number': "+" + phone,
+                'phone_number': phone,
                 'phone_code_hash': sent_code.phone_code_hash,
                 'client_session': self.client.session.save(),
                 "ip_address": ip_address
@@ -100,6 +100,11 @@ class TelegramAuthService:
             )   
 
             await self.db.commit()
+
+            cache_key = f"user:{self.user_id}"
+
+            # REMOVE USER /me CACHE
+            redis_service.delete_key(cache_key)
 
             return result
 

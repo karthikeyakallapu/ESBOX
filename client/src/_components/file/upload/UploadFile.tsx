@@ -11,7 +11,7 @@ const UploadFile = () => {
     uploadStatus,
     uploadStage,
     progress,
-    statusMessage,
+ 
     handleDrag,
     handleDrop,
     handleFileSelect,
@@ -101,7 +101,7 @@ const UploadFile = () => {
         <div className="mt-4">
           <div className="flex items-center justify-between text-sm mb-1.5">
             <span className="text-gray-600 truncate max-w-[70%]">
-              {statusMessage || "Uploading…"}
+              {/* {statusMessage || "Uploading…"} */}
             </span>
             <span className="text-gray-500 font-medium tabular-nums">
               {progress}%
