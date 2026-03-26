@@ -177,10 +177,13 @@ async def upload_chunk(
                 progress=received.get("progress", 0),
             )
 
-        # Stream chunk into MinIO
-        await storage.save_chunk(upload_id, chunk_index, file.file, chunk_size)
+        # Stream chunk into MinIO.
+        # Use the actual received size (file.size may be set by FastAPI from Content-Length).
+        # For the last chunk it is smaller than the declared chunk_size.
+        actual_size = file.size if file.size else chunk_size
+        await storage.save_chunk(upload_id, chunk_index, file.file, actual_size)
 
-        # Track in Redis
+        # Track in Redis — record_chunk returns the new received count
         received_count = upload_state.record_chunk(upload_id, chunk_index)
         progress = round((received_count / meta["total_chunks"]) * 100, 1)
 
@@ -226,12 +229,13 @@ async def upload_complete(
                 message="Upload is already being processed",
             )
 
-        # Validate all chunks are in MinIO
+        # Validate all chunks are in MinIO — run checks concurrently
         total = meta["total_chunks"]
-        missing = []
-        for i in range(total):
-            if not await storage.chunk_exists(upload_id, i):
-                missing.append(i)
+        exists_flags = await asyncio.gather(
+            *[storage.chunk_exists(upload_id, i) for i in range(total)],
+            return_exceptions=True,
+        )
+        missing = [i for i, ok in enumerate(exists_flags) if not ok]
 
         if missing:
             upload_state.set_failed(upload_id, f"Missing chunks: {missing[:10]}")

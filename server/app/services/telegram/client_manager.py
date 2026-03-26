@@ -98,12 +98,12 @@ class TelegramClientManager:
             settings.telegram_api_id,
             settings.telegram_api_hash,
             connection=ConnectionTcpAbridged,
-            connection_retries=5,
+            connection_retries=10,
             retry_delay=1,
             auto_reconnect=True,
-            timeout=20,
-            request_retries=3,
-            flood_sleep_threshold=60,
+            timeout=30,
+            request_retries=5,
+            flood_sleep_threshold=0,   # We handle FloodWait ourselves in upload
         )
 
         try:
